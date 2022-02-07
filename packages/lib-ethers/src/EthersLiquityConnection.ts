@@ -67,7 +67,7 @@ export interface EthersLiquityConnection extends EthersLiquityConnectionOptional
   readonly deploymentDate: Date;
 
   /** Number of block in which the first Liquity contract was deployed. */
-  readonly startBlock: number;
+  /** readonly startBlock: number; */
 
   /** Time period (in seconds) after `deploymentDate` during which redemptions are disabled. */
   readonly bootstrapPeriod: number;

@@ -13,7 +13,7 @@ export interface Global_global_currentSystemState {
    * Sequence number as an ID (string)
    */
   id: string;
-  price: any | null;
+  price: any;
   totalCollateral: any;
   totalDebt: any;
   tokensInStabilityPool: any;
