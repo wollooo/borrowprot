@@ -1073,10 +1073,10 @@ contract('StabilityPool', async accounts => {
       const D_ETHBalance_Before = await web3.eth.getBalance(D)
 
       // A, B, C, D provide to SP
-      await stabilityPool.provideToSP(dec(100, 18), frontEnd_1, { from: A, gasPrice: 0 })
-      await stabilityPool.provideToSP(dec(200, 18), ZERO_ADDRESS, { from: B, gasPrice: 0 })
-      await stabilityPool.provideToSP(dec(300, 18), frontEnd_2, { from: C, gasPrice: 0 })
-      await stabilityPool.provideToSP(dec(400, 18), ZERO_ADDRESS, { from: D, gasPrice: 0 })
+      await stabilityPool.provideToSP(dec(100, 18), frontEnd_1, { from: A, gasPrice: GAS_PRICE })
+      await stabilityPool.provideToSP(dec(200, 18), ZERO_ADDRESS, { from: B, gasPrice: GAS_PRICE  })
+      await stabilityPool.provideToSP(dec(300, 18), frontEnd_2, { from: C, gasPrice: GAS_PRICE  })
+      await stabilityPool.provideToSP(dec(400, 18), ZERO_ADDRESS, { from: D, gasPrice: GAS_PRICE  })
 
       // Get  ETH balances after
       const A_ETHBalance_After = await web3.eth.getBalance(A)
@@ -2059,7 +2059,7 @@ contract('StabilityPool', async accounts => {
       assert.isTrue(A_pendingLQTYGain.gt(toBN('0')))
 
       // Check withdrawal of 0 succeeds
-      const tx = await stabilityPool.withdrawFromSP(0, { from: A, gasPrice: 0 })
+      const tx = await stabilityPool.withdrawFromSP(0, { from: A, gasPrice: GAS_PRICE  })
       assert.isTrue(tx.receipt.status)
 
       const A_ETHBalAfter = toBN(await web3.eth.getBalance(A))
@@ -2136,7 +2136,7 @@ contract('StabilityPool', async accounts => {
       await priceFeed.setPrice(dec(200, 18))
 
       // Dennis withdraws his full deposit and ETHGain to his account
-      await stabilityPool.withdrawFromSP(dec(100, 18), { from: dennis, gasPrice: 0 })
+      await stabilityPool.withdrawFromSP(dec(100, 18), { from: dennis, gasPrice: GAS_PRICE  })
 
       // Check withdrawal does not alter Dennis' ETH balance or his trove's collateral
       const dennis_ETHBalance_After = (web3.eth.getBalance(dennis)).toString()
@@ -2312,9 +2312,9 @@ contract('StabilityPool', async accounts => {
       assert.isTrue(await th.checkRecoveryMode(contracts))
 
       // A, B, C withdraw their full deposits from the Stability Pool
-      await stabilityPool.withdrawFromSP(dec(10000, 18), { from: alice, gasPrice: 0 })
-      await stabilityPool.withdrawFromSP(dec(5000, 18), { from: bob, gasPrice: 0 })
-      await stabilityPool.withdrawFromSP(dec(3000, 18), { from: carol, gasPrice: 0 })
+      await stabilityPool.withdrawFromSP(dec(10000, 18), { from: alice, gasPrice: GAS_PRICE  })
+      await stabilityPool.withdrawFromSP(dec(5000, 18), { from: bob, gasPrice: GAS_PRICE  })
+      await stabilityPool.withdrawFromSP(dec(3000, 18), { from: carol, gasPrice: GAS_PRICE  })
 
       // Check LUSD balances of A, B, C have risen by the value of their compounded deposits, respectively
       const alice_expectedLUSDBalance = (alice_LUSD_Balance_Before.add(alice_Deposit_Before)).toString()
