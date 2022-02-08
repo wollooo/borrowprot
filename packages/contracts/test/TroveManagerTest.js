@@ -2369,7 +2369,7 @@ contract('TroveManager', async accounts => {
       0, th._100pct,
       {
         from: dennis,
-        gasPrice: 0
+        gasPrice: GAS_PRICE 
       }
     )
 
@@ -2449,7 +2449,7 @@ contract('TroveManager', async accounts => {
       0, th._100pct,
       {
         from: dennis,
-        gasPrice: 0
+        gasPrice: GAS_PRICE 
       }
     )
 
@@ -2529,7 +2529,7 @@ contract('TroveManager', async accounts => {
       0, th._100pct,
       {
         from: dennis,
-        gasPrice: 0
+        gasPrice: GAS_PRICE 
       }
     )
 
@@ -2615,7 +2615,7 @@ contract('TroveManager', async accounts => {
       0, th._100pct,
       {
         from: dennis,
-        gasPrice: 0
+        gasPrice: GAS_PRICE 
       }
     )
 
@@ -2878,7 +2878,7 @@ contract('TroveManager', async accounts => {
       0, th._100pct,
       {
         from: dennis,
-        gasPrice: 0
+        gasPrice: GAS_PRICE 
       }
     )
 
@@ -2939,7 +2939,7 @@ contract('TroveManager', async accounts => {
       th._100pct,
       {
         from: carol,
-        gasPrice: 0
+        gasPrice: GAS_PRICE 
       }
     )
 
@@ -4156,7 +4156,7 @@ contract('TroveManager', async accounts => {
     await th.fastForwardTime(timeValues.SECONDS_IN_ONE_WEEK * 2, web3.currentProvider)
 
     // whale redeems LUSD.  Expect this to fully redeem A, B, C, and partially redeem 15 LUSD from D.
-    const redemptionTx = await th.redeemCollateralAndGetTxObject(whale, contracts, redemptionAmount, th._100pct, { gasPrice: 0 })
+    const redemptionTx = await th.redeemCollateralAndGetTxObject(whale, contracts, redemptionAmount, th._100pct, { gasPrice: GAS_PRICE  })
 
     // Check A, B, C have been closed
     assert.isFalse(await sortedTroves.contains(A))
@@ -4203,9 +4203,9 @@ contract('TroveManager', async accounts => {
     // CollSurplusPool endpoint cannot be called directly
     await assertRevert(collSurplusPool.claimColl(A), 'CollSurplusPool: Caller is not Borrower Operations')
 
-    await borrowerOperations.claimCollateral({ from: A, gasPrice: 0 })
-    await borrowerOperations.claimCollateral({ from: B, gasPrice: 0 })
-    await borrowerOperations.claimCollateral({ from: C, gasPrice: 0 })
+    await borrowerOperations.claimCollateral({ from: A, gasPrice: GAS_PRICE  })
+    await borrowerOperations.claimCollateral({ from: B, gasPrice: GAS_PRICE  })
+    await borrowerOperations.claimCollateral({ from: C, gasPrice: GAS_PRICE  })
 
     const A_balanceAfter = toBN(await web3.eth.getBalance(A))
     const B_balanceAfter = toBN(await web3.eth.getBalance(B))
@@ -4246,9 +4246,9 @@ contract('TroveManager', async accounts => {
     const B_balanceBefore = toBN(await web3.eth.getBalance(B))
     const C_balanceBefore = toBN(await web3.eth.getBalance(C))
 
-    await borrowerOperations.claimCollateral({ from: A, gasPrice: 0 })
-    await borrowerOperations.claimCollateral({ from: B, gasPrice: 0 })
-    await borrowerOperations.claimCollateral({ from: C, gasPrice: 0 })
+    await borrowerOperations.claimCollateral({ from: A, gasPrice: GAS_PRICE  })
+    await borrowerOperations.claimCollateral({ from: B, gasPrice: GAS_PRICE  })
+    await borrowerOperations.claimCollateral({ from: C, gasPrice: GAS_PRICE  })
 
     const A_balanceAfter = toBN(await web3.eth.getBalance(A))
     const B_balanceAfter = toBN(await web3.eth.getBalance(B))
@@ -4290,7 +4290,7 @@ contract('TroveManager', async accounts => {
         0, th._100pct,
         {
           from: alice,
-          gasPrice: 0
+          gasPrice: GAS_PRICE 
         }
       )
 
@@ -4313,7 +4313,7 @@ contract('TroveManager', async accounts => {
         0, th._100pct,
         {
           from: alice,
-          gasPrice: 0
+          gasPrice: GAS_PRICE 
         }
       ),
       'TroveManager: Fee would eat up all returned collateral'
