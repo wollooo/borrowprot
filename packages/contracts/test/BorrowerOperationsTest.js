@@ -16,6 +16,9 @@ const timeValues = testHelpers.TimeValues
 const ZERO_ADDRESS = th.ZERO_ADDRESS
 const assertRevert = th.assertRevert
 
+const GAS_PRICE = 10000000
+
+
 /* NOTE: Some of the borrowing tests do not test for specific LUSD fee values. They only test that the
  * fees are non-zero when they should occur, and that they decay over time.
  *
