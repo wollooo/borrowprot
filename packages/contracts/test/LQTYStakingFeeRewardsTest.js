@@ -309,7 +309,7 @@ contract('LQTYStaking revenue share tests', async accounts => {
     const A_LUSDBalance_Before = toBN(await lusdToken.balanceOf(A))
 
     // A un-stakes
-    await lqtyStaking.unstake(dec(100, 18), {from: A, gasPrice: 0})
+    await lqtyStaking.unstake(dec(100, 18), {from: A, gasPrice: GAS_PRICE })
 
     const A_ETHBalance_After = toBN(await web3.eth.getBalance(A))
     const A_LUSDBalance_After = toBN(await lusdToken.balanceOf(A))
@@ -382,7 +382,7 @@ contract('LQTYStaking revenue share tests', async accounts => {
     const A_LUSDBalance_Before = toBN(await lusdToken.balanceOf(A))
 
     // A tops up
-    await lqtyStaking.stake(dec(50, 18), {from: A, gasPrice: 0})
+    await lqtyStaking.stake(dec(50, 18), {from: A, gasPrice: GAS_PRICE })
 
     const A_ETHBalance_After = toBN(await web3.eth.getBalance(A))
     const A_LUSDBalance_After = toBN(await lusdToken.balanceOf(A))
@@ -625,10 +625,10 @@ contract('LQTYStaking revenue share tests', async accounts => {
     const D_LUSDBalance_Before = toBN(await lusdToken.balanceOf(D))
 
     // A-D un-stake
-    const unstake_A = await lqtyStaking.unstake(dec(100, 18), {from: A, gasPrice: 0})
-    const unstake_B = await lqtyStaking.unstake(dec(200, 18), {from: B, gasPrice: 0})
-    const unstake_C = await lqtyStaking.unstake(dec(400, 18), {from: C, gasPrice: 0})
-    const unstake_D = await lqtyStaking.unstake(dec(50, 18), {from: D, gasPrice: 0})
+    const unstake_A = await lqtyStaking.unstake(dec(100, 18), {from: A, gasPrice: GAS_PRICE })
+    const unstake_B = await lqtyStaking.unstake(dec(200, 18), {from: B, gasPrice: GAS_PRICE })
+    const unstake_C = await lqtyStaking.unstake(dec(400, 18), {from: C, gasPrice: GAS_PRICE })
+    const unstake_D = await lqtyStaking.unstake(dec(50, 18), {from: D, gasPrice: GAS_PRICE })
 
     // Confirm all depositors could withdraw
 
