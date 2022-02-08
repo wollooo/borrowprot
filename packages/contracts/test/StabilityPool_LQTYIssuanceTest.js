@@ -10,6 +10,8 @@ const getDifference = th.getDifference
 const TroveManagerTester = artifacts.require("TroveManagerTester")
 const LUSDToken = artifacts.require("LUSDToken")
 
+const GAS_PRICE = 10000000
+
 contract('StabilityPool - LQTY Rewards', async accounts => {
 
   const [
