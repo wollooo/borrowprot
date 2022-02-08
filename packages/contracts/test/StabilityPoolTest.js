@@ -1073,10 +1073,16 @@ contract('StabilityPool', async accounts => {
       const D_ETHBalance_Before = await web3.eth.getBalance(D)
 
       // A, B, C, D provide to SP
-      await stabilityPool.provideToSP(dec(100, 18), frontEnd_1, { from: A, gasPrice: GAS_PRICE })
-      await stabilityPool.provideToSP(dec(200, 18), ZERO_ADDRESS, { from: B, gasPrice: GAS_PRICE  })
-      await stabilityPool.provideToSP(dec(300, 18), frontEnd_2, { from: C, gasPrice: GAS_PRICE  })
-      await stabilityPool.provideToSP(dec(400, 18), ZERO_ADDRESS, { from: D, gasPrice: GAS_PRICE  })
+      const A_GAS_Used = th.gasUsed(await stabilityPool.provideToSP(dec(100, 18), frontEnd_1, { from: A, gasPrice: GAS_PRICE, gasPrice: GAS_PRICE }))
+      const B_GAS_Used = th.gasUsed(await stabilityPool.provideToSP(dec(200, 18), ZERO_ADDRESS, { from: B, gasPrice: GAS_PRICE, gasPrice: GAS_PRICE  }))
+      const C_GAS_Used = th.gasUsed(await stabilityPool.provideToSP(dec(300, 18), frontEnd_2, { from: C, gasPrice: GAS_PRICE, gasPrice: GAS_PRICE  }))
+      const D_GAS_Used = th.gasUsed(await stabilityPool.provideToSP(dec(400, 18), ZERO_ADDRESS, { from: D, gasPrice: GAS_PRICE, gasPrice: GAS_PRICE  }))
+
+      // ETH balances before minus gas used
+      const A_expectedBalance = A_ETHBalance_Before - A_GAS_Used;
+      const B_expectedBalance = B_ETHBalance_Before - B_GAS_Used;
+      const C_expectedBalance = C_ETHBalance_Before - C_GAS_Used;
+      const D_expectedBalance = D_ETHBalance_Before - D_GAS_Used;
 
       // Get  ETH balances after
       const A_ETHBalance_After = await web3.eth.getBalance(A)
@@ -1085,10 +1091,10 @@ contract('StabilityPool', async accounts => {
       const D_ETHBalance_After = await web3.eth.getBalance(D)
 
       // Check ETH balances have not changed
-      assert.equal(A_ETHBalance_After, A_ETHBalance_Before)
-      assert.equal(B_ETHBalance_After, B_ETHBalance_Before)
-      assert.equal(C_ETHBalance_After, C_ETHBalance_Before)
-      assert.equal(D_ETHBalance_After, D_ETHBalance_Before)
+      assert.equal(A_ETHBalance_After, A_expectedBalance)
+      assert.equal(B_ETHBalance_After, B_expectedBalance)
+      assert.equal(C_ETHBalance_After, C_expectedBalance)
+      assert.equal(D_ETHBalance_After, D_expectedBalance)
     })
 
     it("provideToSP(), topup: triggers LQTY reward event - increases the sum G", async () => {
