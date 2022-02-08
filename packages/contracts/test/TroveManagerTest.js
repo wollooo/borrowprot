@@ -10,6 +10,8 @@ const assertRevert = th.assertRevert
 const mv = testHelpers.MoneyValues
 const timeValues = testHelpers.TimeValues
 
+const GAS_PRICE = 10000000
+
 
 /* NOTE: Some tests involving ETH redemption fees do not test for specific fee values.
  * Some only test that the fees are non-zero when they should occur.
