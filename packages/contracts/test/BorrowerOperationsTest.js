@@ -2909,8 +2909,8 @@ contract('BorrowerOperations', async accounts => {
 
     if (!withProxy) { // TODO: wrap web3.eth.getBalance to be able to go through proxies
       it("closeTrove(): sends the correct amount of ETH to the user", async () => {
-        await openTrove({ extraLUSDAmount: toBN(dec(10000, 18)), ICR: toBN(dec(2, 18)), extraParams: { from: dennis } })
-        await openTrove({ extraLUSDAmount: toBN(dec(10000, 18)), ICR: toBN(dec(2, 18)), extraParams: { from: alice } })
+        await openTrove({ extraLUSDAmount: toBN(dec(10000, 18)), ICR: toBN(dec(2, 18)), extraParams: { from: dennis, gasPrice: GAS_PRICE  } })
+        await openTrove({ extraLUSDAmount: toBN(dec(10000, 18)), ICR: toBN(dec(2, 18)), extraParams: { from: alice, gasPrice: GAS_PRICE  } })
 
         const aliceColl = await getTroveEntireColl(alice)
         assert.isTrue(aliceColl.gt(toBN('0')))
