@@ -45,6 +45,8 @@ contract('LQTYStaking revenue share tests', async accounts => {
 
   const openTrove = async (params) => th.openTrove(contracts, params)
 
+  const multisig = accounts[1000]
+
   beforeEach(async () => {
     contracts = await deploymentHelper.deployLiquityCore()
     contracts.troveManager = await TroveManagerTester.new()
