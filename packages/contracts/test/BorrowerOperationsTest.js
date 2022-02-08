@@ -589,9 +589,11 @@ contract('BorrowerOperations', async accounts => {
       await openTrove({ ICR: toBN(dec(2, 18)), extraParams: { from: alice, value: dec(2, 'ether') } })
 
       const alice_ETHBalance_Before = toBN(web3.utils.toBN(await web3.eth.getBalance(alice)))
-      await borrowerOperations.withdrawColl(dec(1, 'ether'), alice, alice, { from: alice, gasPrice: GAS_PRICE  })
+      const alice_GAS_Used = th.gasUsed(await borrowerOperations.withdrawColl(dec(1, 'ether'), alice, alice, { from: alice, gasPrice: GAS_PRICE  }))
+      const alice_expectedBalance =alice_ETHBalance_Before - alice_GAS_Used
 
       const alice_ETHBalance_After = toBN(web3.utils.toBN(await web3.eth.getBalance(alice)))
+      assert.equal(alice_ETHBalance_After,alice_expectedBalance)
       const balanceDiff = alice_ETHBalance_After.sub(alice_ETHBalance_Before)
 
       assert.isTrue(balanceDiff.eq(toBN(dec(1, 'ether'))))
@@ -2918,7 +2920,7 @@ contract('BorrowerOperations', async accounts => {
         const alice_ETHBalance_Before = web3.utils.toBN(await web3.eth.getBalance(alice))
 
         // to compensate borrowing fees
-        await lusdToken.transfer(alice, await lusdToken.balanceOf(dennis), { from: dennis })
+        await lusdToken.transfer(alice, await lusdToken.balanceOf(dennis), { from: dennisgasPrice, gasPrice: GAS_PRICE  })
 
         await borrowerOperations.closeTrove({ from: alice, gasPrice: GAS_PRICE  })
 
