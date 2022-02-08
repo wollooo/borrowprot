@@ -18,7 +18,6 @@ const assertRevert = th.assertRevert
 
 const GAS_PRICE = 10000000
 
-
 /* NOTE: Some of the borrowing tests do not test for specific LUSD fee values. They only test that the
  * fees are non-zero when they should occur, and that they decay over time.
  *
@@ -4318,8 +4317,8 @@ contract('BorrowerOperations', async accounts => {
     //     const closeTroveData = th.getTransactionData('closeTrove()', [])
     //     await th.assertRevert(nonPayable.forward(borrowerOperations.address, closeTroveData), 'ActivePool: sending ETH failed')
     //   })
-    }
-  }
+  //   }
+ }
 
   describe('Without proxy', async () => {
     testCorpus({ withProxy: false })
@@ -4333,11 +4332,9 @@ contract('BorrowerOperations', async accounts => {
 contract('Reset chain state', async accounts => { })
 
 /* TODO:
-
  1) Test SortedList re-ordering by ICR. ICR ratio
  changes with addColl, withdrawColl, withdrawLUSD, repayLUSD, etc. Can split them up and put them with
  individual functions, or give ordering it's own 'describe' block.
-
  2)In security phase:
  -'Negative' tests for all the above functions.
  */
