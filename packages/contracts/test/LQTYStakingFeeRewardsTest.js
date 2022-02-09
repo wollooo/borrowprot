@@ -309,13 +309,13 @@ contract('LQTYStaking revenue share tests', async accounts => {
     const A_LUSDBalance_Before = toBN(await lusdToken.balanceOf(A))
 
     // A un-stakes
-    await lqtyStaking.unstake(dec(100, 18), {from: A, gasPrice: GAS_PRICE })
+    const GAS_Used = th.gasUsed(await lqtyStaking.unstake(dec(100, 18), {from: A, gasPrice: GAS_PRICE }))
 
     const A_ETHBalance_After = toBN(await web3.eth.getBalance(A))
     const A_LUSDBalance_After = toBN(await lusdToken.balanceOf(A))
 
 
-    const A_ETHGain = A_ETHBalance_After.sub(A_ETHBalance_Before)
+    const A_ETHGain = A_ETHBalance_After.sub(A_ETHBalance_Before).add(toBN(GAS_Used * GAS_PRICE))
     const A_LUSDGain = A_LUSDBalance_After.sub(A_LUSDBalance_Before)
 
     assert.isAtMost(th.getDifference(expectedTotalETHGain, A_ETHGain), 1000)
@@ -382,12 +382,12 @@ contract('LQTYStaking revenue share tests', async accounts => {
     const A_LUSDBalance_Before = toBN(await lusdToken.balanceOf(A))
 
     // A tops up
-    await lqtyStaking.stake(dec(50, 18), {from: A, gasPrice: GAS_PRICE })
+    const GAS_Used = th.gasUsed(await lqtyStaking.stake(dec(50, 18), {from: A, gasPrice: GAS_PRICE }))
 
     const A_ETHBalance_After = toBN(await web3.eth.getBalance(A))
     const A_LUSDBalance_After = toBN(await lusdToken.balanceOf(A))
 
-    const A_ETHGain = A_ETHBalance_After.sub(A_ETHBalance_Before)
+    const A_ETHGain = A_ETHBalance_After.sub(A_ETHBalance_Before).add(toBN(GAS_Used * GAS_PRICE))
     const A_LUSDGain = A_LUSDBalance_After.sub(A_LUSDBalance_Before)
 
     assert.isAtMost(th.getDifference(expectedTotalETHGain, A_ETHGain), 1000)
@@ -499,7 +499,7 @@ contract('LQTYStaking revenue share tests', async accounts => {
     assert.isAtMost(th.getDifference(expectedTotalLUSDGain, A_LUSDGain), 1000)
   })
 
-  // - multi depositors, several rewards
+  // // - multi depositors, several rewards
   it("LQTY Staking: Multiple stakers earn the correct share of all ETH and LQTY fees, based on their stake size", async () => {
     await openTrove({ extraLUSDAmount: toBN(dec(10000, 18)), ICR: toBN(dec(10, 18)), extraParams: { from: whale } })
     await openTrove({ extraLUSDAmount: toBN(dec(20000, 18)), ICR: toBN(dec(2, 18)), extraParams: { from: A } })
@@ -625,10 +625,10 @@ contract('LQTYStaking revenue share tests', async accounts => {
     const D_LUSDBalance_Before = toBN(await lusdToken.balanceOf(D))
 
     // A-D un-stake
-    const unstake_A = await lqtyStaking.unstake(dec(100, 18), {from: A, gasPrice: GAS_PRICE })
-    const unstake_B = await lqtyStaking.unstake(dec(200, 18), {from: B, gasPrice: GAS_PRICE })
-    const unstake_C = await lqtyStaking.unstake(dec(400, 18), {from: C, gasPrice: GAS_PRICE })
-    const unstake_D = await lqtyStaking.unstake(dec(50, 18), {from: D, gasPrice: GAS_PRICE })
+    const A_GAS_Used = th.gasUsed(await lqtyStaking.unstake(dec(100, 18), {from: A, gasPrice: GAS_PRICE }))
+    const B_GAS_Used = th.gasUsed(await lqtyStaking.unstake(dec(200, 18), {from: B, gasPrice: GAS_PRICE }))
+    const C_GAS_Used = th.gasUsed(await lqtyStaking.unstake(dec(400, 18), {from: C, gasPrice: GAS_PRICE }))
+    const D_GAS_Used = th.gasUsed(await lqtyStaking.unstake(dec(50, 18), {from: D, gasPrice: GAS_PRICE }))
 
     // Confirm all depositors could withdraw
 
@@ -647,13 +647,13 @@ contract('LQTYStaking revenue share tests', async accounts => {
     const D_LUSDBalance_After = toBN(await lusdToken.balanceOf(D))
 
     // Get ETH and LUSD gains
-    const A_ETHGain = A_ETHBalance_After.sub(A_ETHBalance_Before)
+    const A_ETHGain = A_ETHBalance_After.sub(A_ETHBalance_Before).add(toBN(A_GAS_Used * GAS_PRICE))
     const A_LUSDGain = A_LUSDBalance_After.sub(A_LUSDBalance_Before)
-    const B_ETHGain = B_ETHBalance_After.sub(B_ETHBalance_Before)
+    const B_ETHGain = B_ETHBalance_After.sub(B_ETHBalance_Before).add(toBN(B_GAS_Used * GAS_PRICE))
     const B_LUSDGain = B_LUSDBalance_After.sub(B_LUSDBalance_Before)
-    const C_ETHGain = C_ETHBalance_After.sub(C_ETHBalance_Before)
+    const C_ETHGain = C_ETHBalance_After.sub(C_ETHBalance_Before).add(toBN(C_GAS_Used * GAS_PRICE))
     const C_LUSDGain = C_LUSDBalance_After.sub(C_LUSDBalance_Before)
-    const D_ETHGain = D_ETHBalance_After.sub(D_ETHBalance_Before)
+    const D_ETHGain = D_ETHBalance_After.sub(D_ETHBalance_Before).add(toBN(D_GAS_Used * GAS_PRICE))
     const D_LUSDGain = D_LUSDBalance_After.sub(D_LUSDBalance_Before)
 
     // Check gains match expected amounts

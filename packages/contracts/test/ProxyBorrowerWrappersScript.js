@@ -100,16 +100,17 @@ contract('BorrowerWrappers', async accounts => {
     const proxyAddress = borrowerWrappers.getProxyAddressFromUser(alice)
 
     // send some ETH to proxy
-    await web3.eth.sendTransaction({ from: owner, to: proxyAddress, value: amount })
+    await web3.eth.sendTransaction({ from: owner, to: proxyAddress, value: amount, gasPrice: GAS_PRICE })
     assert.equal(await web3.eth.getBalance(proxyAddress), amount.toString())
 
     const balanceBefore = toBN(await web3.eth.getBalance(alice))
 
     // recover ETH
-    await borrowerWrappers.transferETH(alice, amount, { from: alice, gasPrice: GAS_PRICE })
+    const GAS_Used = th.gasUsed(await borrowerWrappers.transferETH(alice, amount, { from: alice, gasPrice: GAS_PRICE }))
+    
     const balanceAfter = toBN(await web3.eth.getBalance(alice))
-
-    assert.equal(balanceAfter.sub(balanceBefore), amount.toString())
+    const expectedBalance = toBN(balanceBefore.sub(toBN(GAS_Used * GAS_PRICE)))
+    assert.equal(balanceAfter.sub(expectedBalance), amount.toString())
   })
 
   it('non proxy owner cannot recover ETH', async () => {
