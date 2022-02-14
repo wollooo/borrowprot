@@ -177,7 +177,7 @@ contract('BorrowerWrappers', async accounts => {
     await th.fastForwardTime(timeValues.SECONDS_IN_ONE_WEEK * 2, web3.currentProvider)
 
     // whale redeems 150 LUSD
-    await th.redeemCollateral(whale, contracts, redeemAmount)
+    await th.redeemCollateral(whale, contracts, redeemAmount, GAS_PRICE)
     assert.equal(await web3.eth.getBalance(proxyAddress), '0')
 
     // surplus: 5 - 150/200
@@ -209,7 +209,7 @@ contract('BorrowerWrappers', async accounts => {
     await th.fastForwardTime(timeValues.SECONDS_IN_ONE_WEEK * 2, web3.currentProvider)
 
     // whale redeems 150 LUSD
-    await th.redeemCollateral(whale, contracts, redeemAmount)
+    await th.redeemCollateral(whale, contracts, redeemAmount, GAS_PRICE)
     assert.equal(await web3.eth.getBalance(proxyAddress), '0')
 
     // surplus: 5 - 150/200
@@ -374,7 +374,7 @@ contract('BorrowerWrappers', async accounts => {
 
     // whale redeems 100 LUSD
     const redeemedAmount = toBN(dec(100, 18))
-    await th.redeemCollateral(whale, contracts, redeemedAmount)
+    await th.redeemCollateral(whale, contracts, redeemedAmount, GAS_PRICE)
 
     // Bob tries to claims staking gains in behalf of Alice
     const proxy = borrowerWrappers.getProxyFromUser(alice)
@@ -415,7 +415,7 @@ contract('BorrowerWrappers', async accounts => {
 
     // whale redeems 100 LUSD
     const redeemedAmount = toBN(dec(100, 18))
-    await th.redeemCollateral(whale, contracts, redeemedAmount)
+    await th.redeemCollateral(whale, contracts, redeemedAmount, GAS_PRICE)
 
     const ethBalanceBefore = await web3.eth.getBalance(borrowerOperations.getProxyAddressFromUser(alice))
     const troveCollBefore = await troveManager.getTroveColl(alice)
@@ -485,7 +485,7 @@ contract('BorrowerWrappers', async accounts => {
 
     // whale redeems 100 LUSD
     const redeemedAmount = toBN(dec(100, 18))
-    await th.redeemCollateral(whale, contracts, redeemedAmount)
+    await th.redeemCollateral(whale, contracts, redeemedAmount, GAS_PRICE)
 
     // Alice ETH gain is ((150/2000) * (redemption fee over redeemedAmount) / price)
     const redemptionFee = await troveManager.getRedemptionFeeWithDecay(redeemedAmount)
@@ -646,7 +646,7 @@ contract('BorrowerWrappers', async accounts => {
 
     // whale redeems 100 LUSD
     const redeemedAmount = toBN(dec(100, 18))
-    await th.redeemCollateral(whale, contracts, redeemedAmount)
+    await th.redeemCollateral(whale, contracts, redeemedAmount, GAS_PRICE)
 
     // Alice ETH gain is ((150/2000) * (redemption fee over redeemedAmount) / price)
     const redemptionFee = await troveManager.getRedemptionFeeWithDecay(redeemedAmount)
