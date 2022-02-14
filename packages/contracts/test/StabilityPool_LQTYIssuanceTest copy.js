@@ -173,7 +173,7 @@ contract('StabilityPool - LQTY Rewards', async accounts => {
       const LQTYIssuedBefore = await communityIssuanceTester.totalLQTYIssued()
 
       //  A withdraws some deposit. Triggers issuance.
-      const tx = await stabilityPool.withdrawFromSP(1000, { from: A, gasPrice: GAS_PRICE })
+      const tx = await stabilityPool.withdrawFromSP(1000, { from: A, gasPrice: 0 })
       assert.isTrue(tx.receipt.status)
 
       // Check G and LQTYIssued do not increase, since <1 minute has passed between issuance triggers

@@ -940,14 +940,14 @@ class TestHelper {
 
   // --- Redemption functions ---
 
-  static async redeemCollateral(redeemer, contracts, LUSDAmount, maxFee = this._100pct) {
+  static async redeemCollateral(redeemer, contracts, LUSDAmount, gasPrice = 0, maxFee = this._100pct) {
     const price = await contracts.priceFeedTestnet.getPrice()
-    const tx = await this.performRedemptionTx(redeemer, price, contracts, LUSDAmount, maxFee)
+    const tx = await this.performRedemptionTx(redeemer, price, contracts, LUSDAmount, maxFee, gasPrice)
     const gas = await this.gasUsed(tx)
     return gas
   }
 
-  static async redeemCollateralAndGetTxObject(redeemer, contracts, LUSDAmount, gasPrice, maxFee = this._100pct,) {
+  static async redeemCollateralAndGetTxObject(redeemer, contracts, LUSDAmount, gasPrice, maxFee = this._100pct) {
     // console.log("GAS PRICE:  " + gasPrice)
     if (gasPrice == undefined){
       gasPrice = 0;
