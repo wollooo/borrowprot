@@ -947,9 +947,13 @@ class TestHelper {
     return gas
   }
 
-  static async redeemCollateralAndGetTxObject(redeemer, contracts, LUSDAmount, maxFee = this._100pct) {
+  static async redeemCollateralAndGetTxObject(redeemer, contracts, LUSDAmount, gasPrice, maxFee = this._100pct,) {
+    // console.log("GAS PRICE:  " + gasPrice)
+    if (gasPrice == undefined){
+      gasPrice = 0;
+    }
     const price = await contracts.priceFeedTestnet.getPrice()
-    const tx = await this.performRedemptionTx(redeemer, price, contracts, LUSDAmount, maxFee)
+    const tx = await this.performRedemptionTx(redeemer, price, contracts, LUSDAmount, maxFee, gasPrice)
     return tx
   }
 
@@ -967,8 +971,8 @@ class TestHelper {
     return this.getGasMetrics(gasCostList)
   }
 
-  static async performRedemptionTx(redeemer, price, contracts, LUSDAmount, maxFee = 0) {
-    const redemptionhint = await contracts.hintHelpers.getRedemptionHints(LUSDAmount, price, 0)
+  static async performRedemptionTx(redeemer, price, contracts, LUSDAmount, maxFee = 0, gasPrice_toUse) {
+    const redemptionhint = await contracts.hintHelpers.getRedemptionHints(LUSDAmount, price, gasPrice_toUse)
 
     const firstRedemptionHint = redemptionhint[0]
     const partialRedemptionNewICR = redemptionhint[1]
@@ -989,7 +993,7 @@ class TestHelper {
       exactPartialRedemptionHint[1],
       partialRedemptionNewICR,
       0, maxFee,
-      { from: redeemer, gasPrice: 0 },
+      { from: redeemer, gasPrice: gasPrice_toUse},
     )
 
     return tx
