@@ -2370,7 +2370,7 @@ contract('TroveManager', async accounts => {
       0, th._100pct,
       {
         from: dennis,
-        gasPrice: 0
+        gasPrice: GAS_PRICE
       }
     )
 
@@ -2451,7 +2451,7 @@ contract('TroveManager', async accounts => {
       0, th._100pct,
       {
         from: dennis,
-        gasPrice: 0 
+        gasPrice: GAS_PRICE 
       }
     )
 
@@ -2531,7 +2531,7 @@ contract('TroveManager', async accounts => {
       0, th._100pct,
       {
         from: dennis,
-        gasPrice: 0
+        gasPrice: GAS_PRICE
       }
     )
 
@@ -2617,7 +2617,7 @@ contract('TroveManager', async accounts => {
       0, th._100pct,
       {
         from: dennis,
-        gasPrice: 0
+        gasPrice: GAS_PRICE
       }
     )
 
@@ -2880,7 +2880,7 @@ contract('TroveManager', async accounts => {
       0, th._100pct,
       {
         from: dennis,
-        gasPrice: 0
+        gasPrice: GAS_PRICE
       }
     )
 
@@ -3816,7 +3816,7 @@ contract('TroveManager', async accounts => {
     assert.isTrue(toBN(timeNow).sub(lastFeeOpTime_1).gte(3600))
 
     // Borrower A triggers a fee
-    await th.redeemCollateral(A, contracts, dec(1, 18))
+    await th.redeemCollateral(A, contracts, dec(1, 18), GAS_PRICE)
 
     const lastFeeOpTime_3 = await troveManager.lastFeeOperationTime()
 
