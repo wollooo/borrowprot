@@ -1668,7 +1668,7 @@ contract('TroveManager - in Recovery Mode', async accounts => {
     await th.fastForwardTime(timeValues.SECONDS_IN_ONE_WEEK * 2, web3.currentProvider)
 
     // Dennis redeems 40, so Bob has a surplus of (200 * 1 - 40) / 200 = 0.8 ETH
-    await th.redeemCollateral(dennis, contracts, B_netDebt), GAS_PRICE
+    await th.redeemCollateral(dennis, contracts, B_netDebt, GAS_PRICE)
     let price = await priceFeed.getPrice()
     const bob_surplus = B_coll.sub(B_netDebt.mul(mv._1e18BN).div(price))
     th.assertIsApproximatelyEqual(await collSurplusPool.getCollateral(bob), bob_surplus)
