@@ -1,3 +1,4 @@
+const { getAddress } = require("ethers/lib/utils")
 const deploymentHelper = require("../utils/deploymentHelpers.js")
 const testHelpers = require("../utils/testHelpers.js")
 const TroveManagerTester = artifacts.require("./TroveManagerTester.sol")
@@ -3755,7 +3756,7 @@ contract('TroveManager', async accounts => {
     assert.isTrue(baseRate_1.gt(toBN('0')))
 
     // B redeems 10 LUSD
-    const redemptionTx_B = await th.redeemCollateralAndGetTxObject(B, contracts, dec(10, 18))
+    const redemptionTx_B = await th.redeemCollateralAndGetTxObject(B, contracts, dec(10, 18), GAS_PRICE)
     const timeStamp_B = await th.getTimestampFromTx(redemptionTx_B, web3)
 
     // Check B's balance has decreased by 10 LUSD
@@ -3798,7 +3799,7 @@ contract('TroveManager', async accounts => {
     th.fastForwardTime(45, web3.currentProvider)
 
     // Borrower A triggers a fee
-    await th.redeemCollateral(A, contracts, dec(1, 18))
+    await th.redeemCollateral(A, contracts, dec(1, 18), GAS_PRICE)
 
     const lastFeeOpTime_2 = await troveManager.lastFeeOperationTime()
 
@@ -3926,7 +3927,7 @@ contract('TroveManager', async accounts => {
     const lqtyStakingBalance_Before = toBN(await web3.eth.getBalance(lqtyStaking.address))
 
     // B redeems 10 LUSD
-    await th.redeemCollateral(B, contracts, dec(10, 18))
+    await th.redeemCollateral(B, contracts, dec(10, 18), GAS_PRICE)
 
     // Check B's balance has decreased by 10 LUSD
     assert.equal(await lusdToken.balanceOf(B), B_balanceBefore.sub(toBN(dec(10, 18))).toString())
@@ -3969,7 +3970,7 @@ contract('TroveManager', async accounts => {
     const F_ETH_Before = await lqtyStaking.F_ETH()
 
     // B redeems 10 LUSD
-    await th.redeemCollateral(B, contracts, dec(10, 18))
+    await th.redeemCollateral(B, contracts, dec(10, 18), GAS_PRICE)
 
     // Check B's balance has decreased by 10 LUSD
     assert.equal(await lusdToken.balanceOf(B), B_balanceBefore.sub(toBN(dec(10, 18))).toString())
