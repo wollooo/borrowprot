@@ -3716,7 +3716,7 @@ contract('TroveManager', async accounts => {
 
     const A_balanceBefore = await lusdToken.balanceOf(A)
 
-    await th.redeemCollateral(A, contracts, dec(10, 18))
+    await th.redeemCollateral(A, contracts, dec(10, 18), GAS_PRICE)
 
     // Check A's balance has decreased by 10 LUSD
     assert.equal(await lusdToken.balanceOf(A), A_balanceBefore.sub(toBN(dec(10, 18))).toString())
@@ -3744,7 +3744,7 @@ contract('TroveManager', async accounts => {
     const B_balanceBefore = await lusdToken.balanceOf(B)
 
     // A redeems 10 LUSD
-    const redemptionTx_A = await th.redeemCollateralAndGetTxObject(A, contracts, dec(10, 18))
+    const redemptionTx_A = await th.redeemCollateralAndGetTxObject(A, contracts, dec(10, 18), GAS_PRICE)
     const timeStamp_A = await th.getTimestampFromTx(redemptionTx_A, web3)
 
     // Check A's balance has decreased by 10 LUSD
@@ -3783,7 +3783,7 @@ contract('TroveManager', async accounts => {
     const A_balanceBefore = await lusdToken.balanceOf(A)
 
     // A redeems 10 LUSD
-    await th.redeemCollateral(A, contracts, dec(10, 18))
+    await th.redeemCollateral(A, contracts, dec(10, 18), GAS_PRICE)
 
     // Check A's balance has decreased by 10 LUSD
     assert.equal(A_balanceBefore.sub(await lusdToken.balanceOf(A)), dec(10, 18))
@@ -3845,7 +3845,7 @@ contract('TroveManager', async accounts => {
     const A_balanceBefore = await lusdToken.balanceOf(A)
 
     // A redeems 10 LUSD
-    await th.redeemCollateral(A, contracts, dec(10, 18))
+    await th.redeemCollateral(A, contracts, dec(10, 18), GAS_PRICE)
 
     // Check A's balance has decreased by 10 LUSD
     assert.equal(await lusdToken.balanceOf(A), A_balanceBefore.sub(toBN(dec(10, 18))).toString())
@@ -3881,7 +3881,7 @@ contract('TroveManager', async accounts => {
     const A_balanceBefore = await lusdToken.balanceOf(A)
 
     // A redeems 10 LUSD
-    await th.redeemCollateral(A, contracts, dec(10, 18))
+    await th.redeemCollateral(A, contracts, dec(10, 18), GAS_PRICE)
 
     // Check A's balance has decreased by 10 LUSD
     assert.equal(await lusdToken.balanceOf(A), A_balanceBefore.sub(toBN(dec(10, 18))).toString())
@@ -3914,7 +3914,7 @@ contract('TroveManager', async accounts => {
     const B_balanceBefore = await lusdToken.balanceOf(B)
 
     // A redeems 10 LUSD
-    await th.redeemCollateral(A, contracts, dec(10, 18))
+    await th.redeemCollateral(A, contracts, dec(10, 18), GAS_PRICE)
 
     // Check A's balance has decreased by 10 LUSD
     assert.equal(await lusdToken.balanceOf(A), A_balanceBefore.sub(toBN(dec(10, 18))).toString())
@@ -3956,7 +3956,7 @@ contract('TroveManager', async accounts => {
     const B_balanceBefore = await lusdToken.balanceOf(B)
 
     // A redeems 10 LUSD
-    await th.redeemCollateral(A, contracts, dec(10, 18))
+    await th.redeemCollateral(A, contracts, dec(10, 18), GAS_PRICE)
 
     // Check A's balance has decreased by 10 LUSD
     assert.equal(await lusdToken.balanceOf(A), A_balanceBefore.sub(toBN(dec(10, 18))).toString())
@@ -4008,7 +4008,7 @@ contract('TroveManager', async accounts => {
 
     // A redeems 9 LUSD
     const redemptionAmount = toBN(dec(9, 18))
-    await th.redeemCollateral(A, contracts, redemptionAmount)
+    await th.redeemCollateral(A, contracts, redemptionAmount, GAS_PRICE)
 
     /*
     At ETH:USD price of 200:
@@ -4051,7 +4051,7 @@ contract('TroveManager', async accounts => {
     const C_balanceBefore = toBN(await web3.eth.getBalance(C))
 
     // whale redeems 360 LUSD.  Expect this to fully redeem A, B, C, and partially redeem D.
-    await th.redeemCollateral(whale, contracts, redemptionAmount)
+    await th.redeemCollateral(whale, contracts, redemptionAmount, GAS_PRICE)
 
     // Check A, B, C have been closed
     assert.isFalse(await sortedTroves.contains(A))
@@ -4156,7 +4156,7 @@ contract('TroveManager', async accounts => {
     await th.fastForwardTime(timeValues.SECONDS_IN_ONE_WEEK * 2, web3.currentProvider)
 
     // whale redeems LUSD.  Expect this to fully redeem A, B, C, and partially redeem 15 LUSD from D.
-    const redemptionTx = await th.redeemCollateralAndGetTxObject(whale, contracts, redemptionAmount, th._100pct, { gasPrice: GAS_PRICE  })
+    const redemptionTx = await th.redeemCollateralAndGetTxObject(whale, contracts, redemptionAmount, GAS_PRICE, th._100pct)
 
     // Check A, B, C have been closed
     assert.isFalse(await sortedTroves.contains(A))
