@@ -2370,7 +2370,7 @@ contract('TroveManager', async accounts => {
       0, th._100pct,
       {
         from: dennis,
-        gasPrice: 0
+        gasPrice: GAS_PRICE
       }
     )
 
@@ -2449,7 +2449,7 @@ contract('TroveManager', async accounts => {
       0, th._100pct,
       {
         from: dennis,
-        gasPrice: 0 
+        gasPrice: GAS_PRICE 
       }
     )
 
@@ -2529,7 +2529,7 @@ contract('TroveManager', async accounts => {
       0, th._100pct,
       {
         from: dennis,
-        gasPrice: 0
+        gasPrice: GAS_PRICE
       }
     )
 
@@ -2615,7 +2615,7 @@ contract('TroveManager', async accounts => {
       0, th._100pct,
       {
         from: dennis,
-        gasPrice: 0
+        gasPrice: GAS_PRICE
       }
     )
 
@@ -2878,7 +2878,7 @@ contract('TroveManager', async accounts => {
       0, th._100pct,
       {
         from: dennis,
-        gasPrice: 0
+        gasPrice: GAS_PRICE
       }
     )
 
@@ -2939,7 +2939,7 @@ contract('TroveManager', async accounts => {
       th._100pct,
       {
         from: carol,
-        gasPrice: 0
+        gasPrice: GAS_PRICE
       }
     )
 
@@ -4246,7 +4246,7 @@ contract('TroveManager', async accounts => {
         0, th._100pct,
         {
           from: alice,
-          gasPrice: 0
+          gasPrice: GAS_PRICE
         }
       )
 
@@ -4269,7 +4269,7 @@ contract('TroveManager', async accounts => {
         0, th._100pct,
         {
           from: alice,
-          gasPrice: 0
+          gasPrice: GAS_PRICE
         }
       ),
       'TroveManager: Fee would eat up all returned collateral'
