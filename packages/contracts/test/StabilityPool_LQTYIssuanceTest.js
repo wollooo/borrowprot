@@ -129,8 +129,8 @@ contract('StabilityPool - LQTY Rewards', async accounts => {
 
       const totalLQTYIssued_2 = await communityIssuanceTester.totalLQTYIssued()
 
-      console.log(`totalLQTYIssued_1: ${totalLQTYIssued_1}`)
-      console.log(`totalLQTYIssued_2: ${totalLQTYIssued_2}`)
+      //console.log(`totalLQTYIssued_1: ${totalLQTYIssued_1}`)
+      //console.log(`totalLQTYIssued_2: ${totalLQTYIssued_2}`)
 
       // check blockTimestamp diff < 60s
       const timestampDiff = blockTimestamp_2.sub(blockTimestamp_1)
