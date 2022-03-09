@@ -44,39 +44,30 @@ contract KumoParameters is IKumoParameters, OwnableUpgradeable, CheckContract {
 	IActivePool public override activePool;
 	IDefaultPool public override defaultPool;
 	IPriceFeed public override priceFeed;
-	address public adminContract;
 
 	bool public isInitialized;
 
 	modifier isController() {
-		require(msg.sender == owner() || msg.sender == adminContract, "Invalid Permissions");
+		require(msg.sender == owner());
 		_;
 	}
 
 	function setAddresses(
 		address _activePool,
 		address _defaultPool,
-		address _priceFeed,
-		address _adminContract
+		address _priceFeed
 	) external override initializer {
 		require(!isInitialized, "Already initalized");
 		checkContract(_activePool);
 		checkContract(_defaultPool);
 		checkContract(_priceFeed);
-		checkContract(_adminContract);
 		isInitialized = true;
 
 		__Ownable_init();
 
-		adminContract = _adminContract;
 		activePool = IActivePool(_activePool);
 		defaultPool = IDefaultPool(_defaultPool);
 		priceFeed = IPriceFeed(_priceFeed);
-	}
-
-	function setAdminContract(address _admin) external onlyOwner {
-		require(_admin != address(0));
-		adminContract = _admin;
 	}
 
 	function setPriceFeed(address _priceFeed) external override onlyOwner {

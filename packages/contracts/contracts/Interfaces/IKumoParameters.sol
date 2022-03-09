@@ -62,8 +62,7 @@ interface IKumoParameters {
 	function setAddresses(
 		address _activePool,
 		address _defaultPool,
-		address _priceFeed,
-		address _adminContract
+		address _priceFeed
 	) external;
 
 	function setPriceFeed(address _priceFeed) external;
