@@ -102,7 +102,7 @@ class DeploymentHelper {
     const functionCaller = await FunctionCaller.new()
     const borrowerOperations = await BorrowerOperations.new()
     const hintHelpers = await HintHelpers.new()
-    const kumoParameter = await KumoParameters.new()
+    const kumoParameters = await KumoParameters.new()
     const lusdToken = await LUSDToken.new(
       troveManager.address,
       stabilityPool.address,
@@ -120,7 +120,7 @@ class DeploymentHelper {
     FunctionCaller.setAsDeployed(functionCaller)
     BorrowerOperations.setAsDeployed(borrowerOperations)
     HintHelpers.setAsDeployed(hintHelpers)
-    KumoParameters.setAsDeployed(kumoParameter)
+    KumoParameters.setAsDeployed(kumoParameters)
 
     const coreContracts = {
       priceFeedTestnet,
