@@ -425,7 +425,7 @@ class DeploymentHelper {
     await LQTYContracts.lockupContractFactory.setLQTYTokenAddress(LQTYContracts.lqtyToken.address)
   }
 
-  static async connectLQTYContractsToCore(LQTYContracts, coreContracts) {
+  static async connectLQTYContractsToCore(LQTYContracts, coreContracts, skipPool = false) {
     await LQTYContracts.lqtyStaking.setAddresses(
       LQTYContracts.lqtyToken.address,
       coreContracts.lusdToken.address,
@@ -438,6 +438,11 @@ class DeploymentHelper {
       LQTYContracts.lqtyToken.address,
       coreContracts.stabilityPool.address
     )
+    if (skipPool) {
+      return;
+    }
+
+
         //Set Liquity Configs (since the tests have been designed with it)
         await coreContracts.kumoParameters.setCollateralParameters(
           ZERO_ADDRESS,
