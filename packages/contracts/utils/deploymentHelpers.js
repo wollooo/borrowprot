@@ -456,7 +456,7 @@ class DeploymentHelper {
           50
         );
     
-        await coreContracts.umoParameters.setCollateralParameters(
+        await coreContracts.kumoParameters.setCollateralParameters(
           coreContracts.erc20.address,
           "1100000000000000000",
           "1500000000000000000",
