@@ -119,7 +119,7 @@ class DeploymentHelper {
     FunctionCaller.setAsDeployed(functionCaller)
     BorrowerOperations.setAsDeployed(borrowerOperations)
     HintHelpers.setAsDeployed(hintHelpers)
-    KumoParameters.setAsDeployed(KumoParameters)
+    KumoParameters.setAsDeployed(kumoParameters)
 
     const coreContracts = {
       priceFeedTestnet,
