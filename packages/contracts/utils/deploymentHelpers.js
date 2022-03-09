@@ -102,7 +102,7 @@ class DeploymentHelper {
     const functionCaller = await FunctionCaller.new()
     const borrowerOperations = await BorrowerOperations.new()
     const hintHelpers = await HintHelpers.new()
-    const lusdToken = await LUSDToken.new()
+    const lusdToken = await LUSDToken.new(
       troveManager.address,
       stabilityPool.address,
       borrowerOperations.address
