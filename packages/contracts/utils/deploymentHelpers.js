@@ -380,8 +380,8 @@ class DeploymentHelper {
       contracts.priceFeedTestnet.address,
       contracts.sortedTroves.address,
       contracts.lusdToken.address,
-      LQTYContracts.lqtyStaking.address,
-      contracts.kumoParameters.address
+      LQTYContracts.lqtyStaking.address
+      //contracts.kumoParameters.address
     )
 
     // set contracts in the Pools
