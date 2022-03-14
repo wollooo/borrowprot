@@ -254,7 +254,7 @@ class MainnetDeploymentHelper {
         contracts.sortedTroves.address,
         LQTYContracts.lqtyToken.address,
         LQTYContracts.lqtyStaking.address,
-        contracts.kumoParameters.address,
+        //contracts.kumoParameters.address,
 	{gasPrice}
       ))
 
@@ -271,7 +271,7 @@ class MainnetDeploymentHelper {
         contracts.sortedTroves.address,
         contracts.lusdToken.address,
         LQTYContracts.lqtyStaking.address,
-        contracts.kumoParameters.address,
+        //contracts.kumoParameters.address,
 	{gasPrice}
       ))
 
