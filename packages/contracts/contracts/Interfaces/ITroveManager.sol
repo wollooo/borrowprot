@@ -52,7 +52,7 @@ interface ITroveManager is ILiquityBase {
         address _sortedTrovesAddress,
         address _lqtyTokenAddress,
         address _lqtyStakingAddress,
-        address _kumoParamsAdress
+        address _kumoParamsAddress
     ) external;
 
     function stabilityPool() external view returns (IStabilityPool);

@@ -247,12 +247,9 @@ contract TroveManager is LiquityBase, CheckContract, ITroveManager {
         address _lusdTokenAddress,
         address _sortedTrovesAddress,
         address _lqtyTokenAddress,
-        address _lqtyStakingAddress
-    )
-        external
-        override
-        initializer
-    {
+        address _lqtyStakingAddress,
+        address _kumoParamsAddress
+    ) external override initializer {
         require(!isInitialized, "Already initialized");
         checkContract(_borrowerOperationsAddress);
         checkContract(_activePoolAddress);
@@ -265,6 +262,7 @@ contract TroveManager is LiquityBase, CheckContract, ITroveManager {
         checkContract(_sortedTrovesAddress);
         checkContract(_lqtyTokenAddress);
         checkContract(_lqtyStakingAddress);
+        checkContract(_kumoParamsAddress);
         isInitialized = true;
 		__Ownable_init();
 

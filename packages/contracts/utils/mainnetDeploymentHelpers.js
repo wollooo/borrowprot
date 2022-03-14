@@ -76,6 +76,7 @@ class MainnetDeploymentHelper {
     const hintHelpersFactory = await this.getFactory("HintHelpers")
     const lusdTokenFactory = await this.getFactory("LUSDToken")
     const tellorCallerFactory = await this.getFactory("TellorCaller")
+    //const kumoParametersFactory = await this.getFactory("KumoParameters")
 
     // Deploy txs
     const priceFeed = await this.loadOrDeploy(priceFeedFactory, 'priceFeed', deploymentState)
@@ -89,6 +90,7 @@ class MainnetDeploymentHelper {
     const borrowerOperations = await this.loadOrDeploy(borrowerOperationsFactory, 'borrowerOperations', deploymentState)
     const hintHelpers = await this.loadOrDeploy(hintHelpersFactory, 'hintHelpers', deploymentState)
     const tellorCaller = await this.loadOrDeploy(tellorCallerFactory, 'tellorCaller', deploymentState, [tellorMasterAddr])
+    //const kumoParameters = await this.loadOrDeploy(kumoParametersFactory, 'kumoParameters', deploymentState)
 
     const lusdTokenParams = [
       troveManager.address,
@@ -117,6 +119,7 @@ class MainnetDeploymentHelper {
       await this.verifyContract('hintHelpers', deploymentState)
       await this.verifyContract('tellorCaller', deploymentState, [tellorMasterAddr])
       await this.verifyContract('lusdToken', deploymentState, lusdTokenParams)
+      //await this.verifyContract('kumoParameters', deploymentState)
     }
 
     const coreContracts = {
@@ -131,7 +134,8 @@ class MainnetDeploymentHelper {
       collSurplusPool,
       borrowerOperations,
       hintHelpers,
-      tellorCaller
+      tellorCaller,
+      //kumoParameters
     }
     return coreContracts
   }
@@ -250,6 +254,7 @@ class MainnetDeploymentHelper {
         contracts.sortedTroves.address,
         LQTYContracts.lqtyToken.address,
         LQTYContracts.lqtyStaking.address,
+        contracts.kumoParameters.address,
 	{gasPrice}
       ))
 
@@ -266,6 +271,7 @@ class MainnetDeploymentHelper {
         contracts.sortedTroves.address,
         contracts.lusdToken.address,
         LQTYContracts.lqtyStaking.address,
+        contracts.kumoParameters.address,
 	{gasPrice}
       ))
 
