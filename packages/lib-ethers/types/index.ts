@@ -974,3 +974,7 @@ export interface Unipool
   extractEvents(logs: Log[], name: "UniTokenAddressChanged"): _TypedLogDescription<{ _uniTokenAddress: string }>[];
   extractEvents(logs: Log[], name: "Withdrawn"): _TypedLogDescription<{ user: string; amount: BigNumber }>[];
 }
+// interface KumoParameters {
+//   DECIMAL_PRECISION(_overrides?: Overrides): Promise<BigNumberish>;
+
+// }
