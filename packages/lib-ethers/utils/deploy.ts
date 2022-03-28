@@ -104,7 +104,7 @@ const deployContracts = async (
       ...overrides
     }),
     unipool: await deployContract(deployer, getContractFactory, "Unipool", { ...overrides }),
-    kumoParams: await deployContract(deployer, getContractFactory, "KumoParameters", { ...overrides })
+    kumoParameters: await deployContract(deployer, getContractFactory, "KumoParameters")
   };
 
   return [
@@ -173,7 +173,8 @@ const connectContracts = async (
     stabilityPool,
     gasPool,
     unipool,
-    uniToken
+    uniToken,
+    kumoParameters
   }: _LiquityContracts,
   deployer: Signer,
   overrides?: Overrides
@@ -204,6 +205,7 @@ const connectContracts = async (
         sortedTroves.address,
         lqtyToken.address,
         lqtyStaking.address,
+        kumoParameters.address,
         { ...overrides, nonce }
       ),
 
@@ -219,6 +221,7 @@ const connectContracts = async (
         sortedTroves.address,
         lusdToken.address,
         lqtyStaking.address,
+        kumoParameters.address,
         { ...overrides, nonce }
       ),
 
@@ -231,6 +234,7 @@ const connectContracts = async (
         sortedTroves.address,
         priceFeed.address,
         communityIssuance.address,
+        kumoParameters.address,
         { ...overrides, nonce }
       ),
 

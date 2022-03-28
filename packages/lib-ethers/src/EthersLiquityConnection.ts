@@ -23,7 +23,7 @@ import {
 import { _connectToMulticall, _Multicall } from "./_Multicall";
 
 const dev = devOrNull as _LiquityDeploymentJSON | null;
-
+ console.log( dev);
 const deployments: {
   [chainId: number]: _LiquityDeploymentJSON | undefined;
 } = {

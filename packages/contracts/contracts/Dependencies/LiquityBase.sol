@@ -18,10 +18,10 @@ import "../Interfaces/ILiquityBase.sol";
 contract LiquityBase is BaseMath, ILiquityBase, OwnableUpgradeable {
     using SafeMath for uint;
 
-    IKumoParameters public override kumoParams;
+    IKumoParameters public kumoParameters;
 
 	function setKumoParameters(address _vaultParams) public onlyOwner {
-		kumoParams = IKumoParameters(_vaultParams);
+		kumoParameters = IKumoParameters(_vaultParams);
 		emit VaultParametersBaseChanged(_vaultParams);
 	}
 

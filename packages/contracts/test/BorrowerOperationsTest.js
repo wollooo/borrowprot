@@ -93,7 +93,7 @@ contract('BorrowerOperations', async accounts => {
       defaultPool = contracts.defaultPool
       borrowerOperations = contracts.borrowerOperations
       hintHelpers = contracts.hintHelpers
-      kumoParams = contracts.kumoParameters
+      kumoParameters = contracts.kumoParameters
 
       erc20 = contracts.erc20;
       // await kumoParams.sanitizeParameters(ZERO_ADDRESS);
@@ -108,13 +108,13 @@ contract('BorrowerOperations', async accounts => {
       //MIN_NET_DEBT = await borrowerOperations.MIN_NET_DEBT()
       //BORROWING_FEE_FLOOR = await borrowerOperations.BORROWING_FEE_FLOOR()
 
-      LUSD_GAS_COMPENSATION = await kumoParams.KKUMO_GAS_COMPENSATION(ZERO_ADDRESS)
-      MIN_NET_DEBT = await kumoParams.MIN_NET_DEBT(ZERO_ADDRESS)
-      BORROWING_FEE_FLOOR = await kumoParams.BORROWING_FEE_FLOOR(ZERO_ADDRESS)
+      LUSD_GAS_COMPENSATION = await kumoParameters.KUMO_GAS_COMPENSATION(ZERO_ADDRESS)
+      MIN_NET_DEBT = await kumoParameters.MIN_NET_DEBT(ZERO_ADDRESS)
+      BORROWING_FEE_FLOOR = await kumoParameters.BORROWING_FEE_FLOOR(ZERO_ADDRESS)
 
-      KUMO_GAS_COMPENSATION_ERC20 = await kumoParams.KUMO_GAS_COMPENSATION(erc20.address)
-      MIN_NET_DEBT_ERC20 = await kumoParams.MIN_NET_DEBT(erc20.address)
-      BORROWING_FEE_FLOOR_ERC20 = await kumoParams.BORROWING_FEE_FLOOR(erc20.address)
+      KUMO_GAS_COMPENSATION_ERC20 = await kumoParameters.KUMO_GAS_COMPENSATION(erc20.address)
+      MIN_NET_DEBT_ERC20 = await kumoParameters.MIN_NET_DEBT(erc20.address)
+      BORROWING_FEE_FLOOR_ERC20 = await kumoParameters.BORROWING_FEE_FLOOR(erc20.address)
 
       // await lqtyToken.unprotectedMint(multisig, dec(5, 24))
 

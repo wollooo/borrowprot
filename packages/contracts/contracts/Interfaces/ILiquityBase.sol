@@ -10,7 +10,7 @@ interface ILiquityBase {
     
     event VaultParametersBaseChanged(address indexed newAddress);
 
-	function kumoParams() external view returns (IKumoParameters);
+	function kumoParameters() external view returns (IKumoParameters);
 
     function priceFeed() external view returns (IPriceFeed);
 }

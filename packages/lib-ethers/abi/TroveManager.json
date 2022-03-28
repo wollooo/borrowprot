@@ -1341,7 +1341,7 @@
   },
   {
     "inputs": [],
-    "name": "kumoParams",
+    "name": "kumoParameters",
     "outputs": [
       {
         "internalType": "contract IKumoParameters",
