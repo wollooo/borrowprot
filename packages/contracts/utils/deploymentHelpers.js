@@ -10,7 +10,7 @@ const CollSurplusPool = artifacts.require("./CollSurplusPool.sol")
 const FunctionCaller = artifacts.require("./TestContracts/FunctionCaller.sol")
 const BorrowerOperations = artifacts.require("./BorrowerOperations.sol")
 const HintHelpers = artifacts.require("./HintHelpers.sol")
-const KumoParameters = artifacts.require("./KumoParameters")
+const KumoParameters = artifacts.require("./KumoParameters.sol")
 
 const LQTYStaking = artifacts.require("./LQTYStaking.sol")
 const LQTYToken = artifacts.require("./LQTYToken.sol")
@@ -135,6 +135,7 @@ class DeploymentHelper {
       collSurplusPool,
       functionCaller,
       borrowerOperations,
+      kumoParameters,
       hintHelpers
     }
     return coreContracts
@@ -237,6 +238,7 @@ class DeploymentHelper {
     const functionCaller = await FunctionCaller.new()
     const borrowerOperations = await BorrowerOperations.new()
     const hintHelpers = await HintHelpers.new()
+    const kumoParameters = await KumoParameters.new()
     const lusdToken = await LUSDToken.new(
       troveManager.address,
       stabilityPool.address,
@@ -254,7 +256,8 @@ class DeploymentHelper {
       collSurplusPool,
       functionCaller,
       borrowerOperations,
-      hintHelpers
+      hintHelpers,
+      kumoParameters
     }
     return coreContracts
   }
@@ -416,8 +419,8 @@ class DeploymentHelper {
     // set contracts in HintHelpers
     await contracts.hintHelpers.setAddresses(
       contracts.sortedTroves.address,
-      contracts.troveManager.address,
-      contracts.kumoParameters.address
+      contracts.troveManager.address
+      //contracts.kumoParameters.address
     )
   }
 
@@ -458,7 +461,8 @@ class DeploymentHelper {
         );
     
         await coreContracts.kumoParameters.setCollateralParameters(
-          coreContracts.erc20.address,
+          ZERO_ADDRESS,
+          //coreContracts.erc20.address,
           "1100000000000000000",
           "1500000000000000000",
           dec(200, 18),

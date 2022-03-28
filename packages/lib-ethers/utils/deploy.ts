@@ -103,7 +103,8 @@ const deployContracts = async (
     gasPool: await deployContract(deployer, getContractFactory, "GasPool", {
       ...overrides
     }),
-    unipool: await deployContract(deployer, getContractFactory, "Unipool", { ...overrides })
+    unipool: await deployContract(deployer, getContractFactory, "Unipool", { ...overrides }),
+    kumoParams: await deployContract(deployer, getContractFactory, "KumoParameters", { ...overrides })
   };
 
   return [
