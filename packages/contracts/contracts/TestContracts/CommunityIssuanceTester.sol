@@ -1,27 +1,24 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.11;
-
+pragma solidity ^0.8.11;
 import "../LQTY/CommunityIssuance.sol";
 
 contract CommunityIssuanceTester is CommunityIssuance {
-    using SafeMath for uint256;
-    
-    function obtainLQTY(uint _amount) external {
-        lqtyToken.transfer(msg.sender, _amount);
-    }
+	using SafeMathUpgradeable for uint256;
 
-    function getCumulativeIssuanceFraction() external view returns (uint) {
-       return _getCumulativeIssuanceFraction();
-    }
+	function obtainLQTY(uint256 _amount) external {
+		lqtyToken.transfer(msg.sender, _amount);
+	}
 
-    function unprotectedIssueLQTY() external returns (uint) {
-        // No checks on caller address
-       
-        uint latestTotalLQTYIssued = LQTYSupplyCap.mul(_getCumulativeIssuanceFraction()).div(DECIMAL_PRECISION);
-        uint issuance = latestTotalLQTYIssued.sub(totalLQTYIssued);
-      
-        totalLQTYIssued = latestTotalLQTYIssued;
-        return issuance;
-    }
+	function getLastUpdateTokenDistribution(address stabilityPool)
+		external
+		view
+		returns (uint256)
+	{
+		return _getLastUpdateTokenDistribution(stabilityPool);
+	}
+
+	function unprotectedIssueLQTY(address stabilityPool) external returns (uint256) {
+		return _issueLQTY(stabilityPool);
+	}
 }

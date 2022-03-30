@@ -2,6 +2,7 @@
 
 pragma solidity 0.8.11;
 
+import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "../TroveManager.sol";
 import "../BorrowerOperations.sol";
 import "../ActivePool.sol";
@@ -21,7 +22,7 @@ import "../KumoParameters.sol";
 // ~/.local/bin/echidna-test contracts/TestContracts/EchidnaTester.sol --contract EchidnaTester --config fuzzTests/echidna_config.yaml
 
 contract EchidnaTester {
-    using SafeMath for uint;
+	//using SafeMathUpgradeable for uint;
 
     uint constant private NUMBER_OF_ACTORS = 100;
     uint constant private INITIAL_BALANCE = 1e24;

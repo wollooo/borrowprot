@@ -23,7 +23,7 @@ contract('Gas cost tests', async accounts => {
   const multisig = accounts[1000]
 
   let priceFeed
-  let lusdToken
+  let LUSDToken
 
   let sortedTroves
   let troveManager
@@ -37,10 +37,10 @@ contract('Gas cost tests', async accounts => {
 
   beforeEach(async () => {
     contracts = await deploymentHelper.deployLiquityCore()
-    const LQTYContracts = await deploymentHelper.deployLQTYContracts(bountyAddress, lpRewardsAddress, multisig)
+    const LQTYContracts = await deploymentHelper.deployLQTYContractsHardhat(accounts[0])
 
     priceFeed = contracts.priceFeedTestnet
-    lusdToken = contracts.lusdToken
+    LUSDToken = contracts.LUSDToken
     sortedTroves = contracts.sortedTroves
     troveManager = contracts.troveManager
     activePool = contracts.activePool
@@ -49,12 +49,10 @@ contract('Gas cost tests', async accounts => {
     borrowerOperations = contracts.borrowerOperations
     hintHelpers = contracts.hintHelpers
 
-    lqtyStaking = LQTYContracts.lqtyStaking
-    lqtyToken = LQTYContracts.lqtyToken
+    LQTYStaking = LQTYContracts.LQTYStaking
+    LQTYToken = LQTYContracts.LQTYToken
     communityIssuance = LQTYContracts.communityIssuance
-    lockupContractFactory = LQTYContracts.lockupContractFactory
 
-    await deploymentHelper.connectLQTYContracts(LQTYContracts)
     await deploymentHelper.connectCoreContracts(contracts, LQTYContracts)
     await deploymentHelper.connectLQTYContractsToCore(LQTYContracts, contracts)
   })
@@ -99,7 +97,7 @@ contract('Gas cost tests', async accounts => {
     // Check defaulters' troves have been closed
     for (account of _1_Defaulter) { assert.isFalse(await sortedTroves.contains(account)) }
 
-    // Check initial troves with starting 10E/90LUSD are still open
+    // Check initial troves with starting 10E/90USDV are still open
     for (account of accounts.slice(101, 111)) { assert.isTrue(await sortedTroves.contains(account)) }
 
     const gas = th.gasUsed(tx)
@@ -123,7 +121,7 @@ contract('Gas cost tests', async accounts => {
     for (account of _2_Defaulters) { assert.isTrue(await sortedTroves.contains(account)) }
 
     // Account 500 opens with 1 ether and withdraws 100 LUSD
-    await borrowerOperations.openTrove(_100pct, dec(60, 18), accounts[500],ZERO_ADDRESS, { from: accounts[500], value: dec(1, 'ether') })
+    await borrowerOperations.openTrove(_100pct, dec(60, 18), accounts[500], ZERO_ADDRESS, { from: accounts[500], value: dec(1, 'ether') })
     assert.isTrue(await sortedTroves.contains(accounts[500]))
 
     // Price drops, defaulters' troves fall below MCR
@@ -145,7 +143,7 @@ contract('Gas cost tests', async accounts => {
     // Check defaulters' troves have been closed
     for (account of _2_Defaulters) { assert.isFalse(await sortedTroves.contains(account)) }
 
-    // Check initial troves with starting 10E/90LUSD are still open
+    // Check initial troves with starting 10E/90USDV are still open
     for (account of accounts.slice(101, 111)) { assert.isTrue(await sortedTroves.contains(account)) }
 
     const gas = th.gasUsed(tx)
@@ -169,7 +167,7 @@ contract('Gas cost tests', async accounts => {
     for (account of _3_Defaulters) { assert.isTrue(await sortedTroves.contains(account)) }
 
     // Account 500 opens with 1 ether and withdraws 100 LUSD
-    await borrowerOperations.openTrove(_100pct, dec(60, 18), accounts[500], ZERO_ADDRESS,{ from: accounts[500], value: dec(1, 'ether') })
+    await borrowerOperations.openTrove(_100pct, dec(60, 18), accounts[500], ZERO_ADDRESS, { from: accounts[500], value: dec(1, 'ether') })
     assert.isTrue(await sortedTroves.contains(accounts[500]))
 
     // Price drops, defaulters' troves fall below MCR
@@ -191,7 +189,7 @@ contract('Gas cost tests', async accounts => {
     // Check defaulters' troves have been closed
     for (account of _3_Defaulters) { assert.isFalse(await sortedTroves.contains(account)) }
 
-    // Check initial troves with starting 10E/90LUSD are still open
+    // Check initial troves with starting 10E/90USDV are still open
     for (account of accounts.slice(101, 111)) { assert.isTrue(await sortedTroves.contains(account)) }
 
     const gas = th.gasUsed(tx)
@@ -215,7 +213,7 @@ contract('Gas cost tests', async accounts => {
     for (account of _5_Defaulters) { assert.isTrue(await sortedTroves.contains(account)) }
 
     // Account 500 opens with 1 ether and withdraws 100 LUSD
-    await borrowerOperations.openTrove(_100pct, dec(60, 18), accounts[500],ZERO_ADDRESS, { from: accounts[500], value: dec(1, 'ether') })
+    await borrowerOperations.openTrove(_100pct, dec(60, 18), accounts[500], ZERO_ADDRESS, { from: accounts[500], value: dec(1, 'ether') })
     assert.isTrue(await sortedTroves.contains(accounts[500]))
 
     // Price drops, defaulters' troves fall below MCR
@@ -237,7 +235,7 @@ contract('Gas cost tests', async accounts => {
     // Check defaulters' troves have been closed
     for (account of _5_Defaulters) { assert.isFalse(await sortedTroves.contains(account)) }
 
-    // Check initial troves with starting 10E/90LUSD are still open
+    // Check initial troves with starting 10E/90USDV are still open
     for (account of accounts.slice(101, 111)) { assert.isTrue(await sortedTroves.contains(account)) }
 
     const gas = th.gasUsed(tx)
@@ -261,7 +259,7 @@ contract('Gas cost tests', async accounts => {
     for (account of _10_Defaulters) { assert.isTrue(await sortedTroves.contains(account)) }
 
     // Account 500 opens with 1 ether and withdraws 100 LUSD
-    await borrowerOperations.openTrove(_100pct, dec(60, 18), accounts[500],ZERO_ADDRESS, { from: accounts[500], value: dec(1, 'ether') })
+    await borrowerOperations.openTrove(_100pct, dec(60, 18), accounts[500], ZERO_ADDRESS, { from: accounts[500], value: dec(1, 'ether') })
     assert.isTrue(await sortedTroves.contains(accounts[500]))
 
     // Price drops, defaulters' troves fall below MCR
@@ -283,7 +281,7 @@ contract('Gas cost tests', async accounts => {
     // Check defaulters' troves have been closed
     for (account of _10_Defaulters) { assert.isFalse(await sortedTroves.contains(account)) }
 
-    // Check initial troves with starting 10E/90LUSD are still open
+    // Check initial troves with starting 10E/90USDV are still open
     for (account of accounts.slice(101, 111)) { assert.isTrue(await sortedTroves.contains(account)) }
 
     const gas = th.gasUsed(tx)
@@ -307,7 +305,7 @@ contract('Gas cost tests', async accounts => {
     for (account of _20_Defaulters) { assert.isTrue(await sortedTroves.contains(account)) }
 
     // Account 500 opens with 1 ether and withdraws 100 LUSD
-    await borrowerOperations.openTrove(_100pct, dec(60, 18), accounts[500], ZERO_ADDRESS,{ from: accounts[500], value: dec(1, 'ether') })
+    await borrowerOperations.openTrove(_100pct, dec(60, 18), accounts[500], ZERO_ADDRESS, { from: accounts[500], value: dec(1, 'ether') })
     assert.isTrue(await sortedTroves.contains(accounts[500]))
 
     // Price drops, defaulters' troves fall below MCR
@@ -329,7 +327,7 @@ contract('Gas cost tests', async accounts => {
     // Check defaulters' troves have been closed
     for (account of _20_Defaulters) { assert.isFalse(await sortedTroves.contains(account)) }
 
-    // Check initial troves with starting 10E/90LUSD are still open
+    // Check initial troves with starting 10E/90USDV are still open
     for (account of accounts.slice(101, 111)) { assert.isTrue(await sortedTroves.contains(account)) }
 
     const gas = th.gasUsed(tx)
@@ -353,7 +351,7 @@ contract('Gas cost tests', async accounts => {
     for (account of _30_Defaulters) { assert.isTrue(await sortedTroves.contains(account)) }
 
     // Account 500 opens with 1 ether and withdraws 100 LUSD
-    await borrowerOperations.openTrove(_100pct, dec(60, 18), accounts[500], ZERO_ADDRESS,{ from: accounts[500], value: dec(1, 'ether') })
+    await borrowerOperations.openTrove(_100pct, dec(60, 18), accounts[500], ZERO_ADDRESS, { from: accounts[500], value: dec(1, 'ether') })
     assert.isTrue(await sortedTroves.contains(accounts[500]))
 
     // Price drops, defaulters' troves fall below MCR
@@ -375,7 +373,7 @@ contract('Gas cost tests', async accounts => {
     // Check defaulters' troves have been closed
     for (account of _30_Defaulters) { assert.isFalse(await sortedTroves.contains(account)) }
 
-    // Check initial troves with starting 10E/90LUSD are still open
+    // Check initial troves with starting 10E/90USDV are still open
     for (account of accounts.slice(101, 111)) { assert.isTrue(await sortedTroves.contains(account)) }
 
     const gas = th.gasUsed(tx)
@@ -399,7 +397,7 @@ contract('Gas cost tests', async accounts => {
     for (account of _40_Defaulters) { assert.isTrue(await sortedTroves.contains(account)) }
 
     // Account 500 opens with 1 ether and withdraws 100 LUSD
-    await borrowerOperations.openTrove(_100pct, dec(60, 18), accounts[500],ZERO_ADDRESS, { from: accounts[500], value: dec(1, 'ether') })
+    await borrowerOperations.openTrove(_100pct, dec(60, 18), accounts[500], ZERO_ADDRESS, { from: accounts[500], value: dec(1, 'ether') })
     assert.isTrue(await sortedTroves.contains(accounts[500]))
 
     // Price drops, defaulters' troves fall below MCR
@@ -421,7 +419,7 @@ contract('Gas cost tests', async accounts => {
     // Check defaulters' troves have been closed
     for (account of _40_Defaulters) { assert.isFalse(await sortedTroves.contains(account)) }
 
-    // Check initial troves with starting 10E/90LUSD are still open
+    // Check initial troves with starting 10E/90USDV are still open
     for (account of accounts.slice(101, 111)) { assert.isTrue(await sortedTroves.contains(account)) }
 
     const gas = th.gasUsed(tx)
@@ -445,7 +443,7 @@ contract('Gas cost tests', async accounts => {
     for (account of _45_Defaulters) { assert.isTrue(await sortedTroves.contains(account)) }
 
     // Account 500 opens Trove
-    await borrowerOperations.openTrove(_100pct, dec(9500, 18), accounts[500], ZERO_ADDRESS,{ from: accounts[500], value: dec(100, 'ether') })
+    await borrowerOperations.openTrove(_100pct, dec(9500, 18), accounts[500], ZERO_ADDRESS, { from: accounts[500], value: dec(100, 'ether') })
     assert.isTrue(await sortedTroves.contains(accounts[500]))
 
     // Price drops, defaulters' troves fall below MCR
@@ -467,7 +465,7 @@ contract('Gas cost tests', async accounts => {
     // Check defaulters' troves have been closed
     for (account of _45_Defaulters) { assert.isFalse(await sortedTroves.contains(account)) }
 
-    // Check initial troves with starting 10E/90LUSD are still open
+    // Check initial troves with starting 10E/90USDV are still open
     for (account of accounts.slice(101, 111)) { assert.isTrue(await sortedTroves.contains(account)) }
 
     const gas = th.gasUsed(tx)
@@ -487,12 +485,12 @@ contract('Gas cost tests', async accounts => {
 
     // Whale opens trove and fills SP with 1 billion LUSD
     const whale = accounts[999]
-    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale,ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
+    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale, ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
-    assert.equal(LUSDinSP, dec(9, 28))
+    const USDVinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    assert.equal(USDVinSP, dec(9, 28))
 
     //1 acct opens Trove with 1 ether and withdraw 100 LUSD
     const _1_Defaulter = accounts.slice(1, 2)
@@ -526,14 +524,14 @@ contract('Gas cost tests', async accounts => {
     // // Check Troves are closed
     for (account of _1_Defaulter) { assert.isFalse(await sortedTroves.contains(account)) }
 
-    // Check initial troves with starting 10E/90LUSD, and whale's trove, are still open
+    // Check initial troves with starting 10E/90USDV, and whale's trove, are still open
     for (account of accounts.slice(101, 111)) { assert.isTrue(await sortedTroves.contains(account)) }
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
-    assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
-    assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
+    const USDVinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    assert.isTrue(USDVinSP_After.lt(web3.utils.toBN(dec(9, 28))))
+    assert.isTrue(USDVinSP_After.gt(web3.utils.toBN('0')))
 
     const gas = th.gasUsed(tx)
     th.logGas(gas, message)
@@ -550,12 +548,12 @@ contract('Gas cost tests', async accounts => {
 
     // Whale opens trove and fills SP with 1 billion LUSD
     const whale = accounts[999]
-    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale,ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
+    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale, ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
-    assert.equal(LUSDinSP, dec(9, 28))
+    const USDVinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    assert.equal(USDVinSP, dec(9, 28))
 
     //2 acct opens Trove with 1 ether and withdraw 100 LUSD
     const _2_Defaulters = accounts.slice(1, 3)
@@ -586,14 +584,14 @@ contract('Gas cost tests', async accounts => {
     // // Check Troves are closed
     for (account of _2_Defaulters) { assert.isFalse(await sortedTroves.contains(account)) }
 
-    // Check initial troves with starting 10E/90LUSD, and whale's trove, are still open
+    // Check initial troves with starting 10E/90USDV, and whale's trove, are still open
     for (account of accounts.slice(101, 111)) { assert.isTrue(await sortedTroves.contains(account)) }
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
-    assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
-    assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
+    const USDVinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    assert.isTrue(USDVinSP_After.lt(web3.utils.toBN(dec(9, 28))))
+    assert.isTrue(USDVinSP_After.gt(web3.utils.toBN('0')))
 
     const gas = th.gasUsed(tx)
     th.logGas(gas, message)
@@ -611,12 +609,12 @@ contract('Gas cost tests', async accounts => {
 
     // Whale opens trove and fills SP with 1 billion LUSD
     const whale = accounts[999]
-    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale,ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
+    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale, ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
-    assert.equal(LUSDinSP, dec(9, 28))
+    const USDVinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    assert.equal(USDVinSP, dec(9, 28))
 
     //3 accts open Trove with 1 ether and withdraw 100 LUSD
     const _3_Defaulters = accounts.slice(1, 4)
@@ -647,14 +645,14 @@ contract('Gas cost tests', async accounts => {
     // // Check Troves are closed
     for (account of _3_Defaulters) { assert.isFalse(await sortedTroves.contains(account)) }
 
-    // Check initial troves with starting 10E/90LUSD, and whale's trove, are still open
+    // Check initial troves with starting 10E/90USDV, and whale's trove, are still open
     for (account of accounts.slice(101, 111)) { assert.isTrue(await sortedTroves.contains(account)) }
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
-    assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
-    assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
+    const USDVinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    assert.isTrue(USDVinSP_After.lt(web3.utils.toBN(dec(9, 28))))
+    assert.isTrue(USDVinSP_After.gt(web3.utils.toBN('0')))
 
     const gas = th.gasUsed(tx)
     th.logGas(gas, message)
@@ -671,12 +669,12 @@ contract('Gas cost tests', async accounts => {
 
     // Whale opens trove and fills SP with 1 billion LUSD
     const whale = accounts[999]
-    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale,ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
+    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale, ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
-    assert.equal(LUSDinSP, dec(9, 28))
+    const USDVinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    assert.equal(USDVinSP, dec(9, 28))
 
     //5 accts open Trove with 1 ether and withdraw 100 LUSD
     const _5_Defaulters = accounts.slice(1, 6)
@@ -707,14 +705,14 @@ contract('Gas cost tests', async accounts => {
     // // Check Troves are closed
     for (account of _5_Defaulters) { assert.isFalse(await sortedTroves.contains(account)) }
 
-    // Check initial troves with starting 10E/90LUSD, and whale's trove, are still open
+    // Check initial troves with starting 10E/90USDV, and whale's trove, are still open
     for (account of accounts.slice(101, 111)) { assert.isTrue(await sortedTroves.contains(account)) }
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
-    assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
-    assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
+    const USDVinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    assert.isTrue(USDVinSP_After.lt(web3.utils.toBN(dec(9, 28))))
+    assert.isTrue(USDVinSP_After.gt(web3.utils.toBN('0')))
 
     const gas = th.gasUsed(tx)
     th.logGas(gas, message)
@@ -732,12 +730,12 @@ contract('Gas cost tests', async accounts => {
 
     // Whale opens trove and fills SP with 1 billion LUSD
     const whale = accounts[999]
-    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale,ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
+    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale, ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
-    assert.equal(LUSDinSP, dec(9, 28))
+    const USDVinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    assert.equal(USDVinSP, dec(9, 28))
 
     //10 accts open Trove with 1 ether and withdraw 100 LUSD
     const _10_Defaulters = accounts.slice(1, 11)
@@ -768,14 +766,14 @@ contract('Gas cost tests', async accounts => {
     // // Check Troves are closed
     for (account of _10_Defaulters) { assert.isFalse(await sortedTroves.contains(account)) }
 
-    // Check initial troves with starting 10E/90LUSD, and whale's trove, are still open
+    // Check initial troves with starting 10E/90USDV, and whale's trove, are still open
     for (account of accounts.slice(101, 111)) { assert.isTrue(await sortedTroves.contains(account)) }
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
-    assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
-    assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
+    const USDVinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    assert.isTrue(USDVinSP_After.lt(web3.utils.toBN(dec(9, 28))))
+    assert.isTrue(USDVinSP_After.gt(web3.utils.toBN('0')))
 
     const gas = th.gasUsed(tx)
     th.logGas(gas, message)
@@ -792,12 +790,12 @@ contract('Gas cost tests', async accounts => {
 
     // Whale opens trove and fills SP with 1 billion LUSD
     const whale = accounts[999]
-    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale,ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
+    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale, ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
-    assert.equal(LUSDinSP, dec(9, 28))
+    const USDVinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    assert.equal(USDVinSP, dec(9, 28))
 
     //30 accts open Trove with 1 ether and withdraw 100 LUSD
     const _20_Defaulters = accounts.slice(1, 21)
@@ -828,14 +826,14 @@ contract('Gas cost tests', async accounts => {
     // // Check Troves are closed
     for (account of _20_Defaulters) { assert.isFalse(await sortedTroves.contains(account)) }
 
-    // Check initial troves with starting 10E/90LUSD, and whale's trove, are still open
+    // Check initial troves with starting 10E/90USDV, and whale's trove, are still open
     for (account of accounts.slice(101, 111)) { assert.isTrue(await sortedTroves.contains(account)) }
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
-    assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
-    assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
+    const USDVinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    assert.isTrue(USDVinSP_After.lt(web3.utils.toBN(dec(9, 28))))
+    assert.isTrue(USDVinSP_After.gt(web3.utils.toBN('0')))
 
     const gas = th.gasUsed(tx)
     th.logGas(gas, message)
@@ -853,12 +851,12 @@ contract('Gas cost tests', async accounts => {
 
     // Whale opens trove and fills SP with 1 billion LUSD
     const whale = accounts[999]
-    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale,ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
+    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale, ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
-    assert.equal(LUSDinSP, dec(9, 28))
+    const USDVinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    assert.equal(USDVinSP, dec(9, 28))
 
     //30 accts open Trove with 1 ether and withdraw 100 LUSD
     const _30_Defaulters = accounts.slice(1, 31)
@@ -889,14 +887,14 @@ contract('Gas cost tests', async accounts => {
     // // Check Troves are closed
     for (account of _30_Defaulters) { assert.isFalse(await sortedTroves.contains(account)) }
 
-    // Check initial troves with starting 10E/90LUSD, and whale's trove, are still open
+    // Check initial troves with starting 10E/90USDV, and whale's trove, are still open
     for (account of accounts.slice(101, 111)) { assert.isTrue(await sortedTroves.contains(account)) }
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
-    assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
-    assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
+    const USDVinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    assert.isTrue(USDVinSP_After.lt(web3.utils.toBN(dec(9, 28))))
+    assert.isTrue(USDVinSP_After.gt(web3.utils.toBN('0')))
 
     const gas = th.gasUsed(tx)
     th.logGas(gas, message)
@@ -913,12 +911,12 @@ contract('Gas cost tests', async accounts => {
 
     // Whale opens trove and fills SP with 1 billion LUSD
     const whale = accounts[999]
-    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale, ZERO_ADDRESS,{ from: whale, value: dec(1, 27) })
+    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale, ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
-    assert.equal(LUSDinSP, dec(9, 28))
+    const USDVinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    assert.equal(USDVinSP, dec(9, 28))
 
     //40 accts open Trove with 1 ether and withdraw 100 LUSD
     const _40_Defaulters = accounts.slice(1, 41)
@@ -949,14 +947,14 @@ contract('Gas cost tests', async accounts => {
     // // Check Troves are closed
     for (account of _40_Defaulters) { assert.isFalse(await sortedTroves.contains(account)) }
 
-    // Check initial troves with starting 10E/90LUSD, and whale's trove, are still open
+    // Check initial troves with starting 10E/90USDV, and whale's trove, are still open
     for (account of accounts.slice(101, 111)) { assert.isTrue(await sortedTroves.contains(account)) }
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
-    assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
-    assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
+    const USDVinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    assert.isTrue(USDVinSP_After.lt(web3.utils.toBN(dec(9, 28))))
+    assert.isTrue(USDVinSP_After.gt(web3.utils.toBN('0')))
 
     const gas = th.gasUsed(tx)
     th.logGas(gas, message)
@@ -973,12 +971,12 @@ contract('Gas cost tests', async accounts => {
 
     // Whale opens trove and fills SP with 1 billion LUSD
     const whale = accounts[999]
-    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale,ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
+    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale, ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
-    assert.equal(LUSDinSP, dec(9, 28))
+    const USDVinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    assert.equal(USDVinSP, dec(9, 28))
 
     //45 accts open Trove with 1 ether and withdraw 100 LUSD
     const _45_Defaulters = accounts.slice(1, 46)
@@ -1009,14 +1007,14 @@ contract('Gas cost tests', async accounts => {
     // // Check Troves are closed
     for (account of _45_Defaulters) { assert.isFalse(await sortedTroves.contains(account)) }
 
-    // Check initial troves with starting 10E/90LUSD, and whale's trove, are still open
+    // Check initial troves with starting 10E/90USDV, and whale's trove, are still open
     for (account of accounts.slice(101, 111)) { assert.isTrue(await sortedTroves.contains(account)) }
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
-    assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
-    assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
+    const USDVinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    assert.isTrue(USDVinSP_After.lt(web3.utils.toBN(dec(9, 28))))
+    assert.isTrue(USDVinSP_After.gt(web3.utils.toBN('0')))
 
     const gas = th.gasUsed(tx)
     th.logGas(gas, message)
@@ -1041,7 +1039,7 @@ contract('Gas cost tests', async accounts => {
     for (account of _1_Defaulter) { assert.isTrue(await sortedTroves.contains(account)) }
 
     // Account 500 opens with 1 ether and withdraws 110 LUSD
-    await borrowerOperations.openTrove(_100pct, dec(110, 18), accounts[500],ZERO_ADDRESS, { from: accounts[500], value: dec(1, 'ether') })
+    await borrowerOperations.openTrove(_100pct, dec(110, 18), accounts[500], ZERO_ADDRESS, { from: accounts[500], value: dec(1, 'ether') })
     assert.isTrue(await sortedTroves.contains(accounts[500]))
 
     // Account 500 is liquidated, creates pending distribution rewards for all
@@ -1056,11 +1054,11 @@ contract('Gas cost tests', async accounts => {
     // Whale opens trove and fills SP with 1 billion LUSD
     const whale = accounts[999]
     await borrowerOperations.openTrove(_100pct, dec(9, 28), whale, ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
-    await stabilityPool.provideToSP(dec(9, 28),ZERO_ADDRESS,  { from: whale })
+    await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
-    assert.equal(LUSDinSP, dec(9, 28))
+    const USDVinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    assert.equal(USDVinSP, dec(9, 28))
 
     // Price drops, defaulters falls below MCR
     await priceFeed.setPrice(dec(120, 18))
@@ -1084,14 +1082,14 @@ contract('Gas cost tests', async accounts => {
     // // Check Troves are closed
     for (account of _1_Defaulter) { assert.isFalse(await sortedTroves.contains(account)) }
 
-    // Check initial troves with starting 10E/90LUSD, and whale's trove, are still open
+    // Check initial troves with starting 10E/90USDV, and whale's trove, are still open
     for (account of accounts.slice(101, 111)) { assert.isTrue(await sortedTroves.contains(account)) }
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
-    assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
-    assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
+    const USDVinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    assert.isTrue(USDVinSP_After.lt(web3.utils.toBN(dec(9, 28))))
+    assert.isTrue(USDVinSP_After.gt(web3.utils.toBN('0')))
 
     const gas = th.gasUsed(tx)
     th.logGas(gas, message)
@@ -1114,7 +1112,7 @@ contract('Gas cost tests', async accounts => {
     for (account of _2_Defaulters) { assert.isTrue(await sortedTroves.contains(account)) }
 
     // Account 500 opens with 1 ether and withdraws 110 LUSD
-    await borrowerOperations.openTrove(_100pct, dec(110, 18), accounts[500],ZERO_ADDRESS, { from: accounts[500], value: dec(1, 'ether') })
+    await borrowerOperations.openTrove(_100pct, dec(110, 18), accounts[500], ZERO_ADDRESS, { from: accounts[500], value: dec(1, 'ether') })
     assert.isTrue(await sortedTroves.contains(accounts[500]))
 
     // Account 500 is liquidated, creates pending distribution rewards for all
@@ -1129,11 +1127,11 @@ contract('Gas cost tests', async accounts => {
     // Whale opens trove and fills SP with 1 billion LUSD
     const whale = accounts[999]
     await borrowerOperations.openTrove(_100pct, dec(9, 28), whale, ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
-    await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS,  { from: whale })
+    await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
-    assert.equal(LUSDinSP, dec(9, 28))
+    const USDVinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    assert.equal(USDVinSP, dec(9, 28))
 
     // Price drops, defaulters falls below MCR
     await priceFeed.setPrice(dec(120, 18))
@@ -1157,14 +1155,14 @@ contract('Gas cost tests', async accounts => {
     // Check Troves are closed
     for (account of _2_Defaulters) { assert.isFalse(await sortedTroves.contains(account)) }
 
-    // Check initial troves with starting 10E/90LUSD, and whale's trove, are still open
+    // Check initial troves with starting 10E/90USDV, and whale's trove, are still open
     for (account of accounts.slice(101, 111)) { assert.isTrue(await sortedTroves.contains(account)) }
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
-    assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
-    assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
+    const USDVinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    assert.isTrue(USDVinSP_After.lt(web3.utils.toBN(dec(9, 28))))
+    assert.isTrue(USDVinSP_After.gt(web3.utils.toBN('0')))
 
 
     const gas = th.gasUsed(tx)
@@ -1188,7 +1186,7 @@ contract('Gas cost tests', async accounts => {
     for (account of _3_Defaulters) { assert.isTrue(await sortedTroves.contains(account)) }
 
     // Account 500 opens with 1 ether and withdraws 110 LUSD
-    await borrowerOperations.openTrove(_100pct, dec(110, 18), accounts[500],ZERO_ADDRESS, { from: accounts[500], value: dec(1, 'ether') })
+    await borrowerOperations.openTrove(_100pct, dec(110, 18), accounts[500], ZERO_ADDRESS, { from: accounts[500], value: dec(1, 'ether') })
     assert.isTrue(await sortedTroves.contains(accounts[500]))
 
     // Account 500 is liquidated, creates pending distribution rewards for all
@@ -1202,12 +1200,12 @@ contract('Gas cost tests', async accounts => {
 
     // Whale opens trove and fills SP with 1 billion LUSD
     const whale = accounts[999]
-    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale,ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
+    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale, ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
-    assert.equal(LUSDinSP, dec(9, 28))
+    const USDVinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    assert.equal(USDVinSP, dec(9, 28))
 
     // Price drops, defaulters falls below MCR
     await priceFeed.setPrice(dec(120, 18))
@@ -1231,14 +1229,14 @@ contract('Gas cost tests', async accounts => {
     // Check Troves are closed
     for (account of _3_Defaulters) { assert.isFalse(await sortedTroves.contains(account)) }
 
-    // Check initial troves with starting 10E/90LUSD, and whale's trove, are still open
+    // Check initial troves with starting 10E/90USDV, and whale's trove, are still open
     for (account of accounts.slice(101, 111)) { assert.isTrue(await sortedTroves.contains(account)) }
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
-    assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
-    assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
+    const USDVinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    assert.isTrue(USDVinSP_After.lt(web3.utils.toBN(dec(9, 28))))
+    assert.isTrue(USDVinSP_After.gt(web3.utils.toBN('0')))
 
     const gas = th.gasUsed(tx)
     th.logGas(gas, message)
@@ -1261,7 +1259,7 @@ contract('Gas cost tests', async accounts => {
     for (account of _5_Defaulters) { assert.isTrue(await sortedTroves.contains(account)) }
 
     // Account 500 opens with 1 ether and withdraws 110 LUSD
-    await borrowerOperations.openTrove(_100pct, dec(110, 18), accounts[500],ZERO_ADDRESS, { from: accounts[500], value: dec(1, 'ether') })
+    await borrowerOperations.openTrove(_100pct, dec(110, 18), accounts[500], ZERO_ADDRESS, { from: accounts[500], value: dec(1, 'ether') })
     assert.isTrue(await sortedTroves.contains(accounts[500]))
 
     // Account 500 is liquidated, creates pending distribution rewards for all
@@ -1275,12 +1273,12 @@ contract('Gas cost tests', async accounts => {
 
     // Whale opens trove and fills SP with 1 billion LUSD
     const whale = accounts[999]
-    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale,ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
+    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale, ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
-    assert.equal(LUSDinSP, dec(9, 28))
+    const USDVinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    assert.equal(USDVinSP, dec(9, 28))
 
     // Price drops, defaulters falls below MCR
     await priceFeed.setPrice(dec(120, 18))
@@ -1304,14 +1302,14 @@ contract('Gas cost tests', async accounts => {
     // Check Troves are closed
     for (account of _5_Defaulters) { assert.isFalse(await sortedTroves.contains(account)) }
 
-    // Check initial troves with starting 10E/90LUSD, and whale's trove, are still open
+    // Check initial troves with starting 10E/90USDV, and whale's trove, are still open
     for (account of accounts.slice(101, 111)) { assert.isTrue(await sortedTroves.contains(account)) }
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
-    assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
-    assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
+    const USDVinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    assert.isTrue(USDVinSP_After.lt(web3.utils.toBN(dec(9, 28))))
+    assert.isTrue(USDVinSP_After.gt(web3.utils.toBN('0')))
 
     const gas = th.gasUsed(tx)
     th.logGas(gas, message)
@@ -1334,7 +1332,7 @@ contract('Gas cost tests', async accounts => {
     for (account of _10_Defaulters) { assert.isTrue(await sortedTroves.contains(account)) }
 
     // Account 500 opens with 1 ether and withdraws 110 LUSD
-    await borrowerOperations.openTrove(_100pct, dec(110, 18), accounts[500],ZERO_ADDRESS, { from: accounts[500], value: dec(1, 'ether') })
+    await borrowerOperations.openTrove(_100pct, dec(110, 18), accounts[500], ZERO_ADDRESS, { from: accounts[500], value: dec(1, 'ether') })
     assert.isTrue(await sortedTroves.contains(accounts[500]))
 
     // Account 500 is liquidated, creates pending distribution rewards for all
@@ -1348,12 +1346,12 @@ contract('Gas cost tests', async accounts => {
 
     // Whale opens trove and fills SP with 1 billion LUSD
     const whale = accounts[999]
-    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale,ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
+    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale, ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
-    assert.equal(LUSDinSP, dec(9, 28))
+    const USDVinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    assert.equal(USDVinSP, dec(9, 28))
 
     // Price drops, defaulters falls below MCR
     await priceFeed.setPrice(dec(120, 18))
@@ -1377,14 +1375,14 @@ contract('Gas cost tests', async accounts => {
     // Check Troves are closed
     for (account of _10_Defaulters) { assert.isFalse(await sortedTroves.contains(account)) }
 
-    // Check initial troves with starting 10E/90LUSD, and whale's trove, are still open
+    // Check initial troves with starting 10E/90USDV, and whale's trove, are still open
     for (account of accounts.slice(101, 111)) { assert.isTrue(await sortedTroves.contains(account)) }
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
-    assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
-    assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
+    const USDVinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    assert.isTrue(USDVinSP_After.lt(web3.utils.toBN(dec(9, 28))))
+    assert.isTrue(USDVinSP_After.gt(web3.utils.toBN('0')))
 
     const gas = th.gasUsed(tx)
     th.logGas(gas, message)
@@ -1407,7 +1405,7 @@ contract('Gas cost tests', async accounts => {
     for (account of _20_Defaulters) { assert.isTrue(await sortedTroves.contains(account)) }
 
     // Account 500 opens with 1 ether and withdraws 110 LUSD
-    await borrowerOperations.openTrove(_100pct, dec(110, 18), accounts[500],ZERO_ADDRESS, { from: accounts[500], value: dec(1, 'ether') })
+    await borrowerOperations.openTrove(_100pct, dec(110, 18), accounts[500], ZERO_ADDRESS, { from: accounts[500], value: dec(1, 'ether') })
     assert.isTrue(await sortedTroves.contains(accounts[500]))
 
     // Account 500 is liquidated, creates pending distribution rewards for all
@@ -1421,12 +1419,12 @@ contract('Gas cost tests', async accounts => {
 
     // Whale opens trove and fills SP with 1 billion LUSD
     const whale = accounts[999]
-    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale,ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
+    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale, ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
-    assert.equal(LUSDinSP, dec(9, 28))
+    const USDVinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    assert.equal(USDVinSP, dec(9, 28))
 
     // Price drops, defaulters falls below MCR
     await priceFeed.setPrice(dec(120, 18))
@@ -1450,14 +1448,14 @@ contract('Gas cost tests', async accounts => {
     // Check Troves are closed
     for (account of _20_Defaulters) { assert.isFalse(await sortedTroves.contains(account)) }
 
-    // Check initial troves with starting 10E/90LUSD, and whale's trove, are still open
+    // Check initial troves with starting 10E/90USDV, and whale's trove, are still open
     for (account of accounts.slice(101, 111)) { assert.isTrue(await sortedTroves.contains(account)) }
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
-    assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
-    assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
+    const USDVinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    assert.isTrue(USDVinSP_After.lt(web3.utils.toBN(dec(9, 28))))
+    assert.isTrue(USDVinSP_After.gt(web3.utils.toBN('0')))
 
     const gas = th.gasUsed(tx)
     th.logGas(gas, message)
@@ -1480,7 +1478,7 @@ contract('Gas cost tests', async accounts => {
     for (account of _30_Defaulters) { assert.isTrue(await sortedTroves.contains(account)) }
 
     // Account 500 opens with 1 ether and withdraws 110 LUSD
-    await borrowerOperations.openTrove(_100pct, dec(110, 18), accounts[500],ZERO_ADDRESS, { from: accounts[500], value: dec(1, 'ether') })
+    await borrowerOperations.openTrove(_100pct, dec(110, 18), accounts[500], ZERO_ADDRESS, { from: accounts[500], value: dec(1, 'ether') })
     assert.isTrue(await sortedTroves.contains(accounts[500]))
 
     // Account 500 is liquidated, creates pending distribution rewards for all
@@ -1494,12 +1492,12 @@ contract('Gas cost tests', async accounts => {
 
     // Whale opens trove and fills SP with 1 billion LUSD
     const whale = accounts[999]
-    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale,ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
+    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale, ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
-    assert.equal(LUSDinSP, dec(9, 28))
+    const USDVinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    assert.equal(USDVinSP, dec(9, 28))
 
     // Price drops, defaulters falls below MCR
     await priceFeed.setPrice(dec(120, 18))
@@ -1523,14 +1521,14 @@ contract('Gas cost tests', async accounts => {
     // Check Troves are closed
     for (account of _30_Defaulters) { assert.isFalse(await sortedTroves.contains(account)) }
 
-    // Check initial troves with starting 10E/90LUSD, and whale's trove, are still open
+    // Check initial troves with starting 10E/90USDV, and whale's trove, are still open
     for (account of accounts.slice(101, 111)) { assert.isTrue(await sortedTroves.contains(account)) }
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
-    assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
-    assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
+    const USDVinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    assert.isTrue(USDVinSP_After.lt(web3.utils.toBN(dec(9, 28))))
+    assert.isTrue(USDVinSP_After.gt(web3.utils.toBN('0')))
 
     const gas = th.gasUsed(tx)
     th.logGas(gas, message)
@@ -1553,7 +1551,7 @@ contract('Gas cost tests', async accounts => {
     for (account of _40_Defaulters) { assert.isTrue(await sortedTroves.contains(account)) }
 
     // Account 500 opens with 1 ether and withdraws 110 LUSD
-    await borrowerOperations.openTrove(_100pct, dec(110, 18), accounts[500],ZERO_ADDRESS, { from: accounts[500], value: dec(1, 'ether') })
+    await borrowerOperations.openTrove(_100pct, dec(110, 18), accounts[500], ZERO_ADDRESS, { from: accounts[500], value: dec(1, 'ether') })
     assert.isTrue(await sortedTroves.contains(accounts[500]))
 
     // Account 500 is liquidated, creates pending distribution rewards for all
@@ -1567,12 +1565,12 @@ contract('Gas cost tests', async accounts => {
 
     // Whale opens trove and fills SP with 1 billion LUSD
     const whale = accounts[999]
-    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale,ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
+    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale, ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
-    assert.equal(LUSDinSP, dec(9, 28))
+    const USDVinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    assert.equal(USDVinSP, dec(9, 28))
 
     // Price drops, defaulters falls below MCR
     await priceFeed.setPrice(dec(120, 18))
@@ -1596,14 +1594,14 @@ contract('Gas cost tests', async accounts => {
     // Check Troves are closed
     for (account of _40_Defaulters) { assert.isFalse(await sortedTroves.contains(account)) }
 
-    // Check initial troves with starting 10E/90LUSD, and whale's trove, are still open
+    // Check initial troves with starting 10E/90USDV, and whale's trove, are still open
     for (account of accounts.slice(101, 111)) { assert.isTrue(await sortedTroves.contains(account)) }
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
-    assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
-    assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
+    const USDVinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    assert.isTrue(USDVinSP_After.lt(web3.utils.toBN(dec(9, 28))))
+    assert.isTrue(USDVinSP_After.gt(web3.utils.toBN('0')))
 
     const gas = th.gasUsed(tx)
     th.logGas(gas, message)
@@ -1626,7 +1624,7 @@ contract('Gas cost tests', async accounts => {
     for (account of _45_Defaulters) { assert.isTrue(await sortedTroves.contains(account)) }
 
     // Account 500 opens
-    await borrowerOperations.openTrove(_100pct, dec(11000, 18), accounts[500],ZERO_ADDRESS, { from: accounts[500], value: dec(100, 'ether') })
+    await borrowerOperations.openTrove(_100pct, dec(11000, 18), accounts[500], ZERO_ADDRESS, { from: accounts[500], value: dec(100, 'ether') })
     assert.isTrue(await sortedTroves.contains(accounts[500]))
 
     // Account 500 is liquidated, creates pending distribution rewards for all
@@ -1640,12 +1638,12 @@ contract('Gas cost tests', async accounts => {
 
     // Whale opens trove and fills SP with 1 billion LUSD
     const whale = accounts[999]
-    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale,ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
+    await borrowerOperations.openTrove(_100pct, dec(9, 28), whale, ZERO_ADDRESS, { from: whale, value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(9, 28), ZERO_ADDRESS, { from: whale })
 
     // Check SP has 9e28 LUSD
-    const LUSDinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
-    assert.equal(LUSDinSP, dec(9, 28))
+    const USDVinSP = (await stabilityPool.getTotalLUSDDeposits()).toString()
+    assert.equal(USDVinSP, dec(9, 28))
 
     // Price drops, defaulters falls below MCR
     await priceFeed.setPrice(dec(100, 18))
@@ -1669,14 +1667,14 @@ contract('Gas cost tests', async accounts => {
     // Check Troves are closed
     for (account of _45_Defaulters) { assert.isFalse(await sortedTroves.contains(account)) }
 
-    // Check initial troves with starting 10E/90LUSD, and whale's trove, are still open
+    // Check initial troves with starting 10E/90USDV, and whale's trove, are still open
     for (account of accounts.slice(101, 111)) { assert.isTrue(await sortedTroves.contains(account)) }
     assert.isTrue(await sortedTroves.contains(whale))
 
     //Check LUSD in SP has decreased but is still > 0
-    const LUSDinSP_After = await stabilityPool.getTotalLUSDDeposits()
-    assert.isTrue(LUSDinSP_After.lt(web3.utils.toBN(dec(9, 28))))
-    assert.isTrue(LUSDinSP_After.gt(web3.utils.toBN('0')))
+    const USDVinSP_After = await stabilityPool.getTotalLUSDDeposits()
+    assert.isTrue(USDVinSP_After.lt(web3.utils.toBN(dec(9, 28))))
+    assert.isTrue(USDVinSP_After.gt(web3.utils.toBN('0')))
 
     const gas = th.gasUsed(tx)
     th.logGas(gas, message)
@@ -1696,7 +1694,7 @@ contract('Gas cost tests', async accounts => {
     await th.openTrove_allAccounts(accounts.slice(101, 111), contracts, dec(1000, 'ether'), dec(13000, 18))
 
     // Account 500 opens with 1 ether and withdraws LUSD
-    await borrowerOperations.openTrove(_100pct, dec(13000, 18), accounts[500],ZERO_ADDRESS, { from: accounts[500], value: dec(100, 'ether') })
+    await borrowerOperations.openTrove(_100pct, dec(13000, 18), accounts[500], ZERO_ADDRESS, { from: accounts[500], value: dec(100, 'ether') })
 
     const _10_defaulters = accounts.slice(1, 11)
     // --- Accounts to be liquidated in the test tx ---
@@ -1732,7 +1730,7 @@ contract('Gas cost tests', async accounts => {
     await th.openTrove_allAccounts(accounts.slice(101, 111), contracts, dec(100, 'ether'), dec(13000, 18))
 
     // Account 500 opens with 1 ether and withdraws 180 LUSD
-    await borrowerOperations.openTrove(_100pct, dec(13000, 18), accounts[500], ZERO_ADDRESS,{ from: accounts[500], value: dec(100, 'ether') })
+    await borrowerOperations.openTrove(_100pct, dec(13000, 18), accounts[500], ZERO_ADDRESS, { from: accounts[500], value: dec(100, 'ether') })
 
 
     // --- Accounts to be liquidated in the test tx ---
@@ -1769,7 +1767,7 @@ contract('Gas cost tests', async accounts => {
     await th.openTrove_allAccounts(accounts.slice(101, 111), contracts, dec(1000, 'ether'), dec(13000, 18))
 
     // Account 500 opens with 1 ether and withdraws 180 LUSD
-    await borrowerOperations.openTrove(_100pct, dec(13000, 18), accounts[500],ZERO_ADDRESS, { from: accounts[500], value: dec(100, 'ether') })
+    await borrowerOperations.openTrove(_100pct, dec(13000, 18), accounts[500], ZERO_ADDRESS, { from: accounts[500], value: dec(100, 'ether') })
 
     // --- Accounts to be liquidated in the test tx ---
     const _45_defaulters = accounts.slice(1, 46)
@@ -1806,7 +1804,7 @@ contract('Gas cost tests', async accounts => {
     await th.openTrove_allAccounts(accounts.slice(101, 111), contracts, dec(100, 'ether'), dec(13000, 18))
 
     // Account 500 opens with 1 ether and withdraws 180 LUSD
-    await borrowerOperations.openTrove(_100pct, dec(13000, 18), accounts[500],ZERO_ADDRESS, { from: accounts[500], value: dec(100, 'ether') })
+    await borrowerOperations.openTrove(_100pct, dec(13000, 18), accounts[500], ZERO_ADDRESS, { from: accounts[500], value: dec(100, 'ether') })
 
     // --- Accounts to be liquidated in the test tx ---
     const _50_defaulters = accounts.slice(1, 51)
@@ -1845,7 +1843,7 @@ contract('Gas cost tests', async accounts => {
     await th.openTrove_allAccounts(accounts.slice(101, 111), contracts, dec(1000, 'ether'), dec(13000, 18))
 
     // Account 500 opens with 1 ether and withdraws 180 LUSD
-    await borrowerOperations.openTrove(_100pct, dec(13000, 18), accounts[500],ZERO_ADDRESS, { from: accounts[500], value: dec(100, 'ether') })
+    await borrowerOperations.openTrove(_100pct, dec(13000, 18), accounts[500], ZERO_ADDRESS, { from: accounts[500], value: dec(100, 'ether') })
 
     const _10_defaulters = accounts.slice(1, 11)
     // --- Accounts to be liquidated in the test tx ---
@@ -1860,7 +1858,7 @@ contract('Gas cost tests', async accounts => {
     await priceFeed.setPrice(dec(200, 18))
 
     // Whale opens trove and fills SP with 1 billion LUSD
-    await borrowerOperations.openTrove(_100pct, dec(1, 27), accounts[999],ZERO_ADDRESS, { from: accounts[999], value: dec(1, 27) })
+    await borrowerOperations.openTrove(_100pct, dec(1, 27), accounts[999], ZERO_ADDRESS, { from: accounts[999], value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(1, 27), ZERO_ADDRESS, { from: accounts[999] })
 
     // Price drops, account[1]'s ICR falls below MCR
@@ -1888,7 +1886,7 @@ contract('Gas cost tests', async accounts => {
     await th.openTrove_allAccounts(accounts.slice(101, 111), contracts, dec(100, 'ether'), dec(10000, 18))
 
     // Account 500 opens with 1 ether and withdraws 180 LUSD
-    await borrowerOperations.openTrove(_100pct, dec(13000, 18), accounts[500], ZERO_ADDRESS,{ from: accounts[500], value: dec(100, 'ether') })
+    await borrowerOperations.openTrove(_100pct, dec(13000, 18), accounts[500], ZERO_ADDRESS, { from: accounts[500], value: dec(100, 'ether') })
 
 
     // --- Accounts to be liquidated in the test tx ---
@@ -1904,7 +1902,7 @@ contract('Gas cost tests', async accounts => {
     await priceFeed.setPrice(dec(200, 18))
 
     // Whale opens trove and fills SP with 1 billion LUSD
-    await borrowerOperations.openTrove(_100pct, dec(1, 27), accounts[999],ZERO_ADDRESS, { from: accounts[999], value: dec(1, 27) })
+    await borrowerOperations.openTrove(_100pct, dec(1, 27), accounts[999], ZERO_ADDRESS, { from: accounts[999], value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(1, 27), ZERO_ADDRESS, { from: accounts[999] })
 
 
@@ -1932,7 +1930,7 @@ contract('Gas cost tests', async accounts => {
     await th.openTrove_allAccounts(accounts.slice(101, 111), contracts, dec(100, 'ether'), dec(13000, 18))
 
     // Account 500 opens with 1 ether and withdraws 180 LUSD
-    await borrowerOperations.openTrove(_100pct, dec(13000, 18), accounts[500],ZERO_ADDRESS, { from: accounts[500], value: dec(100, 'ether') })
+    await borrowerOperations.openTrove(_100pct, dec(13000, 18), accounts[500], ZERO_ADDRESS, { from: accounts[500], value: dec(100, 'ether') })
 
     // --- Accounts to be liquidated in the test tx ---
     const _45_defaulters = accounts.slice(1, 46)
@@ -1947,7 +1945,7 @@ contract('Gas cost tests', async accounts => {
     await priceFeed.setPrice(dec(200, 18))
 
     // Whale opens trove and fills SP with 1 billion LUSD
-    await borrowerOperations.openTrove(_100pct, dec(1, 27), accounts[999],ZERO_ADDRESS, { from: accounts[999], value: dec(1, 27) })
+    await borrowerOperations.openTrove(_100pct, dec(1, 27), accounts[999], ZERO_ADDRESS, { from: accounts[999], value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(1, 27), ZERO_ADDRESS, { from: accounts[999] })
 
 
@@ -1975,7 +1973,7 @@ contract('Gas cost tests', async accounts => {
     await th.openTrove_allAccounts(accounts.slice(101, 111), contracts, dec(100, 'ether'), dec(13000, 18))
 
     // Account 500 opens with 1 ether and withdraws 180 LUSD
-    await borrowerOperations.openTrove(_100pct, dec(13000, 18), accounts[500],ZERO_ADDRESS, { from: accounts[500], value: dec(100, 'ether') })
+    await borrowerOperations.openTrove(_100pct, dec(13000, 18), accounts[500], ZERO_ADDRESS, { from: accounts[500], value: dec(100, 'ether') })
 
     // --- Accounts to be liquidated in the test tx ---
     const _50_defaulters = accounts.slice(1, 51)
@@ -1990,7 +1988,7 @@ contract('Gas cost tests', async accounts => {
     await priceFeed.setPrice(dec(200, 18))
 
     // Whale opens trove and fills SP with 1 billion LUSD
-    await borrowerOperations.openTrove(_100pct, dec(1, 27), accounts[999],ZERO_ADDRESS, { from: accounts[999], value: dec(1, 27) })
+    await borrowerOperations.openTrove(_100pct, dec(1, 27), accounts[999], ZERO_ADDRESS, { from: accounts[999], value: dec(1, 27) })
     await stabilityPool.provideToSP(dec(1, 27), ZERO_ADDRESS, { from: accounts[999] })
 
 
@@ -1998,7 +1996,7 @@ contract('Gas cost tests', async accounts => {
     await priceFeed.setPrice(dec(100, 18))
 
     await th.fastForwardTime(timeValues.SECONDS_IN_ONE_HOUR, web3.currentProvider)
-    
+
     const tx = await troveManager.batchLiquidateTroves(_50_defaulters, { from: accounts[0] })
 
     // check all defaulters liquidated

@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.11;
 
-import "../../Dependencies/IERC20.sol";
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import "../../Dependencies/SafeMath.sol";
 import "./Address.sol";
 
@@ -18,6 +18,7 @@ import "./Address.sol";
 library SafeERC20 {
     using SafeMath for uint256;
     using Address for address;
+    //using SafeERC20Upgradeable for IERC20;
 
     function safeTransfer(IERC20 token, address to, uint256 value) internal {
         _callOptionalReturn(token, abi.encodeWithSelector(token.transfer.selector, to, value));

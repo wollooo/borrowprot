@@ -1,131 +1,153 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.11;
+pragma solidity ^0.8.11;
 
 import "./Interfaces/ITroveManager.sol";
 import "./Interfaces/ISortedTroves.sol";
 import "./Dependencies/LiquityBase.sol";
-import "./Dependencies/Ownable.sol";
 import "./Dependencies/CheckContract.sol";
-import "./Dependencies/SafeMath.sol";
 
 contract HintHelpers is LiquityBase, CheckContract {
-    using SafeMath for uint256;
-    string constant public NAME = "HintHelpers";
+	using SafeMathUpgradeable for uint256;
+	string public constant NAME = "HintHelpers";
+
+	struct LocalRedemptionVars {
+		address _asset;
+		uint256 _LQTYamount;
+		uint256 _pricel;
+		uint256 _maxIterations;
+	}
+
+	ISortedTroves public sortedTroves;
+	ITroveManager public troveManager;
 
 	bool public isInitialized;
-    ISortedTroves public sortedTroves;
-    ITroveManager public troveManager;
 
-    // --- Events ---
+	// --- Events ---
 
-    event SortedTrovesAddressChanged(address _sortedTrovesAddress);
-    event TroveManagerAddressChanged(address _troveManagerAddress);
+	event SortedTrovesAddressChanged(address _sortedTrovesAddress);
+	event TroveManagerAddressChanged(address _troveManagerAddress);
 
-    // --- Dependency setters ---
+	// --- Dependency setters ---
 
-    function setAddresses(
-        address _sortedTrovesAddress,
-        address _troveManagerAddress
-    )
-        external
-        initializer 
-        {
+	function setAddresses(
+		address _sortedTrovesAddress,
+		address _troveManagerAddress,
+		address _vaultParametersAddress
+	) external initializer {
 		require(!isInitialized, "Already initialized");
 		checkContract(_sortedTrovesAddress);
 		checkContract(_troveManagerAddress);
-		// checkContract(_vaultParametersAddress);
+		checkContract(_vaultParametersAddress);
 		isInitialized = true;
 
 		__Ownable_init();
 
-        sortedTroves = ISortedTroves(_sortedTrovesAddress);
-        troveManager = ITroveManager(_troveManagerAddress);
+		sortedTroves = ISortedTroves(_sortedTrovesAddress);
+		troveManager = ITroveManager(_troveManagerAddress);
 
-        emit SortedTrovesAddressChanged(_sortedTrovesAddress);
-        emit TroveManagerAddressChanged(_troveManagerAddress);
+		emit SortedTrovesAddressChanged(_sortedTrovesAddress);
+		emit TroveManagerAddressChanged(_troveManagerAddress);
 
-        renounceOwnership();
-    }
+		setKumoParameters(_vaultParametersAddress);
+	}
 
-    // --- Functions ---
+	// --- Functions ---
 
-    /* getRedemptionHints() - Helper function for finding the right hints to pass to redeemCollateral().
-     *
-     * It simulates a redemption of `_LUSDamount` to figure out where the redemption sequence will start and what state the final Trove
-     * of the sequence will end up in.
-     *
-     * Returns three hints:
-     *  - `firstRedemptionHint` is the address of the first Trove with ICR >= MCR (i.e. the first Trove that will be redeemed).
-     *  - `partialRedemptionHintNICR` is the final nominal ICR of the last Trove of the sequence after being hit by partial redemption,
-     *     or zero in case of no partial redemption.
-     *  - `truncatedLUSDamount` is the maximum amount that can be redeemed out of the the provided `_LUSDamount`. This can be lower than
-     *    `_LUSDamount` when redeeming the full amount would leave the last Trove of the redemption sequence with less net debt than the
-     *    minimum allowed value (i.e. MIN_NET_DEBT).
-     *
-     * The number of Troves to consider for redemption can be capped by passing a non-zero value as `_maxIterations`, while passing zero
-     * will leave it uncapped.
-     */
+	/* getRedemptionHints() - Helper function for finding the right hints to pass to redeemCollateral().
+	 *
+	 * It simulates a redemption of `_LQTYamount` to figure out where the redemption sequence will start and what state the final Trove
+	 * of the sequence will end up in.
+	 *
+	 * Returns three hints:
+	 *  - `firstRedemptionHint` is the address of the first Trove with ICR >= MCR (i.e. the first Trove that will be redeemed).
+	 *  - `partialRedemptionHintNICR` is the final nominal ICR of the last Trove of the sequence after being hit by partial redemption,
+	 *     or zero in case of no partial redemption.
+	 *  - `truncatedLQTYamount` is the maximum amount that can be redeemed out of the the provided `_LQTYamount`. This can be lower than
+	 *    `_LQTYamount` when redeeming the full amount would leave the last Trove of the redemption sequence with less net debt than the
+	 *    minimum allowed value (i.e. kumoParams.MIN_NET_DEBT()).
+	 *
+	 * The number of Troves to consider for redemption can be capped by passing a non-zero value as `_maxIterations`, while passing zero
+	 * will leave it uncapped.
+	 */
 
-    function getRedemptionHints(
-        uint _LUSDamount, 
-        uint _price,
-        uint _maxIterations
-    )
-        external
-        view
-        returns (
-            address firstRedemptionHint,
-            uint partialRedemptionHintNICR,
-            uint truncatedLUSDamount
-        )
-    {
-        ISortedTroves sortedTrovesCached = sortedTroves;
+	function getRedemptionHints(
+		address _asset,
+		uint256 _LQTYamount,
+		uint256 _price,
+		uint256 _maxIterations
+	)
+		external
+		view
+		returns (
+			address firstRedemptionHint,
+			uint256 partialRedemptionHintNICR,
+			uint256 truncatedLQTYamount
+		)
+	{
+		ISortedTroves sortedTrovesCached = sortedTroves;
 
-        uint remainingLUSD = _LUSDamount;
-        address currentTroveuser = sortedTrovesCached.getLast();
+		LocalRedemptionVars memory vars = LocalRedemptionVars(
+			_asset,
+			_LQTYamount,
+			_price,
+			_maxIterations
+		);
 
-        while (currentTroveuser != address(0) && troveManager.getCurrentICR(currentTroveuser, _price) < MCR) {
-            currentTroveuser = sortedTrovesCached.getPrev(currentTroveuser);
-        }
+		uint256 remainingLQTY = _LQTYamount;
+		address currentTroveuser = sortedTrovesCached.getLast(vars._asset);
 
-        firstRedemptionHint = currentTroveuser;
+		while (
+			currentTroveuser != address(0) &&
+			troveManager.getCurrentICR(vars._asset, currentTroveuser, _price) <
+			kumoParams.MCR(vars._asset)
+		) {
+			currentTroveuser = sortedTrovesCached.getPrev(vars._asset, currentTroveuser);
+		}
 
-        if (_maxIterations == 0) {
-            _maxIterations = type(uint256).max;
-        }
+		firstRedemptionHint = currentTroveuser;
 
-        while (currentTroveuser != address(0) && remainingLUSD > 0 && _maxIterations-- > 0) {
-            uint netLUSDDebt = _getNetDebt(troveManager.getTroveDebt(currentTroveuser))
-                + (troveManager.getPendingLUSDDebtReward(currentTroveuser));
+		if (_maxIterations == 0) {
+			_maxIterations = type(uint256).max;
+		}
 
-            if (netLUSDDebt > remainingLUSD) {
-                if (netLUSDDebt > MIN_NET_DEBT) {
-                    uint maxRedeemableLUSD = LiquityMath._min(remainingLUSD, netLUSDDebt.sub(MIN_NET_DEBT));
+		while (currentTroveuser != address(0) && remainingLQTY > 0 && _maxIterations-- > 0) {
+			uint256 netLQTYDebt = _getNetDebt(
+				vars._asset,
+				troveManager.getTroveDebt(vars._asset, currentTroveuser)
+			).add(troveManager.getPendingLUSDDebtReward(vars._asset, currentTroveuser));
 
-                    uint ETH = troveManager.getTroveColl(currentTroveuser)
-                        .add(troveManager.getPendingETHReward(currentTroveuser));
+			if (netLQTYDebt > remainingLQTY) {
+				if (netLQTYDebt > kumoParams.MIN_NET_DEBT(vars._asset)) {
+					uint256 maxRedeemableLQTY = LiquityMath._min(
+						remainingLQTY,
+						netLQTYDebt.sub(kumoParams.MIN_NET_DEBT(vars._asset))
+					);
 
-                    uint newColl = ETH.sub(maxRedeemableLUSD.mul(DECIMAL_PRECISION).div(_price));
-                    uint newDebt = netLUSDDebt.sub(maxRedeemableLUSD);
+					uint256 ETH = troveManager.getTroveColl(vars._asset, currentTroveuser).add(
+						troveManager.getPendingAssetReward(vars._asset, currentTroveuser)
+					);
 
-                    uint compositeDebt = _getCompositeDebt(newDebt);
-                    partialRedemptionHintNICR = LiquityMath._computeNominalCR(newColl, compositeDebt);
+					uint256 newColl = ETH.sub(maxRedeemableLQTY.mul(DECIMAL_PRECISION).div(_price));
+					uint256 newDebt = netLQTYDebt.sub(maxRedeemableLQTY);
 
-                    remainingLUSD = remainingLUSD.sub(maxRedeemableLUSD);
-                }
-                break;
-            } else {
-                remainingLUSD = remainingLUSD.sub(netLUSDDebt);
-            }
+					uint256 compositeDebt = _getCompositeDebt(vars._asset, newDebt);
+					partialRedemptionHintNICR = LiquityMath._computeNominalCR(newColl, compositeDebt);
 
-            currentTroveuser = sortedTrovesCached.getPrev(currentTroveuser);
-        }
+					remainingLQTY = remainingLQTY.sub(maxRedeemableLQTY);
+				}
+				break;
+			} else {
+				remainingLQTY = remainingLQTY.sub(netLQTYDebt);
+			}
 
-        truncatedLUSDamount = _LUSDamount.sub(remainingLUSD);
-    }
+			currentTroveuser = sortedTrovesCached.getPrev(vars._asset, currentTroveuser);
+		}
 
-    /* getApproxHint() - return address of a Trove that is, on average, (length / numTrials) positions away in the 
+		truncatedLQTYamount = _LQTYamount.sub(remainingLQTY);
+	}
+
+	/* getApproxHint() - return address of a Trove that is, on average, (length / numTrials) positions away in the 
     sortedTroves list from the correct insert position of the Trove to be inserted. 
     
     Note: The output address is worst-case O(n) positions away from the correct insert position, however, the function 
@@ -134,46 +156,62 @@ contract HintHelpers is LiquityBase, CheckContract {
     Submitting numTrials = k * sqrt(length), with k = 15 makes it very, very likely that the ouput address will 
     be <= sqrt(length) positions away from the correct insert position.
     */
-    function getApproxHint(uint _CR, uint _numTrials, uint _inputRandomSeed)
-        external
-        view
-        returns (address hintAddress, uint diff, uint latestRandomSeed)
-    {
-        uint arrayLength = troveManager.getTroveOwnersCount();
+	function getApproxHint(
+		address _asset,
+		uint256 _CR,
+		uint256 _numTrials,
+		uint256 _inputRandomSeed
+	)
+		external
+		view
+		returns (
+			address hintAddress,
+			uint256 diff,
+			uint256 latestRandomSeed
+		)
+	{
+		uint256 arrayLength = troveManager.getTroveOwnersCount(_asset);
 
-        if (arrayLength == 0) {
-            return (address(0), 0, _inputRandomSeed);
-        }
+		if (arrayLength == 0) {
+			return (address(0), 0, _inputRandomSeed);
+		}
 
-        hintAddress = sortedTroves.getLast();
-        diff = LiquityMath._getAbsoluteDifference(_CR, troveManager.getNominalICR(hintAddress));
-        latestRandomSeed = _inputRandomSeed;
+		hintAddress = sortedTroves.getLast(_asset);
+		diff = LiquityMath._getAbsoluteDifference(
+			_CR,
+			troveManager.getNominalICR(_asset, hintAddress)
+		);
+		latestRandomSeed = _inputRandomSeed;
 
-        uint i = 1;
+		uint256 i = 1;
 
-        while (i < _numTrials) {
-            latestRandomSeed = uint(keccak256(abi.encodePacked(latestRandomSeed)));
+		while (i < _numTrials) {
+			latestRandomSeed = uint256(keccak256(abi.encodePacked(latestRandomSeed)));
 
-            uint arrayIndex = latestRandomSeed % arrayLength;
-            address currentAddress = troveManager.getTroveFromTroveOwnersArray(arrayIndex);
-            uint currentNICR = troveManager.getNominalICR(currentAddress);
+			uint256 arrayIndex = latestRandomSeed % arrayLength;
+			address currentAddress = troveManager.getTroveFromTroveOwnersArray(_asset, arrayIndex);
+			uint256 currentNICR = troveManager.getNominalICR(_asset, currentAddress);
 
-            // check if abs(current - CR) > abs(closest - CR), and update closest if current is closer
-            uint currentDiff = LiquityMath._getAbsoluteDifference(currentNICR, _CR);
+			// check if abs(current - CR) > abs(closest - CR), and update closest if current is closer
+			uint256 currentDiff = LiquityMath._getAbsoluteDifference(currentNICR, _CR);
 
-            if (currentDiff < diff) {
-                diff = currentDiff;
-                hintAddress = currentAddress;
-            }
-            i++;
-        }
-    }
+			if (currentDiff < diff) {
+				diff = currentDiff;
+				hintAddress = currentAddress;
+			}
+			i++;
+		}
+	}
 
-    function computeNominalCR(uint _coll, uint _debt) external pure returns (uint) {
-        return LiquityMath._computeNominalCR(_coll, _debt);
-    }
+	function computeNominalCR(uint256 _coll, uint256 _debt) external pure returns (uint256) {
+		return LiquityMath._computeNominalCR(_coll, _debt);
+	}
 
-    function computeCR(uint _coll, uint _debt, uint _price) external pure returns (uint) {
-        return LiquityMath._computeCR(_coll, _debt, _price);
-    }
+	function computeCR(
+		uint256 _coll,
+		uint256 _debt,
+		uint256 _price
+	) external pure returns (uint256) {
+		return LiquityMath._computeCR(_coll, _debt, _price);
+	}
 }

@@ -120,7 +120,7 @@ contract('BorrowerOperations', async accounts => {
 
       // let index = 0;
       // for (const acc of accounts) {
-      //   await vstaToken.approve(vstaStaking.address, await web3.eth.getBalance(acc), { from: acc })
+      //   await LUSDaToken.approve(LUSDaStaking.address, await web3.eth.getBalance(acc), { from: acc })
       //   await erc20.mint(acc, await web3.eth.getBalance(acc))
       //   index++;
 

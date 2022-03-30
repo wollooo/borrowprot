@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.11;
+pragma solidity ^0.8.11;
 
-import "../Dependencies/IERC20.sol";
-import "../Dependencies/IERC2612.sol";
+import "../Dependencies/ERC20Permit.sol";
+import "../Interfaces/IStabilityPoolManager.sol";
 
-interface ILQTYToken is IERC20, IERC2612 { 
-   
+interface ILQTYToken is ERC20Permit {
+    
     // --- Events ---
     
     event CommunityIssuanceAddressSet(address _communityIssuanceAddress);

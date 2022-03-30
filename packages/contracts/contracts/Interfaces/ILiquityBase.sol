@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.11;
+pragma solidity ^0.8.11;
 
-import "./IPriceFeed.sol";
+//import "./IPriceFeed.sol";
 import "./IKumoParameters.sol";
 
 
@@ -12,5 +12,5 @@ interface ILiquityBase {
 
 	function kumoParameters() external view returns (IKumoParameters);
 
-    function priceFeed() external view returns (IPriceFeed);
+    //function priceFeed() external view returns (IPriceFeed);
 }

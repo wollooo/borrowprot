@@ -31,8 +31,8 @@ contract KumoParameters is IKumoParameters, OwnableUpgradeable, CheckContract {
 	// Critical system collateral ratio. If the system's total collateral ratio (TCR) falls below the CCR, Recovery Mode is triggered.
 	mapping(address => uint256) public override CCR;
 
-	mapping(address => uint256) public override KUMO_GAS_COMPENSATION; // Amount of VST to be locked in gas pool on opening troves
-	mapping(address => uint256) public override MIN_NET_DEBT; // Minimum amount of net VST debt a trove must have
+	mapping(address => uint256) public override KUMO_GAS_COMPENSATION; // Amount of LUSD to be locked in gas pool on opening troves
+	mapping(address => uint256) public override MIN_NET_DEBT; // Minimum amount of net LUSD debt a trove must have
 	mapping(address => uint256) public override PERCENT_DIVISOR; // dividing by 200 yields 0.5%
 	mapping(address => uint256) public override BORROWING_FEE_FLOOR;
 	mapping(address => uint256) public override REDEMPTION_FEE_FLOOR;

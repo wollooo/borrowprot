@@ -39,7 +39,7 @@ interface IKumoParameters {
 	// Critical system collateral ratio. If the system's total collateral ratio (TCR) falls below the CCR, Recovery Mode is triggered.
 	function CCR(address _collateral) external view returns (uint256);
 
-	function KUMO_GAS_COMPENSATION(address _collateral) external view returns (uint256);
+	function LUSD_GAS_COMPENSATION(address _collateral) external view returns (uint256);
 
 	function MIN_NET_DEBT(address _collateral) external view returns (uint256);
 
@@ -77,7 +77,7 @@ interface IKumoParameters {
 
 	function setAsDefaultWithRemptionBlock(address _asset, uint256 blockInDays) external;
 
-	function setKUMOGasCompensation(address _asset, uint256 gasCompensation) external;
+	function setLUSDGasCompensation(address _asset, uint256 gasCompensation) external;
 
 	function setMinNetDebt(address _asset, uint256 minNetDebt) external;
 

@@ -1,139 +1,235 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.11;
+pragma solidity ^0.8.11;
 
+import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-import "../Interfaces/ILQTYToken.sol";
+import "../Interfaces/IStabilityPoolManager.sol";
 import "../Interfaces/ICommunityIssuance.sol";
 import "../Dependencies/BaseMath.sol";
 import "../Dependencies/LiquityMath.sol";
-import "../Dependencies/Ownable.sol";
 import "../Dependencies/CheckContract.sol";
-import "../Dependencies/SafeMath.sol";
-
 
 contract CommunityIssuance is ICommunityIssuance, OwnableUpgradeable, CheckContract, BaseMath {
-    using SafeMath for uint;
+	using SafeMathUpgradeable for uint256;
+	using SafeERC20Upgradeable for IERC20Upgradeable;
 
-    bool public isInitialized;
-    // --- Data ---
+	string public constant NAME = "CommunityIssuance";
+	uint256 public constant DISTRIBUTION_DURATION = 7 days / 60;
+	uint256 public constant SECONDS_IN_ONE_MINUTE = 60;
 
-    string constant public NAME = "CommunityIssuance";
+	IERC20Upgradeable public lqtyToken;
+	IStabilityPoolManager public stabilityPoolManager;
 
-    uint constant public SECONDS_IN_ONE_MINUTE = 60;
+	mapping(address => uint256) public totalLQTYIssued;
+	mapping(address => uint256) public lastUpdateTime;
+	mapping(address => uint256) public LQTYSupplyCaps;
+	mapping(address => uint256) public lqtyDistributionsByPool;
 
-   /* The issuance factor F determines the curvature of the issuance curve.
-    *
-    * Minutes in one year: 60*24*365 = 525600
-    *
-    * For 50% of remaining tokens issued each year, with minutes as time units, we have:
-    * 
-    * F ** 525600 = 0.5
-    * 
-    * Re-arranging:
-    * 
-    * 525600 * ln(F) = ln(0.5)
-    * F = 0.5 ** (1/525600)
-    * F = 0.999998681227695000 
-    */
-    uint constant public ISSUANCE_FACTOR = 999998681227695000;
+	address public adminContract;
 
-    /* 
-    * The community LQTY supply cap is the starting balance of the Community Issuance contract.
-    * It should be minted to this contract by LQTYToken, when the token is deployed.
-    * 
-    * Set to 32M (slightly less than 1/3) of total LQTY supply.
-    */
-    uint constant public LQTYSupplyCap = 32e24; // 32 million
+	bool public isInitialized;
 
-    ILQTYToken public lqtyToken;
+	modifier activeStabilityPoolOnly(address _pool) {
+		require(lastUpdateTime[_pool] != 0, "CommunityIssuance: Pool needs to be added first.");
+		_;
+	}
 
-    address public stabilityPoolAddress;
+	modifier isController() {
+		require(msg.sender == owner() || msg.sender == adminContract, "Invalid Permission");
+		_;
+	}
 
-    uint public totalLQTYIssued;
-    uint public immutable deploymentTime;
+	modifier isStabilityPool(address _pool) {
+		require(
+			stabilityPoolManager.isStabilityPool(_pool),
+			"CommunityIssuance: caller is not SP"
+		);
+		_;
+	}
 
-    // --- Events ---
+	modifier onlyStabilityPool() {
+		require(
+			stabilityPoolManager.isStabilityPool(msg.sender),
+			"CommunityIssuance: caller is not SP"
+		);
+		_;
+	}
 
-    // event LQTYTokenAddressSet(address _lqtyTokenAddress);
-    // event StabilityPoolAddressSet(address _stabilityPoolAddress);
-    // event TotalLQTYIssuedUpdated(uint _totalLQTYIssued);
-
-    // --- Functions ---
-
-    constructor() {
-        deploymentTime = block.timestamp;
-    }
-
-    function setAddresses
-    (
-        address _lqtyTokenAddress, 
-        address _stabilityPoolAddress
-    ) 
-        external 
-        override 
-        initializer
-    {
-        require(!isInitialized, "Already initialized");
-        checkContract(_lqtyTokenAddress);
-        checkContract(_stabilityPoolAddress);
-        
+	// --- Functions ---
+	function setAddresses(
+		address _lqtyTokenAddress,
+		address _stabilityPoolManagerAddress,
+		address _adminContract
+	) external override initializer {
+		require(!isInitialized, "Already initialized");
+		checkContract(_lqtyTokenAddress);
+		checkContract(_stabilityPoolManagerAddress);
+		checkContract(_adminContract);
 		isInitialized = true;
 		__Ownable_init();
 
-        lqtyToken = ILQTYToken(_lqtyTokenAddress);
-        stabilityPoolAddress = _stabilityPoolAddress;
+		adminContract = _adminContract;
 
-        // When LQTYToken deployed, it should have transferred CommunityIssuance's LQTY entitlement
-        uint LQTYBalance = lqtyToken.balanceOf(address(this));
-        assert(LQTYBalance >= LQTYSupplyCap);
+		lqtyToken = IERC20Upgradeable(_lqtyTokenAddress);
+		stabilityPoolManager = IStabilityPoolManager(_stabilityPoolManagerAddress);
 
-        emit LQTYTokenAddressSet(_lqtyTokenAddress);
-        emit StabilityPoolAddressSet(_stabilityPoolAddress);
+		emit LQTYTokenAddressSet(_lqtyTokenAddress);
+		emit StabilityPoolAddressSet(_stabilityPoolManagerAddress);
+	}
 
-        renounceOwnership();
-    }
+	function setAdminContract(address _admin) external onlyOwner {
+		require(_admin != address(0));
+		adminContract = _admin;
+	}
 
-    function issueLQTY() external override returns (uint) {
-        _requireCallerIsStabilityPool();
+	function addFundToStabilityPool(address _pool, uint256 _assignedSupply)
+		external
+		override
+		isController
+	{
+		_addFundToStabilityPoolFrom(_pool, _assignedSupply, msg.sender);
+	}
 
-        uint latestTotalLQTYIssued = LQTYSupplyCap.mul(_getCumulativeIssuanceFraction()).div(DECIMAL_PRECISION);
-        uint issuance = latestTotalLQTYIssued.sub(totalLQTYIssued);
+	function removeFundFromStabilityPool(address _pool, uint256 _fundToRemove)
+		external
+		onlyOwner
+		activeStabilityPoolOnly(_pool)
+	{
+		uint256 newCap = LQTYSupplyCaps[_pool].sub(_fundToRemove);
+		require(
+			totalLQTYIssued[_pool] <= newCap,
+			"CommunityIssuance: Stability Pool doesn't have enough supply."
+		);
 
-        totalLQTYIssued = latestTotalLQTYIssued;
-        emit TotalLQTYIssuedUpdated(latestTotalLQTYIssued);
-        
-        return issuance;
-    }
+		LQTYSupplyCaps[_pool] -= _fundToRemove;
 
-    /* Gets 1-f^t    where: f < 1
+		if (totalLQTYIssued[_pool] == LQTYSupplyCaps[_pool]) {
+			disableStabilityPool(_pool);
+		}
 
-    f: issuance factor that determines the shape of the curve
-    t:  time passed since last LQTY issuance event  */
-    function _getCumulativeIssuanceFraction() internal view returns (uint) {
-        // Get the time passed since deployment
-        uint timePassedInMinutes = block.timestamp.sub(deploymentTime).div(SECONDS_IN_ONE_MINUTE);
+		lqtyToken.safeTransfer(msg.sender, _fundToRemove);
+	}
 
-        // f^t
-        uint power = LiquityMath._decPow(ISSUANCE_FACTOR, timePassedInMinutes);
+	function addFundToStabilityPoolFrom(
+		address _pool,
+		uint256 _assignedSupply,
+		address _spender
+	) external override isController {
+		_addFundToStabilityPoolFrom(_pool, _assignedSupply, _spender);
+	}
 
-        //  (1 - f^t)
-        uint cumulativeIssuanceFraction = (uint(DECIMAL_PRECISION).sub(power));
-        assert(cumulativeIssuanceFraction <= DECIMAL_PRECISION); // must be in range [0,1]
+	function _addFundToStabilityPoolFrom(
+		address _pool,
+		uint256 _assignedSupply,
+		address _spender
+	) internal {
+		require(
+			stabilityPoolManager.isStabilityPool(_pool),
+			"CommunityIssuance: Invalid Stability Pool"
+		);
 
-        return cumulativeIssuanceFraction;
-    }
+		if (lastUpdateTime[_pool] == 0) {
+			lastUpdateTime[_pool] = block.timestamp;
+		}
 
-    function sendLQTY(address _account, uint _LQTYamount) external override {
-        _requireCallerIsStabilityPool();
+		LQTYSupplyCaps[_pool] += _assignedSupply;
+		lqtyToken.safeTransferFrom(_spender, address(this), _assignedSupply);
+	}
 
-        lqtyToken.transfer(_account, _LQTYamount);
-    }
+	function transferFundToAnotherStabilityPool(
+		address _target,
+		address _receiver,
+		uint256 _quantity
+	)
+		external
+		override
+		onlyOwner
+		activeStabilityPoolOnly(_target)
+		activeStabilityPoolOnly(_receiver)
+	{
+		uint256 newCap = LQTYSupplyCaps[_target].sub(_quantity);
+		require(
+			totalLQTYIssued[_target] <= newCap,
+			"CommunityIssuance: Stability Pool doesn't have enough supply."
+		);
 
-    // --- 'require' functions ---
+		LQTYSupplyCaps[_target] -= _quantity;
+		LQTYSupplyCaps[_receiver] += _quantity;
 
-    function _requireCallerIsStabilityPool() internal view {
-        require(msg.sender == stabilityPoolAddress, "CommunityIssuance: caller is not SP");
-    }
+		if (totalLQTYIssued[_target] == LQTYSupplyCaps[_target]) {
+			disableStabilityPool(_target);
+		}
+	}
+
+	function disableStabilityPool(address _pool) internal {
+		lastUpdateTime[_pool] = 0;
+		LQTYSupplyCaps[_pool] = 0;
+		totalLQTYIssued[_pool] = 0;
+	}
+
+	function issueLQTY() external override onlyStabilityPool returns (uint256) {
+		return _issueLQTY(msg.sender);
+	}
+
+	function _issueLQTY(address _pool) internal isStabilityPool(_pool) returns (uint256) {
+		uint256 maxPoolSupply = LQTYSupplyCaps[_pool];
+
+		if (totalLQTYIssued[_pool] >= maxPoolSupply) return 0;
+
+		uint256 issuance = _getLastUpdateTokenDistribution(_pool);
+		uint256 totalIssuance = issuance.add(totalLQTYIssued[_pool]);
+
+		if (totalIssuance > maxPoolSupply) {
+			issuance = maxPoolSupply.sub(totalLQTYIssued[_pool]);
+			totalIssuance = maxPoolSupply;
+		}
+
+		lastUpdateTime[_pool] = block.timestamp;
+		totalLQTYIssued[_pool] = totalIssuance;
+		emit TotalLQTYIssuedUpdated(_pool, totalIssuance);
+
+		return issuance;
+	}
+
+	function _getLastUpdateTokenDistribution(address stabilityPool)
+		internal
+		view
+		returns (uint256)
+	{
+		require(lastUpdateTime[stabilityPool] != 0, "Stability pool hasn't been assigned");
+		uint256 timePassed = block.timestamp.sub(lastUpdateTime[stabilityPool]).div(
+			SECONDS_IN_ONE_MINUTE
+		);
+		uint256 totalDistribuedSinceBeginning = lqtyDistributionsByPool[stabilityPool].mul(
+			timePassed
+		);
+
+		return totalDistribuedSinceBeginning;
+	}
+
+	function sendLQTY(address _account, uint256 _LQTYamount)
+		external
+		override
+		onlyStabilityPool
+	{
+		uint256 balanceLQTY = lqtyToken.balanceOf(address(this));
+		uint256 safeAmount = balanceLQTY >= _LQTYamount ? _LQTYamount : balanceLQTY;
+
+		if (safeAmount == 0) {
+			return;
+		}
+
+		lqtyToken.transfer(_account, safeAmount);
+	}
+
+	function setWeeklyLUSDaDistribution(address _stabilityPool, uint256 _weeklyReward)
+		external
+		isController
+		isStabilityPool(_stabilityPool)
+	{
+		lqtyDistributionsByPool[_stabilityPool] = _weeklyReward.div(DISTRIBUTION_DURATION);
+	}
 }
