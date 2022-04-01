@@ -1,48 +1,51 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.11;
+pragma solidity 0.8.11;
+
 
 contract MockTellor {
-	// --- Mock price data ---
 
-	bool didRetrieve = true; // default to a positive retrieval
-	uint256 private price;
-	uint256 private updateTime;
+    // --- Mock price data ---
 
-	bool private revertRequest;
+    bool didRetrieve = true; // default to a positive retrieval
+    uint private price;
+    uint private updateTime;
 
-	// --- Setters for mock price data ---
+    bool private revertRequest;
 
-	function setPrice(uint256 _price) external {
-		price = _price;
-	}
+    // --- Setters for mock price data ---
 
-	function setDidRetrieve(bool _didRetrieve) external {
-		didRetrieve = _didRetrieve;
-	}
+    function setPrice(uint _price) external {
+        price = _price;
+    }
 
-	function setUpdateTime(uint256 _updateTime) external {
-		updateTime = _updateTime;
-	}
+      function setDidRetrieve(bool _didRetrieve) external {
+        didRetrieve = _didRetrieve;
+    }
 
-	function setRevertRequest() external {
-		revertRequest = !revertRequest;
-	}
+    function setUpdateTime(uint _updateTime) external {
+        updateTime = _updateTime;
+    }
 
-	// --- Mock data reporting functions ---
+      function setRevertRequest() external {
+        revertRequest = !revertRequest;
+    }
 
-	function getTimestampbyRequestIDandIndex(uint256, uint256) external view returns (uint256) {
-		return updateTime;
-	}
+    // --- Mock data reporting functions --- 
 
-	function getNewValueCountbyRequestId(uint256) external view returns (uint256) {
-		if (revertRequest) {
-			require(1 == 0, "Tellor request reverted");
-		}
-		return 1;
-	}
+    function getTimestampbyRequestIDandIndex(uint, uint) external view returns (uint) {
+        return updateTime;
+    }
 
-	function retrieveData(uint256, uint256) external view returns (uint256) {
-		return price;
-	}
+    function getNewValueCountbyRequestId(uint) external view returns (uint) {
+        if (revertRequest) {require (1 == 0, "Tellor request reverted");}
+        return 1;
+    }
+
+    function retrieveData(uint256, uint256) external view returns (uint256) {
+        return price;
+    }
+
+
+
 }

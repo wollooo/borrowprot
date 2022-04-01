@@ -10,7 +10,6 @@ const CollSurplusPool = artifacts.require("./CollSurplusPool.sol")
 const FunctionCaller = artifacts.require("./TestContracts/FunctionCaller.sol")
 const BorrowerOperations = artifacts.require("./BorrowerOperations.sol")
 const HintHelpers = artifacts.require("./HintHelpers.sol")
-const KumoParameters = artifacts.require("./KumoParameters.sol")
 
 const LQTYStaking = artifacts.require("./LQTYStaking.sol")
 const LQTYToken = artifacts.require("./LQTYToken.sol")
@@ -56,10 +55,6 @@ LQTY contracts consist of only those contracts related to the LQTY Token:
 -the LQTYStaking contract
 -the CommunityIssuance contract 
 */
-const testHelpers = require("./testHelpers.js")
-
-const th = testHelpers.TestHelper
-const dec = th.dec
 
 const ZERO_ADDRESS = '0x' + '0'.repeat(40)
 const maxBytes32 = '0x' + 'f'.repeat(64)
@@ -102,7 +97,6 @@ class DeploymentHelper {
     const functionCaller = await FunctionCaller.new()
     const borrowerOperations = await BorrowerOperations.new()
     const hintHelpers = await HintHelpers.new()
-    const kumoParameters = await KumoParameters.new()
     const lusdToken = await LUSDToken.new(
       troveManager.address,
       stabilityPool.address,
@@ -120,7 +114,6 @@ class DeploymentHelper {
     FunctionCaller.setAsDeployed(functionCaller)
     BorrowerOperations.setAsDeployed(borrowerOperations)
     HintHelpers.setAsDeployed(hintHelpers)
-    KumoParameters.setAsDeployed(kumoParameters)
 
     const coreContracts = {
       priceFeedTestnet,
@@ -129,13 +122,11 @@ class DeploymentHelper {
       troveManager,
       activePool,
       stabilityPool,
-      kumoParameters,
       gasPool,
       defaultPool,
       collSurplusPool,
       functionCaller,
       borrowerOperations,
-      kumoParameters,
       hintHelpers
     }
     return coreContracts
@@ -159,7 +150,6 @@ class DeploymentHelper {
     testerContracts.troveManager = await TroveManagerTester.new()
     testerContracts.functionCaller = await FunctionCaller.new()
     testerContracts.hintHelpers = await HintHelpers.new()
-    testerContracts.kumoParameters = await KumoParameters.new()
     testerContracts.lusdToken =  await LUSDTokenTester.new(
       testerContracts.troveManager.address,
       testerContracts.stabilityPool.address,
@@ -238,7 +228,6 @@ class DeploymentHelper {
     const functionCaller = await FunctionCaller.new()
     const borrowerOperations = await BorrowerOperations.new()
     const hintHelpers = await HintHelpers.new()
-    const kumoParameters = await KumoParameters.new()
     const lusdToken = await LUSDToken.new(
       troveManager.address,
       stabilityPool.address,
@@ -256,8 +245,7 @@ class DeploymentHelper {
       collSurplusPool,
       functionCaller,
       borrowerOperations,
-      hintHelpers,
-      kumoParameters
+      hintHelpers
     }
     return coreContracts
   }
@@ -350,12 +338,6 @@ class DeploymentHelper {
     await contracts.functionCaller.setTroveManagerAddress(contracts.troveManager.address)
     await contracts.functionCaller.setSortedTrovesAddress(contracts.sortedTroves.address)
 
-    await contracts.kumoParameters.setAddresses(
-      contracts.activePool.address,
-      contracts.defaultPool.address,
-      contracts.priceFeedTestnet.address
-    )
-
     // set contracts in the Trove Manager
     await contracts.troveManager.setAddresses(
       contracts.borrowerOperations.address,
@@ -368,8 +350,7 @@ class DeploymentHelper {
       contracts.lusdToken.address,
       contracts.sortedTroves.address,
       LQTYContracts.lqtyToken.address,
-      LQTYContracts.lqtyStaking.address,
-      contracts.kumoParameters.address
+      LQTYContracts.lqtyStaking.address
     )
 
     // set contracts in BorrowerOperations 
@@ -384,7 +365,6 @@ class DeploymentHelper {
       contracts.sortedTroves.address,
       contracts.lusdToken.address,
       LQTYContracts.lqtyStaking.address
-      //contracts.kumoParameters.address
     )
 
     // set contracts in the Pools
@@ -420,7 +400,6 @@ class DeploymentHelper {
     await contracts.hintHelpers.setAddresses(
       contracts.sortedTroves.address,
       contracts.troveManager.address
-      //contracts.kumoParameters.address
     )
   }
 
@@ -429,7 +408,7 @@ class DeploymentHelper {
     await LQTYContracts.lockupContractFactory.setLQTYTokenAddress(LQTYContracts.lqtyToken.address)
   }
 
-  static async connectLQTYContractsToCore(LQTYContracts, coreContracts, skipPool = false) {
+  static async connectLQTYContractsToCore(LQTYContracts, coreContracts) {
     await LQTYContracts.lqtyStaking.setAddresses(
       LQTYContracts.lqtyToken.address,
       coreContracts.lusdToken.address,
@@ -442,41 +421,10 @@ class DeploymentHelper {
       LQTYContracts.lqtyToken.address,
       coreContracts.stabilityPool.address
     )
-    if (skipPool) {
-      return;
-    }
-
-
-        //Set Liquity Configs (since the tests have been designed with it)
-        await coreContracts.kumoParameters.setCollateralParameters(
-          ZERO_ADDRESS,
-          "1100000000000000000",
-          "1500000000000000000",
-          dec(200, 18),
-          dec(1800, 18),
-          200,
-          50,
-          500,
-          50
-        );
-    
-        await coreContracts.kumoParameters.setCollateralParameters(
-          ZERO_ADDRESS,
-          //coreContracts.erc20.address,
-          "1100000000000000000",
-          "1500000000000000000",
-          dec(200, 18),
-          dec(1800, 18),
-          200,
-          50,
-          500,
-          50
-        )
   }
 
   static async connectUnipool(uniPool, LQTYContracts, uniswapPairAddr, duration) {
     await uniPool.setParams(LQTYContracts.lqtyToken.address, uniswapPairAddr, duration)
   }
-  
 }
 module.exports = DeploymentHelper

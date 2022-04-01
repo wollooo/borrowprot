@@ -10,7 +10,7 @@ const timeValues = testHelpers.TimeValues
 
 /* Script that logs gas costs for Liquity math functions. */
 contract('Gas costs for math functions', async accounts => {
-
+  
   const bountyAddress = accounts[998]
   const lpRewardsAddress = accounts[999]
 
@@ -28,10 +28,10 @@ contract('Gas costs for math functions', async accounts => {
 
   beforeEach(async () => {
     contracts = await deploymentHelper.deployLiquityCore()
-    const LQTYContracts = await deploymentHelper.deployLQTYContractsHardhat(accounts[0])
+    const LQTYContracts = await deploymentHelper.deployLQTYContracts(bountyAddress, lpRewardsAddress)
 
     priceFeed = contracts.priceFeedTestnet
-    LUSDToken = contracts.LUSDToken
+    lusdToken = contracts.lusdToken
     sortedTroves = contracts.sortedTroves
     troveManager = contracts.troveManager
     activePool = contracts.activePool
@@ -41,10 +41,12 @@ contract('Gas costs for math functions', async accounts => {
     hintHelpers = contracts.hintHelpers
 
     gtStaking = LQTYContracts.gtStaking
-    LQTYToken = LQTYContracts.LQTYToken
+    lqtyToken = LQTYContracts.lqtyToken
     communityIssuance = LQTYContracts.communityIssuance
+    lockupContractFactory = LQTYContracts.lockupContractFactory
 
     await deploymentHelper.connectCoreContracts(contracts, LQTYContracts)
+    await deploymentHelper.connectLQTYContracts(LQTYContracts)
     await deploymentHelper.connectLQTYContractsToCore(LQTYContracts, contracts)
   })
 
@@ -162,7 +164,7 @@ contract('Gas costs for math functions', async accounts => {
 
     data50Years.push(`exponentiation: exponent vs gas cost: exponent in units of minutes, max exponent is 50 years \n`)
 
-
+    
     for (let n = 2; n <= timeValues.MINUTES_IN_ONE_YEAR * 50; n += timeValues.MINUTES_IN_ONE_WEEK) {
       console.log(`n: ${n}`)
       const runs = 1

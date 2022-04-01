@@ -53,8 +53,6 @@ interface IERC2612 {
     function nonces(address owner) external view returns (uint256);
     
     function version() external view returns (string memory);
-
     function permitTypeHash() external view returns (bytes32);
-    
     function domainSeparator() external view returns (bytes32);
 }

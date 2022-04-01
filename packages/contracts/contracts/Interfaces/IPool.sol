@@ -1,28 +1,26 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.11;
-
-import "./IDeposit.sol";
+pragma solidity 0.8.11;
 
 // Common interface for the Pools.
-interface IPool is IDeposit {
-	// --- Events ---
+interface IPool {
+    
+    // --- Events ---
+    
+    event ETHBalanceUpdated(uint _newBalance);
+    event LUSDBalanceUpdated(uint _newBalance);
+    event ActivePoolAddressChanged(address _newActivePoolAddress);
+    event DefaultPoolAddressChanged(address _newDefaultPoolAddress);
+    event StabilityPoolAddressChanged(address _newStabilityPoolAddress);
+    event EtherSent(address _to, uint _amount);
 
-	event ETHBalanceUpdated(uint256 _newBalance);
-	event LUSDBalanceUpdated(uint256 _newBalance);
-	event ActivePoolAddressChanged(address _newActivePoolAddress);
-	event DefaultPoolAddressChanged(address _newDefaultPoolAddress);
-	event ETHAddressChanged(address _assetAddress);
-	event StabilityPoolAddressChanged(address _newStabilityPoolAddress);
-	event ETHSent(address _to, address indexed _asset, uint256 _amount);
+    // --- Functions ---
+    
+    function getETH() external view returns (uint);
 
-	// --- Functions ---
+    function getLUSDDebt() external view returns (uint);
 
-	function getETHBalance(address _asset) external view returns (uint256);
+    function increaseLUSDDebt(uint _amount) external;
 
-	function getLUSDDebt(address _asset) external view returns (uint256);
-
-	function increaseLUSDDebt(address _asset, uint256 _amount) external;
-
-	function decreaseLUSDDebt(address _asset, uint256 _amount) external;
+    function decreaseLUSDDebt(uint _amount) external;
 }

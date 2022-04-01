@@ -2,37 +2,26 @@
 
 pragma solidity 0.8.11;
 
-import "../Dependencies/ERC20Permit.sol";
-import "../Interfaces/IStabilityPoolManager.sol";
+import "../Dependencies/IERC20.sol";
+import "../Dependencies/IERC2612.sol";
 
-abstract contract ILUSDToken is ERC20Permit {
-	// --- Events ---
+interface ILUSDToken is IERC20, IERC2612 { 
+    
+    // --- Events ---
 
-	event TroveManagerAddressChanged(address _troveManagerAddress);
-	event StabilityPoolAddressChanged(address _newStabilityPoolAddress);
-	event BorrowerOperationsAddressChanged(address _newBorrowerOperationsAddress);
+    event TroveManagerAddressChanged(address _troveManagerAddress);
+    event StabilityPoolAddressChanged(address _newStabilityPoolAddress);
+    event BorrowerOperationsAddressChanged(address _newBorrowerOperationsAddress);
 
-	event LUSDTokenBalanceUpdated(address _user, uint256 _amount);
+    event LUSDTokenBalanceUpdated(address _user, uint _amount);
 
-	function emergencyStopMinting(address _asset, bool status) external virtual;
+    // --- Functions ---
 
-	function mint(
-		address _asset,
-		address _account,
-		uint256 _amount
-	) external virtual;
+    function mint(address _account, uint256 _amount) external;
 
-	function burn(address _account, uint256 _amount) external virtual;
+    function burn(address _account, uint256 _amount) external;
 
-	function sendToPool(
-		address _sender,
-		address poolAddress,
-		uint256 _amount
-	) external virtual;
+    function sendToPool(address _sender,  address poolAddress, uint256 _amount) external;
 
-	function returnFromPool(
-		address poolAddress,
-		address user,
-		uint256 _amount
-	) external virtual;
+    function returnFromPool(address poolAddress, address user, uint256 _amount ) external;
 }

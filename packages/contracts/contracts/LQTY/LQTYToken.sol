@@ -3,8 +3,7 @@
 pragma solidity 0.8.11;
 
 import "../Dependencies/CheckContract.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "../Dependencies/ERC20Permit.sol";
+import "../Dependencies/SafeMath.sol";
 import "../Interfaces/ILQTYToken.sol";
 import "../Interfaces/ILockupContractFactory.sol";
 import "../Dependencies/console.sol";

@@ -1,198 +1,141 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.11;
-import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+pragma solidity 0.8.11;
 
-import "./Interfaces/IActivePool.sol";
-import "./Interfaces/IDefaultPool.sol";
-import "./Interfaces/IStabilityPoolManager.sol";
-import "./Interfaces/IStabilityPool.sol";
-import "./Interfaces/ICollSurplusPool.sol";
-import "./Interfaces/IDeposit.sol";
+// import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+
+import './Interfaces/IActivePool.sol';
+import "./Dependencies/SafeMath.sol";
+import "./Dependencies/Ownable.sol";
 import "./Dependencies/CheckContract.sol";
-import "./Dependencies/SafetyTransfer.sol";
+import "./Dependencies/console.sol";
 
 /*
- * The Active Pool holds the collaterals and LUSD debt (but not LUSD tokens) for all active troves.
+ * The Active Pool holds the ETH collateral and LUSD debt (but not LUSD tokens) for all active troves.
  *
- * When a trove is liquidated, it's collateral and LUSD debt are transferred from the Active Pool, to either the
+ * When a trove is liquidated, it's ETH and LUSD debt are transferred from the Active Pool, to either the
  * Stability Pool, the Default Pool, or both, depending on the liquidation conditions.
  *
  */
-contract ActivePool is
-	OwnableUpgradeable,
-	ReentrancyGuardUpgradeable,
-	CheckContract,
-	IActivePool
-{
-	using SafeERC20Upgradeable for IERC20Upgradeable;
-	using SafeMathUpgradeable for uint256;
+ 
+contract ActivePool is Ownable, CheckContract, IActivePool {
+    using SafeMath for uint256;
 
-	string public constant NAME = "ActivePool";
-	address constant ETH_REF_ADDRESS = address(0);
+    string constant public NAME = "ActivePool";
 
-	address public borrowerOperationsAddress;
-	address public troveManagerAddress;
-	IDefaultPool public defaultPool;
-	ICollSurplusPool public collSurplusPool;
+    address public borrowerOperationsAddress;
+    address public troveManagerAddress;
+    address public stabilityPoolAddress;
+    address public defaultPoolAddress;
+    uint256 internal ETH;  // deposited ether tracker
+    uint256 internal LUSDDebt;
 
-	IStabilityPoolManager public stabilityPoolManager;
+    // --- Events ---
 
-	bool public isInitialized;
+    // event BorrowerOperationsAddressChanged(address _newBorrowerOperationsAddress);
+    // event TroveManagerAddressChanged(address _newTroveManagerAddress);
+    // event ActivePoolLUSDDebtUpdated(uint _LUSDDebt);
+    // event ActivePoolETHBalanceUpdated(uint _ETH);
 
-	mapping(address => uint256) internal assetsBalance;
-	mapping(address => uint256) internal LUSDDebts;
+    // --- Contract setters ---
 
-	// --- Contract setters ---
+    function setAddresses(
+        address _borrowerOperationsAddress,
+        address _troveManagerAddress,
+        address _stabilityPoolAddress,
+        address _defaultPoolAddress
+    )
+        external
+        onlyOwner
+    {
+        checkContract(_borrowerOperationsAddress);
+        checkContract(_troveManagerAddress);
+        checkContract(_stabilityPoolAddress);
+        checkContract(_defaultPoolAddress);
 
-	function setAddresses(
-		address _borrowerOperationsAddress,
-		address _troveManagerAddress,
-		address _stabilityManagerAddress,
-		address _defaultPoolAddress,
-		address _collSurplusPoolAddress
-	) external initializer {
-		require(!isInitialized, "Already initialized");
-		checkContract(_borrowerOperationsAddress);
-		checkContract(_troveManagerAddress);
-		checkContract(_stabilityManagerAddress);
-		checkContract(_defaultPoolAddress);
-		checkContract(_collSurplusPoolAddress);
-		isInitialized = true;
+        // __Ownable_init();
 
-		__Ownable_init();
-		__ReentrancyGuard_init();
+        borrowerOperationsAddress = _borrowerOperationsAddress;
+        troveManagerAddress = _troveManagerAddress;
+        stabilityPoolAddress = _stabilityPoolAddress;
+        defaultPoolAddress = _defaultPoolAddress;
 
-		borrowerOperationsAddress = _borrowerOperationsAddress;
-		troveManagerAddress = _troveManagerAddress;
-		stabilityPoolManager = IStabilityPoolManager(_stabilityManagerAddress);
-		defaultPool = IDefaultPool(_defaultPoolAddress);
-		collSurplusPool = ICollSurplusPool(_collSurplusPoolAddress);
+        emit BorrowerOperationsAddressChanged(_borrowerOperationsAddress);
+        emit TroveManagerAddressChanged(_troveManagerAddress);
+        emit StabilityPoolAddressChanged(_stabilityPoolAddress);
+        emit DefaultPoolAddressChanged(_defaultPoolAddress);
 
-		emit BorrowerOperationsAddressChanged(_borrowerOperationsAddress);
-		emit TroveManagerAddressChanged(_troveManagerAddress);
-		emit StabilityPoolAddressChanged(_stabilityManagerAddress);
-		emit DefaultPoolAddressChanged(_defaultPoolAddress);
+        _renounceOwnership();
+    }
 
-		renounceOwnership();
-	}
+    // --- Getters for public variables. Required by IPool interface ---
 
-	// --- Getters for public variables. Required by IPool interface ---
+    /*
+    * Returns the ETH state variable.
+    *
+    *Not necessarily equal to the the contract's raw ETH balance - ether can be forcibly sent to contracts.
+    */
+    function getETH() external view override returns (uint) {
+        return ETH;
+    }
 
-	/*
-	 * Returns the ETH state variable.
-	 *
-	 *Not necessarily equal to the the contract's raw ETH balance - ether can be forcibly sent to contracts.
-	 */
-	function getETHBalance(address _asset) external view override returns (uint256) {
-		return assetsBalance[_asset];
-	}
+    function getLUSDDebt() external view override returns (uint) {
+        return LUSDDebt;
+    }
 
-	function getLUSDDebt(address _asset) external view override returns (uint256) {
-		return LUSDDebts[_asset];
-	}
+    // --- Pool functionality ---
 
-	// --- Pool functionality ---
+    function sendETH(address _account, uint _amount) external override {
+        _requireCallerIsBOorTroveMorSP();
+        ETH = ETH.sub(_amount);
+        emit ActivePoolETHBalanceUpdated(ETH);
+        emit EtherSent(_account, _amount);
 
-	function sendAsset(
-		address _asset,
-		address _account,
-		uint256 _amount
-	) external override nonReentrant callerIsBOorTroveMorSP {
-		if (stabilityPoolManager.isStabilityPool(msg.sender)) {
-			assert(address(stabilityPoolManager.getAssetStabilityPool(_asset)) == msg.sender);
-		}
+        (bool success, ) = _account.call{ value: _amount }("");
+        require(success, "ActivePool: sending ETH failed");
+    }
 
-		uint256 safetyTransferAmount = SafetyTransfer.decimalsCorrection(_asset, _amount);
-		if (safetyTransferAmount == 0) return;
+    function increaseLUSDDebt(uint _amount) external override {
+        _requireCallerIsBOorTroveM();
+        LUSDDebt  = LUSDDebt.add(_amount);
+        emit ActivePoolLUSDDebtUpdated(LUSDDebt);
+    }
 
-		assetsBalance[_asset] = assetsBalance[_asset].sub(_amount);
+    function decreaseLUSDDebt(uint _amount) external override {
+        _requireCallerIsBOorTroveMorSP();
+        LUSDDebt = LUSDDebt.sub(_amount);
+        emit ActivePoolLUSDDebtUpdated(LUSDDebt);
+    }
 
-		if (_asset != ETH_REF_ADDRESS) {
-			IERC20Upgradeable(_asset).safeTransfer(_account, safetyTransferAmount);
+    // --- 'require' functions ---
 
-			if (isERC20DepositContract(_account)) {
-				IDeposit(_account).receivedERC20(_asset, _amount);
-			}
-		} else {
-			(bool success, ) = _account.call{ value: _amount }("");
-			require(success, "ActivePool: sending ETH failed");
-		}
+    function _requireCallerIsBorrowerOperationsOrDefaultPool() internal view {
+        require(
+            msg.sender == borrowerOperationsAddress ||
+            msg.sender == defaultPoolAddress,
+            "ActivePool: Caller is neither BO nor Default Pool");
+    }
 
-		emit ActivePoolETHBalanceUpdated(_asset, assetsBalance[_asset]);
-		emit ETHSent(_account, _asset, safetyTransferAmount);
-	}
+    function _requireCallerIsBOorTroveMorSP() internal view {
+        require(
+            msg.sender == borrowerOperationsAddress ||
+            msg.sender == troveManagerAddress ||
+            msg.sender == stabilityPoolAddress,
+            "ActivePool: Caller is neither BorrowerOperations nor TroveManager nor StabilityPool");
+    }
 
-	function isERC20DepositContract(address _account) private view returns (bool) {
-		return (_account == address(defaultPool) ||
-			_account == address(collSurplusPool) ||
-			stabilityPoolManager.isStabilityPool(_account));
-	}
+    function _requireCallerIsBOorTroveM() internal view {
+        require(
+            msg.sender == borrowerOperationsAddress ||
+            msg.sender == troveManagerAddress,
+            "ActivePool: Caller is neither BorrowerOperations nor TroveManager");
+    }
 
-	function increaseLUSDDebt(address _asset, uint256 _amount)
-		external
-		override
-		callerIsBOorTroveM
-	{
-		LUSDDebts[_asset] = LUSDDebts[_asset].add(_amount);
-		emit ActivePoolLUSDDebtUpdated(_asset, LUSDDebts[_asset]);
-	}
+    // --- Fallback function ---
 
-	function decreaseLUSDDebt(address _asset, uint256 _amount)
-		external
-		override
-		callerIsBOorTroveMorSP
-	{
-		LUSDDebts[_asset] = LUSDDebts[_asset].sub(_amount);
-		emit ActivePoolLUSDDebtUpdated(_asset, LUSDDebts[_asset]);
-	}
-
-	// --- 'require' functions ---
-
-	modifier callerIsBorrowerOperationOrDefaultPool() {
-		require(
-			msg.sender == borrowerOperationsAddress || msg.sender == address(defaultPool),
-			"ActivePool: Caller is neither BO nor Default Pool"
-		);
-
-		_;
-	}
-
-	modifier callerIsBOorTroveMorSP() {
-		require(
-			msg.sender == borrowerOperationsAddress ||
-				msg.sender == troveManagerAddress ||
-				stabilityPoolManager.isStabilityPool(msg.sender),
-			"ActivePool: Caller is neither BorrowerOperations nor TroveManager nor StabilityPool"
-		);
-		_;
-	}
-
-	modifier callerIsBOorTroveM() {
-		require(
-			msg.sender == borrowerOperationsAddress || msg.sender == troveManagerAddress,
-			"ActivePool: Caller is neither BorrowerOperations nor TroveManager"
-		);
-
-		_;
-	}
-
-	function receivedERC20(address _asset, uint256 _amount)
-		external
-		override
-		callerIsBorrowerOperationOrDefaultPool
-	{
-		assetsBalance[_asset] = assetsBalance[_asset].add(_amount);
-		emit ActivePoolETHBalanceUpdated(_asset, assetsBalance[_asset]);
-	}
-
-	// --- Fallback function ---
-
-	receive() external payable callerIsBorrowerOperationOrDefaultPool {
-		assetsBalance[ETH_REF_ADDRESS] = assetsBalance[ETH_REF_ADDRESS].add(msg.value);
-		emit ActivePoolETHBalanceUpdated(ETH_REF_ADDRESS, assetsBalance[ETH_REF_ADDRESS]);
-	}
+    receive() external payable {
+        _requireCallerIsBorrowerOperationsOrDefaultPool();
+        ETH = ETH.add(msg.value);
+        emit ActivePoolETHBalanceUpdated(ETH);
+    }
 }

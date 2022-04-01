@@ -33,42 +33,42 @@ module.exports = {
     },
     solidity: {
         compilers: [
-            {
-                version: "0.4.23",
-                settings: {
-                    optimizer: {
-                        enabled: true,
-                        runs: 200
-                    }
-                }
-            },
-            {
-                version: "0.5.17",
-                settings: {
-                    optimizer: {
-                        enabled: true,
-                        runs: 200
-                    }
-                }
-            },
-            {
-                version: "0.6.11",
-                settings: {
-                    optimizer: {
-                        enabled: true,
-                        runs: 200
-                    }
-                }
-            },
-            {
-                version: "0.7.5",
-                settings: {
-                optimizer: {
-                    enabled: true,
-                    runs: 200
-              }
-            }
-        },
+        //     {
+        //         version: "0.4.23",
+        //         settings: {
+        //             optimizer: {
+        //                 enabled: true,
+        //                 runs: 200
+        //             }
+        //         }
+        //     },
+        //     {
+        //         version: "0.5.17",
+        //         settings: {
+        //             optimizer: {
+        //                 enabled: true,
+        //                 runs: 200
+        //             }
+        //         }
+        //     },
+        //     {
+        //         version: "0.6.11",
+        //         settings: {
+        //             optimizer: {
+        //                 enabled: true,
+        //                 runs: 200
+        //             }
+        //         }
+        //     },
+        //     {
+        //         version: "0.7.5",
+        //         settings: {
+        //         optimizer: {
+        //             enabled: true,
+        //             runs: 200
+        //       }
+        //     }
+        // },
         {
             version: "0.8.11",
             settings: {
@@ -86,7 +86,7 @@ module.exports = {
             gas: 100000000,  // tx gas limit
             blockGasLimit: 150000000, 
             gasPrice: 200000000000,
-            initialBaseFeePerGas: 0,
+            hardfork: "london"
         },
         mainnet: {
             url: alchemyUrl(),

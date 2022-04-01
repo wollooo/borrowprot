@@ -1,74 +1,60 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.11;
+pragma solidity 0.8.11;
+
 import "../TroveManager.sol";
 
 /* Tester contract inherits from TroveManager, and provides external functions 
 for testing the parent's internal functions. */
 
 contract TroveManagerTester is TroveManager {
-	function computeICR(
-		uint256 _coll,
-		uint256 _debt,
-		uint256 _price
-	) external pure returns (uint256) {
-		return LiquityMath._computeCR(_coll, _debt, _price);
-	}
 
-	function getCollGasCompensation(address _asset, uint256 _coll)
-		external
-		view
-		returns (uint256)
-	{
-		return _getCollGasCompensation(_asset, _coll);
-	}
+    function computeICR(uint _coll, uint _debt, uint _price) external pure returns (uint) {
+        return LiquityMath._computeCR(_coll, _debt, _price);
+    }
 
-	function getLUSDGasCompensation(address _asset) external view returns (uint256) {
-		return kumoParams.LUSD_GAS_COMPENSATION(_asset);
-	}
+    function getCollGasCompensation(uint _coll) external pure returns (uint) {
+        return _getCollGasCompensation(_coll);
+    }
 
-	function getCompositeDebt(address _asset, uint256 _debt) external view returns (uint256) {
-		return _getCompositeDebt(_asset, _debt);
-	}
+    function getLUSDGasCompensation() external pure returns (uint) {
+        return LUSD_GAS_COMPENSATION;
+    }
 
-	function unprotectedDecayBaseRateFromBorrowing(address _asset) external returns (uint256) {
-		baseRate[_asset] = _calcDecayedBaseRate(_asset);
-		assert(baseRate[_asset] >= 0 && baseRate[_asset] <= DECIMAL_PRECISION);
+    function getCompositeDebt(uint _debt) external pure returns (uint) {
+        return _getCompositeDebt(_debt);
+    }
 
-		_updateLastFeeOpTime(_asset);
-		return baseRate[_asset];
-	}
+    function unprotectedDecayBaseRateFromBorrowing() external returns (uint) {
+        baseRate = _calcDecayedBaseRate();
+        assert(baseRate >= 0 && baseRate <= DECIMAL_PRECISION);
+        
+        _updateLastFeeOpTime();
+        return baseRate;
+    }
 
-	function minutesPassedSinceLastFeeOp(address _asset) external view returns (uint256) {
-		return _minutesPassedSinceLastFeeOp(_asset);
-	}
+    function minutesPassedSinceLastFeeOp() external view returns (uint) {
+        return _minutesPassedSinceLastFeeOp();
+    }
 
-	function setLastFeeOpTimeToNow(address _asset) external {
-		lastFeeOperationTime[_asset] = block.timestamp;
-	}
+    function setLastFeeOpTimeToNow() external {
+        lastFeeOperationTime = block.timestamp;
+    }
 
-	function setBaseRate(address _asset, uint256 _baseRate) external {
-		baseRate[_asset] = _baseRate;
-	}
+    function setBaseRate(uint _baseRate) external {
+        baseRate = _baseRate;
+    }
 
-	function callGetRedemptionFee(address _asset, uint256 _ETHDrawn)
-		external
-		view
-		returns (uint256)
-	{
-		return _getRedemptionFee(_asset, _ETHDrawn);
-	}
+    function callGetRedemptionFee(uint _ETHDrawn) external view returns (uint) {
+        return _getRedemptionFee(_ETHDrawn);
+    }  
 
-	function getActualDebtFromComposite(address _asset, uint256 _debtVal)
-		external
-		view
-		returns (uint256)
-	{
-		return _getNetDebt(_asset, _debtVal);
-	}
+    function getActualDebtFromComposite(uint _debtVal) external pure returns (uint) {
+        return _getNetDebt(_debtVal);
+    }
 
-	function callInternalRemoveTroveOwner(address _asset, address _troveOwner) external {
-		uint256 troveOwnersArrayLength = TroveOwners[_asset].length;
-		_removeTroveOwner(_asset, _troveOwner, troveOwnersArrayLength);
-	}
+    function callInternalRemoveTroveOwner(address _troveOwner) external {
+        uint troveOwnersArrayLength = TroveOwners.length;
+        _removeTroveOwner(_troveOwner, troveOwnersArrayLength);
+    }
 }

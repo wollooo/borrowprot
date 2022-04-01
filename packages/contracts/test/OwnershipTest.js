@@ -1,9 +1,7 @@
-const { ZERO_ADDRESS } = require("@openzeppelin/test-helpers/src/constants")
 const deploymentHelper = require("../utils/deploymentHelpers.js")
 const { TestHelper: th, MoneyValues: mv } = require("../utils/testHelpers.js")
 
 const GasPool = artifacts.require("./GasPool.sol")
-const KumoParameters = artifacts.require("./KumoParameters.sol")
 const BorrowerOperationsTester = artifacts.require("./BorrowerOperationsTester.sol")
 
 contract('All Liquity functions with onlyOwner modifier', async accounts => {

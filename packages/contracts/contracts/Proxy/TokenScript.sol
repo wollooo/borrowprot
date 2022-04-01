@@ -1,45 +1,42 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.11;
+pragma solidity 0.8.11;
+
 import "../Dependencies/CheckContract.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "../Dependencies/IERC20.sol";
+
 
 contract TokenScript is CheckContract {
-	using SafeERC20Upgradeable for IERC20Upgradeable;
-	string public constant NAME = "TokenScript";
+    string constant public NAME = "TokenScript";
 
-	IERC20Upgradeable immutable token;
+    IERC20 immutable token;
 
-	constructor(address _tokenAddress) {
-		checkContract(_tokenAddress);
-		token = IERC20Upgradeable(_tokenAddress);
-	}
+    constructor (address _tokenAddress) {
+        checkContract(_tokenAddress);
+        token = IERC20(_tokenAddress);
+    }
 
-	function transfer(address recipient, uint256 amount) external {
-		token.transfer(recipient, amount);
-	}
+    function transfer(address recipient, uint256 amount) external returns (bool) {
+        return token.transfer(recipient, amount);
+    }
 
-	function allowance(address owner, address spender) external view {
-		token.allowance(owner, spender);
-	}
+    function allowance(address owner, address spender) external view returns (uint256) {
+        return token.allowance(owner, spender);
+    }
 
-	function approve(address spender, uint256 amount) external {
-		token.approve(spender, amount);
-	}
+    function approve(address spender, uint256 amount) external returns (bool) {
+        return token.approve(spender, amount);
+    }
 
-	function transferFrom(
-		address sender,
-		address recipient,
-		uint256 amount
-	) external {
-		token.transferFrom(sender, recipient, amount);
-	}
+    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool) {
+        return token.transferFrom(sender, recipient, amount);
+    }
 
-	function increaseAllowance(address spender, uint256 addedValue) external {
-		token.safeIncreaseAllowance(spender, addedValue);
-	}
+    function increaseAllowance(address spender, uint256 addedValue) external returns (bool) {
+        return token.increaseAllowance(spender, addedValue);
+    }
 
-	function decreaseAllowance(address spender, uint256 subtractedValue) external {
-		token.safeDecreaseAllowance(spender, subtractedValue);
-	}
+    function decreaseAllowance(address spender, uint256 subtractedValue) external returns (bool) {
+        return token.decreaseAllowance(spender, subtractedValue);
+    }
 }

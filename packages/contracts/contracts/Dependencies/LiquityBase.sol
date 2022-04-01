@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.11;
 
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+pragma solidity 0.8.11;
+
+// import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 import "./BaseMath.sol";
 import "./LiquityMath.sol";
@@ -10,76 +11,92 @@ import "../Interfaces/IDefaultPool.sol";
 import "../Interfaces/IPriceFeed.sol";
 import "../Interfaces/ILiquityBase.sol";
 
-/*
- * Base contract for TroveManager, BorrowerOperations and StabilityPool. Contains global system constants and
- * common functions.
- */
-contract LiquityBase is BaseMath, ILiquityBase, OwnableUpgradeable {
-	using SafeMathUpgradeable for uint256;
-	address public constant ETH_REF_ADDRESS = address(0);
+/* 
+* Base contract for TroveManager, BorrowerOperations and StabilityPool. Contains global system constants and
+* common functions. 
+*/
+contract LiquityBase is BaseMath, ILiquityBase {
+    using SafeMath for uint;
 
-	IKumoParameters public override kumoParams;
+    // IKumoParameters public override kumoParams;
 
-	function setKumoParameters(address _vaultParams) public onlyOwner {
-		kumoParams = IKumoParameters(_vaultParams);
-		emit VaultParametersBaseChanged(_vaultParams);
-	}
+	// function setKumoParameters(address _vaultParams) public onlyOwner {
+	// 	kumoParams = IKumoParameters(_vaultParams);
+	// 	emit VaultParametersBaseChanged(_vaultParams);
+	// }
 
-	// --- Gas compensation functions ---
+    uint constant public _100pct = 1000000000000000000; // 1e18 == 100%
 
-	// Returns the composite debt (drawn debt + gas compensation) of a trove, for the purpose of ICR calculation
-	function _getCompositeDebt(address _asset, uint256 _debt) internal view returns (uint256) {
-		return _debt.add(kumoParams.LUSD_GAS_COMPENSATION(_asset));
-	}
+    // Minimum collateral ratio for individual troves
+    uint constant public MCR = 1100000000000000000; // 110%
 
-	function _getNetDebt(address _asset, uint256 _debt) internal view returns (uint256) {
-		return _debt.sub(kumoParams.LUSD_GAS_COMPENSATION(_asset));
-	}
+    // Critical system collateral ratio. If the system's total collateral ratio (TCR) falls below the CCR, Recovery Mode is triggered.
+    uint constant public CCR = 1500000000000000000; // 150%
 
-	// Return the amount of ETH to be drawn from a trove's collateral and sent as gas compensation.
-	function _getCollGasCompensation(address _asset, uint256 _entireColl)
-		internal
-		view
-		returns (uint256)
-	{
-		return _entireColl / kumoParams.PERCENT_DIVISOR(_asset);
-	}
+    // Amount of LUSD to be locked in gas pool on opening troves
+    uint constant public LUSD_GAS_COMPENSATION = 200e18;
 
-	function getEntireSystemColl(address _asset) public view returns (uint256 entireSystemColl) {
-		uint256 activeColl = kumoParams.activePool().getETHBalance(_asset);
-		uint256 liquidatedColl = kumoParams.defaultPool().getETHBalance(_asset);
+    // Minimum amount of net LUSD debt a trove must have
+    uint constant public MIN_NET_DEBT = 1800e18;
+    // uint constant public MIN_NET_DEBT = 0; 
 
-		return activeColl.add(liquidatedColl);
-	}
+    uint constant public PERCENT_DIVISOR = 200; // dividing by 200 yields 0.5%
 
-	function getEntireSystemDebt(address _asset) public view returns (uint256 entireSystemDebt) {
-		uint256 activeDebt = kumoParams.activePool().getLUSDDebt(_asset);
-		uint256 closedDebt = kumoParams.defaultPool().getLUSDDebt(_asset);
+    uint constant public BORROWING_FEE_FLOOR = DECIMAL_PRECISION / 1000 * 5; // 0.5%
 
-		return activeDebt.add(closedDebt);
-	}
+    IActivePool public activePool;
 
-	function _getTCR(address _asset, uint256 _price) internal view returns (uint256 TCR) {
-		uint256 entireSystemColl = getEntireSystemColl(_asset);
-		uint256 entireSystemDebt = getEntireSystemDebt(_asset);
+    IDefaultPool public defaultPool;
 
-		TCR = LiquityMath._computeCR(entireSystemColl, entireSystemDebt, _price);
+    IPriceFeed public override priceFeed;
 
-		return TCR;
-	}
+    // --- Gas compensation functions ---
 
-	function _checkRecoveryMode(address _asset, uint256 _price) internal view returns (bool) {
-		uint256 TCR = _getTCR(_asset, _price);
+    // Returns the composite debt (drawn debt + gas compensation) of a trove, for the purpose of ICR calculation
+    function _getCompositeDebt(uint _debt) internal pure returns (uint) {
+        return _debt.add(LUSD_GAS_COMPENSATION);
+    }
 
-		return TCR < kumoParams.CCR(_asset);
-	}
+    function _getNetDebt(uint _debt) internal pure returns (uint) {
+        return _debt.sub(LUSD_GAS_COMPENSATION);
+    }
 
-	function _requireUserAcceptsFee(
-		uint256 _fee,
-		uint256 _amount,
-		uint256 _maxFeePercentage
-	) internal view {
-		uint256 feePercentage = _fee.mul(kumoParams.DECIMAL_PRECISION()).div(_amount);
-		require(feePercentage <= _maxFeePercentage, "Fee exceeded provided maximum");
-	}
+    // Return the amount of ETH to be drawn from a trove's collateral and sent as gas compensation.
+    function _getCollGasCompensation(uint _entireColl) internal pure returns (uint) {
+        return _entireColl / PERCENT_DIVISOR;
+    }
+
+    function getEntireSystemColl() public view returns (uint entireSystemColl) {
+        uint activeColl = activePool.getETH();
+        uint liquidatedColl = defaultPool.getETH();
+
+        return activeColl.add(liquidatedColl);
+    }
+
+    function getEntireSystemDebt() public view returns (uint entireSystemDebt) {
+        uint activeDebt = activePool.getLUSDDebt();
+        uint closedDebt = defaultPool.getLUSDDebt();
+
+        return activeDebt.add(closedDebt);
+    }
+
+    function _getTCR(uint _price) internal view returns (uint TCR) {
+        uint entireSystemColl = getEntireSystemColl();
+        uint entireSystemDebt = getEntireSystemDebt();
+
+        TCR = LiquityMath._computeCR(entireSystemColl, entireSystemDebt, _price);
+
+        return TCR;
+    }
+
+    function _checkRecoveryMode(uint _price) internal view returns (bool) {
+        uint TCR = _getTCR(_price);
+
+        return TCR < CCR;
+    }
+
+    function _requireUserAcceptsFee(uint _fee, uint _amount, uint _maxFeePercentage) internal pure {
+        uint feePercentage = _fee.mul(DECIMAL_PRECISION).div(_amount);
+        require(feePercentage <= _maxFeePercentage, "Fee exceeded provided maximum");
+    }
 }

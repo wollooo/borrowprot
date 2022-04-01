@@ -2,7 +2,6 @@
 
 pragma solidity 0.8.11;
 
-import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "../TroveManager.sol";
 import "../BorrowerOperations.sol";
 import "../ActivePool.sol";
@@ -14,7 +13,6 @@ import "../LUSDToken.sol";
 import "./PriceFeedTestnet.sol";
 import "../SortedTroves.sol";
 import "./EchidnaProxy.sol";
-import "../KumoParameters.sol";
 //import "../Dependencies/console.sol";
 
 // Run with:
@@ -22,7 +20,7 @@ import "../KumoParameters.sol";
 // ~/.local/bin/echidna-test contracts/TestContracts/EchidnaTester.sol --contract EchidnaTester --config fuzzTests/echidna_config.yaml
 
 contract EchidnaTester {
-	//using SafeMathUpgradeable for uint;
+    using SafeMath for uint;
 
     uint constant private NUMBER_OF_ACTORS = 100;
     uint constant private INITIAL_BALANCE = 1e24;
@@ -40,7 +38,6 @@ contract EchidnaTester {
     LUSDToken public lusdToken;
     PriceFeedTestnet priceFeedTestnet;
     SortedTroves sortedTroves;
-    KumoParameters kumoParameters;
 
     EchidnaProxy[NUMBER_OF_ACTORS] public echidnaProxies;
 
@@ -63,13 +60,12 @@ contract EchidnaTester {
         priceFeedTestnet = new PriceFeedTestnet();
 
         sortedTroves = new SortedTroves();
-        kumoParameters = new KumoParameters();
 
         troveManager.setAddresses(address(borrowerOperations), 
             address(activePool), address(defaultPool), 
             address(stabilityPool), address(gasPool), address(collSurplusPool),
             address(priceFeedTestnet), address(lusdToken), 
-            address(sortedTroves), address(0), address(0), address(kumoParameters));
+            address(sortedTroves), address(0), address(0));
        
         borrowerOperations.setAddresses(address(troveManager), 
             address(activePool), address(defaultPool), 
