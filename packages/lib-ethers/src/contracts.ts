@@ -32,7 +32,6 @@ import gasPoolAbi from "../abi/GasPool.json";
 import unipoolAbi from "../abi/Unipool.json";
 import iERC20Abi from "../abi/IERC20.json";
 import erc20MockAbi from "../abi/ERC20Mock.json";
-import kumoParametersAbi from "../abi/KumoParameters.json";
 
 import {
   ActivePool,
@@ -54,8 +53,7 @@ import {
   GasPool,
   Unipool,
   ERC20Mock,
-  IERC20,
-  KumoParameters
+  IERC20
 } from "../types";
 
 import { EthersProvider, EthersSigner } from "./types";
@@ -185,7 +183,6 @@ export interface _LiquityContracts {
   gasPool: GasPool;
   unipool: Unipool;
   uniToken: IERC20 | ERC20Mock;
-  kumoParameters: KumoParameters;
 }
 
 /** @internal */
@@ -222,8 +219,7 @@ const getAbi = (priceFeedIsTestnet: boolean, uniTokenIsMock: boolean): LiquityCo
   gasPool: gasPoolAbi,
   collSurplusPool: collSurplusPoolAbi,
   unipool: unipoolAbi,
-  uniToken: uniTokenIsMock ? erc20MockAbi : iERC20Abi,
-  kumoParameters: kumoParametersAbi,
+  uniToken: uniTokenIsMock ? erc20MockAbi : iERC20Abi
 });
 
 const mapLiquityContracts = <T, U>(
@@ -256,9 +252,6 @@ export const _connectToContracts = (
 ): _LiquityContracts => {
   const abi = getAbi(_priceFeedIsTestnet, _uniTokenIsMock);
 
-  console.log("HALLOOOOOOOOOO!!!!!!")
-  console.log(abi.kumoParameters)
-  
   return mapLiquityContracts(
     addresses,
     (address, key) =>

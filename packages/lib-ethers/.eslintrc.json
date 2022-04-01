@@ -12,7 +12,6 @@
   },
   "plugins": ["@typescript-eslint", "eslint-plugin-tsdoc"],
   "rules": {
-    "tsdoc/syntax": "warn",
-    "@typescript-eslint/no-var-requires": 0
+    "tsdoc/syntax": "warn"
   }
 }
