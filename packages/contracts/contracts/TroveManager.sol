@@ -19,11 +19,9 @@ contract TroveManager is LiquityBase, Ownable, CheckContract, ITroveManager {
     using SafeMath for uint256;
     
 	// bool public isInitialized;
-
     string constant public NAME = "TroveManager";
-
+    
     // --- Connected contract declarations ---
-
     address public borrowerOperationsAddress;
 
     IStabilityPool public override stabilityPool;
