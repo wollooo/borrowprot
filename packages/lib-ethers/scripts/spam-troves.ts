@@ -3,15 +3,15 @@ import { TransactionResponse } from "@ethersproject/abstract-provider";
 import { JsonRpcProvider } from "@ethersproject/providers";
 import { Wallet } from "@ethersproject/wallet";
 
-import { Decimal, KUSD_MINIMUM_DEBT, Trove } from "@liquity/lib-base";
-import { EthersLiquity, EthersLiquityWithStore, BlockPolledLiquityStore } from "@liquity/lib-ethers";
+import { Decimal, KUSD_MINIMUM_DEBT, Trove } from "@kumo/lib-base";
+import { EthersKumo, EthersKumoWithStore, BlockPolledKumoStore } from "@kumo/lib-ethers";
 
 import {
   Batched,
   BatchedProvider,
   WebSocketAugmented,
   WebSocketAugmentedProvider
-} from "@liquity/providers";
+} from "@kumo/providers";
 
 const BatchedWebSocketAugmentedJsonRpcProvider = Batched(WebSocketAugmented(JsonRpcProvider));
 
@@ -24,7 +24,7 @@ const funderKey = "0x4d5db4107d237df6a3d58ee5f70ae63d73d7658d4026f2eefd2f204c816
 
 let provider: BatchedProvider & WebSocketAugmentedProvider & JsonRpcProvider;
 let funder: Wallet;
-let liquity: EthersLiquityWithStore<BlockPolledLiquityStore>;
+let kumo: EthersKumoWithStore<BlockPolledKumoStore>;
 
 const waitForSuccess = (tx: TransactionResponse) =>
   tx.wait().then(receipt => {
@@ -47,9 +47,9 @@ const createTrove = async (nominalCollateralRatio: Decimal) => {
     })
     .then(waitForSuccess);
 
-  await liquity.populate
+  await kumo.populate
     .openTrove(
-      Trove.recreate(new Trove(collateral, debt), liquity.store.state.borrowingRate),
+      Trove.recreate(new Trove(collateral, debt), kumo.store.state.borrowingRate),
       {},
       { from: randomWallet.address }
     )
@@ -61,7 +61,7 @@ const createTrove = async (nominalCollateralRatio: Decimal) => {
 const runLoop = async () => {
   for (let i = 0; i < numberOfTrovesToCreate; ++i) {
     const collateralRatio = collateralRatioStep.mul(i).add(collateralRatioStart);
-    const nominalCollateralRatio = collateralRatio.div(liquity.store.state.price);
+    const nominalCollateralRatio = collateralRatio.div(kumo.store.state.price);
 
     await createTrove(nominalCollateralRatio);
 
@@ -83,13 +83,13 @@ const main = async () => {
     network
   );
 
-  liquity = await EthersLiquity.connect(provider, { useStore: "blockPolled" });
+  kumo = await EthersKumo.connect(provider, { useStore: "blockPolled" });
 
   let stopStore: () => void;
 
   return new Promise<void>(resolve => {
-    liquity.store.onLoaded = resolve;
-    stopStore = liquity.store.start();
+    kumo.store.onLoaded = resolve;
+    stopStore = kumo.store.start();
   })
     .then(runLoop)
     .then(() => {

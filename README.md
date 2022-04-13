@@ -1,6 +1,6 @@
 # Liquity: Decentralized Borrowing Protocol
 
-![Tests](https://github.com/liquity/dev/workflows/CI/badge.svg) [![Frontend status](https://img.shields.io/uptimerobot/status/m784948796-056b56fd51c67d682c11bb24?label=Testnet&logo=nginx&logoColor=white)](https://devui.liquity.org) ![uptime](https://img.shields.io/uptimerobot/ratio/7/m784948796-056b56fd51c67d682c11bb24) [![Discord](https://img.shields.io/discord/700620821198143498?label=join%20chat&logo=discord&logoColor=white)](https://discord.gg/2up5U32) [![Docker Pulls](https://img.shields.io/docker/pulls/liquity/dev-frontend?label=dev-frontend%20pulls&logo=docker&logoColor=white)](https://hub.docker.com/r/liquity/dev-frontend) [![codecov](https://codecov.io/gh/liquity/dev/branch/add_codecov/graph/badge.svg)](https://codecov.io/gh/liquity/dev)
+![Tests](https://github.com/kumo/dev/workflows/CI/badge.svg) [![Frontend status](https://img.shields.io/uptimerobot/status/m784948796-056b56fd51c67d682c11bb24?label=Testnet&logo=nginx&logoColor=white)](https://devui.kumo.org) ![uptime](https://img.shields.io/uptimerobot/ratio/7/m784948796-056b56fd51c67d682c11bb24) [![Discord](https://img.shields.io/discord/700620821198143498?label=join%20chat&logo=discord&logoColor=white)](https://discord.gg/2up5U32) [![Docker Pulls](https://img.shields.io/docker/pulls/kumo/dev-frontend?label=dev-frontend%20pulls&logo=docker&logoColor=white)](https://hub.docker.com/r/kumo/dev-frontend) [![codecov](https://codecov.io/gh/kumo/dev/branch/add_codecov/graph/badge.svg)](https://codecov.io/gh/kumo/dev)
 
 
 Liquity is a decentralized protocol that allows Ether holders to obtain maximum liquidity against
@@ -20,12 +20,12 @@ multiple front ends, enhancing decentralization.
 
 ## More information
 
-Visit [liquity.org](https://www.liquity.org) to find out more and join the discussion.
+Visit [kumo.org](https://www.kumo.org) to find out more and join the discussion.
 
 ## Liquity System Summary
 
 - [Disclaimer](#disclaimer)
-- [Liquity Overview](#liquity-overview)
+- [Liquity Overview](#kumo-overview)
 - [Liquidation and the Stability Pool](#liquidation-and-the-stability-pool)
   - [Liquidation gas costs](#liquidation-gas-costs)
   - [Liquidation Logic](#liquidation-logic)
@@ -46,7 +46,7 @@ Visit [liquity.org](https://www.liquity.org) to find out more and join the discu
   - [Launch sequence and vesting process](#launch-sequence-and-vesting-process)
     - [Deploy KUMO Contracts](#deploy-kumo-contracts)
     - [Deploy and fund Lockup Contracts](#deploy-and-fund-lockup-contracts)
-    - [Deploy Liquity Core](#deploy-liquity-core)
+    - [Deploy Liquity Core](#deploy-kumo-core)
     - [During one year lockup period](#during-one-year-lockup-period)
     - [Upon end of one year lockup period](#upon-end-of-one-year-lockup-period)
     - [Post-lockup period](#post-lockup-period)
@@ -59,9 +59,9 @@ Visit [liquity.org](https://www.liquity.org) to find out more and join the discu
   - [Testnet PriceFeed and PriceFeed tests](#testnet-pricefeed-and-pricefeed-tests)
   - [PriceFeed limitations and known issues](#pricefeed-limitations-and-known-issues)
   - [Keeping a sorted list of Troves ordered by ICR](#keeping-a-sorted-list-of-troves-ordered-by-icr)
-  - [Flow of Ether in Liquity](#flow-of-ether-in-liquity)
-  - [Flow of LUSD tokens in Liquity](#flow-of-lusd-tokens-in-liquity)
-  - [Flow of KUMO Tokens in Liquity](#flow-of-kumo-tokens-in-liquity)
+  - [Flow of Ether in Liquity](#flow-of-ether-in-kumo)
+  - [Flow of LUSD tokens in Liquity](#flow-of-lusd-tokens-in-kumo)
+  - [Flow of KUMO Tokens in Liquity](#flow-of-kumo-tokens-in-kumo)
 - [Expected User Behaviors](#expected-user-behaviors)
 - [Contract Ownership and Function Permissions](#contract-ownership-and-function-permissions)
 - [Deployment to a Development Blockchain](#deployment-to-a-development-blockchain)
@@ -101,8 +101,8 @@ Visit [liquity.org](https://www.liquity.org) to find out more and join the discu
   - [KUMO Issuance implementation](#kumo-issuance-implementation)
   - [Handling the front end KUMO gain](#handling-the-front-end-kumo-gain)
   - [KUMO reward events and payouts](#kumo-reward-events-and-payouts)
-- [KUMO issuance to liquity providers](#kumo-issuance-to-liquity-providers)
-- [Liquity System Fees](#liquity-system-fees)
+- [KUMO issuance to kumo providers](#kumo-issuance-to-kumo-providers)
+- [Liquity System Fees](#kumo-system-fees)
   - [Redemption Fee](#redemption-fee)
   - [Issuance fee](#issuance-fee)
   - [Fee Schedule](#fee-schedule)
@@ -468,7 +468,7 @@ ICRs are computed dynamically at runtime, and not stored on the node. This is be
 
 The list relies on the fact that a collateral and debt redistribution due to a liquidation preserves the ordering of all active Troves (though it does decrease the ICR of each active Trove above the MCR).
 
-The fact that ordering is maintained as redistributions occur, is not immediately obvious: please see the [mathematical proof](https://github.com/liquity/dev/blob/main/papers) which shows that this holds in Liquity.
+The fact that ordering is maintained as redistributions occur, is not immediately obvious: please see the [mathematical proof](https://github.com/kumo/dev/blob/main/papers) which shows that this holds in Liquity.
 
 A node inserted based on current ICR will maintain the correct position, relative to its peers, as liquidation gains accumulate, as long as its raw collateral and debt have not changed.
 
@@ -697,11 +697,11 @@ To check test coverage you can run:
 yarn coverage
 ```
 
-You can see the coverage status at mainnet deployment [here](https://codecov.io/gh/liquity/dev/tree/8f52f2906f99414c0b1c3a84c95c74c319b7a8c6).
+You can see the coverage status at mainnet deployment [here](https://codecov.io/gh/kumo/dev/tree/8f52f2906f99414c0b1c3a84c95c74c319b7a8c6).
 
-![Impacted file tree graph](https://codecov.io/gh/liquity/dev/pull/707/graphs/tree.svg?width=650&height=150&src=pr&token=7AJPQ3TW0O&utm_medium=referral&utm_source=github&utm_content=comment&utm_campaign=pr+comments&utm_term=liquity)
+![Impacted file tree graph](https://codecov.io/gh/kumo/dev/pull/707/graphs/tree.svg?width=650&height=150&src=pr&token=7AJPQ3TW0O&utm_medium=referral&utm_source=github&utm_content=comment&utm_campaign=pr+comments&utm_term=kumo)
 
-There’s also a [pull request](https://github.com/liquity/dev/pull/515) to increase the coverage, but it hasn’t been merged yet because it modifies some smart contracts (mostly removing unnecessary checks).
+There’s also a [pull request](https://github.com/kumo/dev/pull/515) to increase the coverage, but it hasn’t been merged yet because it modifies some smart contracts (mostly removing unnecessary checks).
 
 
 ## System Quantities - Units and Representation
@@ -1132,7 +1132,7 @@ A mathematical manipulation allows us to factor out the initial deposit, and acc
 
 The formula for a depositor’s accumulated ETH gain is derived here:
 
-[Scalable reward distribution for compounding, decreasing stake](https://github.com/liquity/dev/blob/main/papers/Scalable_Reward_Distribution_with_Compounding_Stakes.pdf)
+[Scalable reward distribution for compounding, decreasing stake](https://github.com/kumo/dev/blob/main/papers/Scalable_Reward_Distribution_with_Compounding_Stakes.pdf)
 
 Each liquidation updates `P` and `S`. After a series of liquidations, a compounded deposit and corresponding ETH gain can be calculated using the initial deposit, the depositor’s snapshots, and the current values of `P` and `S`.
 
@@ -1181,7 +1181,7 @@ In a KUMO reward event, the KUMO to be issued is calculated based on time passed
 
 The KUMO produced in this issuance event is shared between depositors, in proportion to their deposit sizes.
 
-To efficiently and accurately track KUMO gains for depositors and front ends as deposits decrease over time from liquidations, we re-use the [algorithm for rewards from a compounding, decreasing stake](https://github.com/liquity/dev/blob/main/packages/contracts/mathProofs/Scalable%20Compounding%20Stability%20Pool%20Deposits.pdf). It is the same algorithm used for the ETH gain from liquidations.
+To efficiently and accurately track KUMO gains for depositors and front ends as deposits decrease over time from liquidations, we re-use the [algorithm for rewards from a compounding, decreasing stake](https://github.com/kumo/dev/blob/main/packages/contracts/mathProofs/Scalable%20Compounding%20Stability%20Pool%20Deposits.pdf). It is the same algorithm used for the ETH gain from liquidations.
 
 The same product `P` is used, and a sum `G` is used to track KUMO rewards, and each deposit gets a new snapshot of `P` and `G` when it is updated.
 
@@ -1208,7 +1208,7 @@ When a deposit is changed (top-up, withdrawal):
 When a liquidation occurs:
 - A KUMO reward event occurs, and `G` is updated
 
-## KUMO issuance to liquity providers
+## KUMO issuance to kumo providers
 
 On deployment a new Uniswap pool will be created for the pair LUSD/ETH and a Staking rewards contract will be deployed. The contract is based on [Unipool by Synthetix](https://github.com/Synthetixio/Unipool/blob/master/contracts/Unipool.sol). More information about their liquidity rewards program can be found in the [original SIP 31](https://sips.synthetix.io/sips/sip-31) and in [their blog](https://blog.synthetix.io/new-uniswap-seth-lp-reward-system/).
 
@@ -1293,7 +1293,7 @@ When a liquidation occurs and the Stability Pool is empty or smaller than the li
 
 For two Troves A and B with collateral `A.coll > B.coll`, Trove A should earn a bigger share of the liquidated collateral and debt.
 
-In Liquity it is important that all active Troves remain ordered by their ICR. We have proven that redistribution of the liquidated debt and collateral proportional to active Troves’ collateral, preserves the ordering of active Troves by ICR, as liquidations occur over time.  Please see the [proofs section](https://github.com/liquity/dev/tree/main/papers).
+In Liquity it is important that all active Troves remain ordered by their ICR. We have proven that redistribution of the liquidated debt and collateral proportional to active Troves’ collateral, preserves the ordering of active Troves by ICR, as liquidations occur over time.  Please see the [proofs section](https://github.com/kumo/dev/tree/main/papers).
 
 However, when it comes to implementation, Ethereum gas costs make it too expensive to loop over all Troves and write new data to storage for each one. When a Trove receives redistribution rewards, the system does not update the Trove's collateral and debt properties - instead, the Trove’s rewards remain "pending" until the borrower's next operation.
 
@@ -1307,7 +1307,7 @@ Consider the case where new Trove is created after all active Troves have receiv
 
 The fresh trove would earns rewards based on its **entire** collateral, whereas old Troves would earn rewards based only on **some portion** of their collateral - since a part of their collateral is pending, and not included in the Trove’s `coll` property.
 
-This can break the ordering of Troves by ICR - see the [proofs section](https://github.com/liquity/dev/tree/main/papers).
+This can break the ordering of Troves by ICR - see the [proofs section](https://github.com/kumo/dev/tree/main/papers).
 
 ### Corrected Stake Solution
 
@@ -1325,7 +1325,7 @@ It then earns redistribution rewards based on this corrected stake. A newly open
 
 Whenever a borrower adjusts their Trove’s collateral, their pending rewards are applied, and a fresh corrected stake is computed.
 
-To convince yourself this corrected stake preserves ordering of active Troves by ICR, please see the [proofs section](https://github.com/liquity/dev/blob/main/papers).
+To convince yourself this corrected stake preserves ordering of active Troves by ICR, please see the [proofs section](https://github.com/kumo/dev/blob/main/papers).
 
 ## Math Proofs
 
@@ -1336,7 +1336,7 @@ In particular, we have:
 - Proofs that Trove ordering is maintained throughout a series of liquidations and new Trove openings
 - A derivation of a formula and implementation for a highly scalable (O(1) complexity) reward distribution in the Stability Pool, involving compounding and decreasing stakes.
 
-PDFs of these can be found in https://github.com/liquity/dev/blob/main/papers
+PDFs of these can be found in https://github.com/kumo/dev/blob/main/papers
 
 ## Definitions
 
@@ -1428,8 +1428,8 @@ Note: you can skip the manual installation of node-gyp itself (`npm install -g n
 ### Clone & Install
 
 ```
-git clone https://github.com/liquity/dev.git liquity
-cd liquity
+git clone https://github.com/kumo/dev.git kumo
+cd kumo
 yarn
 ```
 
@@ -1562,7 +1562,7 @@ Your custom built frontend can be configured by putting a file named `config.jso
 
 ## Running a frontend with Docker
 
-The quickest way to get a frontend up and running is to use the [prebuilt image](https://hub.docker.com/r/liquity/dev-frontend) available on Docker Hub.
+The quickest way to get a frontend up and running is to use the [prebuilt image](https://hub.docker.com/r/kumo/dev-frontend) available on Docker Hub.
 
 ### Prerequisites
 
@@ -1571,8 +1571,8 @@ You will need to have [Docker](https://docs.docker.com/get-docker/) installed.
 ### Running with `docker`
 
 ```
-docker pull liquity/dev-frontend
-docker run --name liquity -d --rm -p 3000:80 liquity/dev-frontend
+docker pull kumo/dev-frontend
+docker run --name kumo -d --rm -p 3000:80 kumo/dev-frontend
 ```
 
 This will start serving your frontend using HTTP on port 3000. If everything went well, you should be able to open http://localhost:3000/ in your browser. To use a different port, just replace 3000 with your desired port number.
@@ -1580,7 +1580,7 @@ This will start serving your frontend using HTTP on port 3000. If everything wen
 To stop the service:
 
 ```
-docker kill liquity
+docker kill kumo
 ```
 
 ### Configuring a public frontend
@@ -1602,10 +1602,10 @@ The kickback rate is the portion of KUMO you pass on to users of your frontend. 
 It is highly recommended that you do this while running a frontend locally, before you start hosting it publicly:
 
 ```
-docker run --name liquity -d --rm -p 3000:80 \
+docker run --name kumo -d --rm -p 3000:80 \
   -e FRONTEND_TAG=0x2781fD154358b009abf6280db4Ec066FCC6cb435 \
   -e INFURA_API_KEY=158b6511a5c74d1ac028a8a2afe8f626 \
-  liquity/dev-frontend
+  kumo/dev-frontend
 ```
 
 Remember to replace the environment variables in the above example. After executing this command, open http://localhost:3000/ in a browser with MetaMask installed, then switch MetaMask to the account whose address you specified as FRONTEND_TAG to begin setting the kickback rate.
@@ -1628,16 +1628,16 @@ A frontend doesn't require any database or server-side computation, so the easie
 To obtain the files you need to upload, you need to extract them from a frontend Docker container. If you were following the guide for setting a kickback rate and haven't stopped the container yet, then you already have one! Otherwise, you can create it with a command like this (remember to use your own `FRONTEND_TAG` and `INFURA_API_KEY`):
 
 ```
-docker run --name liquity -d --rm \
+docker run --name kumo -d --rm \
   -e FRONTEND_TAG=0x2781fD154358b009abf6280db4Ec066FCC6cb435 \
   -e INFURA_API_KEY=158b6511a5c74d1ac028a8a2afe8f626 \
-  liquity/dev-frontend
+  kumo/dev-frontend
 ```
 
 While the container is running, use `docker cp` to extract the frontend's files to a folder of your choosing. For example to extract them to a new folder named "devui" inside the current folder, run:
 
 ```
-docker cp liquity:/usr/share/nginx/html ./devui
+docker cp kumo:/usr/share/nginx/html ./devui
 ```
 
 Upload the contents of this folder to your chosen hosting service (or serve them using your own infrastructure), and you're set!
@@ -1648,7 +1648,7 @@ If you have command line access to a server with Docker installed, hosting a fro
 
 The frontend Docker container simply serves files using plain HTTP, which is susceptible to man-in-the-middle attacks. Therefore it is highly recommended to wrap it in HTTPS using a reverse proxy. You can find an example docker-compose config [here](packages/dev-frontend/docker-compose-example/docker-compose.yml) that secures the frontend using [SWAG (Secure Web Application Gateway)](https://github.com/linuxserver/docker-swag) and uses [watchtower](https://github.com/containrrr/watchtower) for automatically updating the frontend image to the latest version on Docker Hub.
 
-Remember to customize both [docker-compose.yml](packages/dev-frontend/docker-compose-example/docker-compose.yml) and the [site config](packages/dev-frontend/docker-compose-example/config/nginx/site-confs/liquity.example.com).
+Remember to customize both [docker-compose.yml](packages/dev-frontend/docker-compose-example/docker-compose.yml) and the [site config](packages/dev-frontend/docker-compose-example/config/nginx/site-confs/kumo.example.com).
 
 ## Known Issues
 
@@ -1656,7 +1656,7 @@ Remember to customize both [docker-compose.yml](packages/dev-frontend/docker-com
 
 When liquidating a trove with `ICR > 110%`, a collateral surplus remains claimable by the borrower. This collateral surplus should be excluded from subsequent TCR calculations, but within the liquidation sequence in `batchLiquidateTroves` in Recovery Mode, it is not. This results in a slight distortion to the TCR value used at each step of the liquidation sequence going forward. This distortion only persists for the duration the `batchLiquidateTroves` function call, and the TCR is again calculated correctly after the liquidation sequence ends. In most cases there is no impact at all, and when there is, the effect tends to be minor. The issue is not present at all in Normal Mode. 
 
-There is a theoretical and extremely rare case where it incorrectly causes a loss for Stability Depositors instead of a gain. It relies on the stars aligning: the system must be in Recovery Mode, the TCR must be very close to the 150% boundary, a large trove must be liquidated, and the ETH price must drop by >10% at exactly the right moment. No profitable exploit is possible. For more details, please see [this security advisory](https://github.com/liquity/dev/security/advisories/GHSA-xh2p-7p87-fhgh).
+There is a theoretical and extremely rare case where it incorrectly causes a loss for Stability Depositors instead of a gain. It relies on the stars aligning: the system must be in Recovery Mode, the TCR must be very close to the 150% boundary, a large trove must be liquidated, and the ETH price must drop by >10% at exactly the right moment. No profitable exploit is possible. For more details, please see [this security advisory](https://github.com/kumo/dev/security/advisories/GHSA-xh2p-7p87-fhgh).
 
 ### SortedTroves edge cases - top and bottom of the sorted list
 

@@ -1,19 +1,19 @@
 {
-  "name": "@liquity/lib-base",
+  "name": "@kumo/lib-base",
   "version": "0.0.0-semantic-release",
-  "description": "Liquity SDK shared interfaces",
+  "description": "Kumo SDK shared interfaces",
   "keywords": [
-    "Liquity",
+    "Kumo",
     "protocol",
     "DeFi",
     "Ethereum"
   ],
-  "homepage": "https://github.com/liquity/liquity#readme",
+  "homepage": "https://github.com/kumo/kumo#readme",
   "license": "MIT",
-  "author": "Daniel Simon <dani@liquity.org>",
+  "author": "Daniel Simon <dani@kumo.org>",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "repository": "https://github.com/liquity/dev",
+  "repository": "https://github.com/kumo/dev",
   "scripts": {
     "prepare": "run-s prepare:*",
     "prepare:eslint": "eslint src",

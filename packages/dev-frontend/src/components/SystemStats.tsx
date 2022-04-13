@@ -1,21 +1,21 @@
 import React from "react";
 import { Card, Heading, Link, Box, Text } from "theme-ui";
 import { AddressZero } from "@ethersproject/constants";
-import { Decimal, Percent, LiquityStoreState } from "@liquity/lib-base";
-import { useLiquitySelector } from "@liquity/lib-react";
+import { Decimal, Percent, KumoStoreState } from "@kumo/lib-base";
+import { useKumoSelector } from "@kumo/lib-react";
 
-import { useLiquity } from "../hooks/LiquityContext";
+import { useKumo } from "../hooks/KumoContext";
 import { COIN, GT } from "../strings";
 import { Statistic } from "./Statistic";
 
-const selectBalances = ({ accountBalance, kusdBalance, kumoBalance }: LiquityStoreState) => ({
+const selectBalances = ({ accountBalance, kusdBalance, kumoBalance }: KumoStoreState) => ({
   accountBalance,
   kusdBalance,
   kumoBalance
 });
 
 const Balances: React.FC = () => {
-  const { accountBalance, kusdBalance, kumoBalance } = useLiquitySelector(selectBalances);
+  const { accountBalance, kusdBalance, kumoBalance } = useKumoSelector(selectBalances);
 
   return (
     <Box sx={{ mb: 3 }}>
@@ -29,7 +29,7 @@ const Balances: React.FC = () => {
 
 const GitHubCommit: React.FC<{ children?: string }> = ({ children }) =>
   children?.match(/[0-9a-f]{40}/) ? (
-    <Link href={`https://github.com/liquity/dev/commit/${children}`}>{children.substr(0, 7)}</Link>
+    <Link href={`https://github.com/kumo/dev/commit/${children}`}>{children.substr(0, 7)}</Link>
   ) : (
     <>unknown</>
   );
@@ -48,7 +48,7 @@ const select = ({
   redemptionRate,
   totalStakedKUMO,
   frontend
-}: LiquityStoreState) => ({
+}: KumoStoreState) => ({
   numberOfTroves,
   price,
   total,
@@ -61,10 +61,10 @@ const select = ({
 
 export const SystemStats: React.FC<SystemStatsProps> = ({ variant = "info", showBalances }) => {
   const {
-    liquity: {
+    kumo: {
       connection: { version: contractsVersion, deploymentDate, frontendTag }
     }
-  } = useLiquity();
+  } = useKumo();
 
   const {
     numberOfTroves,
@@ -74,7 +74,7 @@ export const SystemStats: React.FC<SystemStatsProps> = ({ variant = "info", show
     borrowingRate,
     totalStakedKUMO,
     kickbackRate
-  } = useLiquitySelector(select);
+  } = useKumoSelector(select);
 
   const kusdInStabilityPoolPct =
     total.debt.nonZero && new Percent(kusdInStabilityPool.div(total.debt));
@@ -86,7 +86,7 @@ export const SystemStats: React.FC<SystemStatsProps> = ({ variant = "info", show
     <Card {...{ variant }}>
       {showBalances && <Balances />}
 
-      <Heading>Liquity statistics</Heading>
+      <Heading>Kumo statistics</Heading>
 
       <Heading as="h2" sx={{ mt: 3, fontWeight: "body" }}>
         Protocol
@@ -111,7 +111,7 @@ export const SystemStats: React.FC<SystemStatsProps> = ({ variant = "info", show
       <Statistic name="Troves" tooltip="The total number of active Troves in the system.">
         {Decimal.from(numberOfTroves).prettify(0)}
       </Statistic>
-      <Statistic name="KUSD supply" tooltip="The total KUSD minted by the Liquity Protocol.">
+      <Statistic name="KUSD supply" tooltip="The total KUSD minted by the Kumo Protocol.">
         {total.debt.shorten()}
       </Statistic>
       {kusdInStabilityPoolPct && (

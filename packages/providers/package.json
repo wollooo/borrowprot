@@ -1,19 +1,19 @@
 {
-  "name": "@liquity/providers",
+  "name": "@kumo/providers",
   "version": "0.0.0-semantic-release",
-  "description": "Custom Ethers Providers used by Liquity Dev UI",
+  "description": "Custom Ethers Providers used by Kumo Dev UI",
   "keywords": [
-    "Liquity",
+    "Kumo",
     "protocol",
     "DeFi",
     "Ethereum"
   ],
-  "homepage": "https://github.com/liquity/liquity#readme",
+  "homepage": "https://github.com/kumo/kumo#readme",
   "license": "MIT",
-  "author": "Daniel Simon <dani@liquity.org>",
+  "author": "Daniel Simon <dani@kumo.org>",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "repository": "https://github.com/liquity/dev",
+  "repository": "https://github.com/kumo/dev",
   "scripts": {
     "prepare": "tsc --project tsconfig.dist.json"
   },

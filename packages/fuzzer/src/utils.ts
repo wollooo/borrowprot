@@ -9,11 +9,11 @@ import {
   Percent,
   Trove,
   TroveWithPendingRedistribution,
-  ReadableLiquity,
+  ReadableKumo,
   KUSD_LIQUIDATION_RESERVE
-} from "@liquity/lib-base";
-import { EthersLiquity, ReadableEthersLiquity } from "@liquity/lib-ethers";
-import { SubgraphLiquity } from "@liquity/lib-subgraph";
+} from "@kumo/lib-base";
+import { EthersKumo, ReadableEthersKumo } from "@kumo/lib-ethers";
+import { SubgraphKumo } from "@kumo/lib-subgraph";
 
 export const objToString = (o: Record<string, unknown>) =>
   "{ " +
@@ -66,22 +66,22 @@ export const randomDebtChange = ({ debt }: Trove) =>
     ? { repayKUSD: debt.mul(1.1 * Math.random()) }
     : { borrowKUSD: debt.mul(0.5 * Math.random()) };
 
-export const getListOfTroves = async (liquity: ReadableLiquity) =>
-  liquity.getTroves({
-    first: await liquity.getNumberOfTroves(),
+export const getListOfTroves = async (kumo: ReadableKumo) =>
+  kumo.getTroves({
+    first: await kumo.getNumberOfTroves(),
     sortedBy: "descendingCollateralRatio",
     beforeRedistribution: false
   });
 
-export const getListOfTrovesBeforeRedistribution = async (liquity: ReadableLiquity) =>
-  liquity.getTroves({
-    first: await liquity.getNumberOfTroves(),
+export const getListOfTrovesBeforeRedistribution = async (kumo: ReadableKumo) =>
+  kumo.getTroves({
+    first: await kumo.getNumberOfTroves(),
     sortedBy: "descendingCollateralRatio",
     beforeRedistribution: true
   });
 
-export const getListOfTroveOwners = async (liquity: ReadableLiquity) =>
-  getListOfTrovesBeforeRedistribution(liquity).then(troves =>
+export const getListOfTroveOwners = async (kumo: ReadableKumo) =>
+  getListOfTrovesBeforeRedistribution(kumo).then(troves =>
     troves.map(trove => trove.ownerAddress)
   );
 
@@ -163,12 +163,12 @@ export const checkTroveOrdering = (
 };
 
 export const checkPoolBalances = async (
-  liquity: ReadableEthersLiquity,
+  kumo: ReadableEthersKumo,
   listOfTroves: TroveWithPendingRedistribution[],
   totalRedistributed: Trove
 ) => {
-  const activePool = await liquity._getActivePool();
-  const defaultPool = await liquity._getDefaultPool();
+  const activePool = await kumo._getActivePool();
+  const defaultPool = await kumo._getDefaultPool();
 
   const [activeTotal, defaultTotal] = listOfTroves.reduce(
     ([activeTotal, defaultTotal], troveActive) => {
@@ -212,12 +212,12 @@ const trovesRoughlyEqual = (troveA: Trove, troveB: Trove) =>
 
 class EqualityCheck<T> {
   private name: string;
-  private get: (l: ReadableLiquity) => Promise<T>;
+  private get: (l: ReadableKumo) => Promise<T>;
   private equals: (a: T, b: T) => boolean;
 
   constructor(
     name: string,
-    get: (l: ReadableLiquity) => Promise<T>,
+    get: (l: ReadableKumo) => Promise<T>,
     equals: (a: T, b: T) => boolean
   ) {
     this.name = name;
@@ -225,7 +225,7 @@ class EqualityCheck<T> {
     this.equals = equals;
   }
 
-  async allEqual(liquities: ReadableLiquity[]) {
+  async allEqual(liquities: ReadableKumo[]) {
     const [a, ...rest] = await Promise.all(liquities.map(l => this.get(l)));
 
     if (!rest.every(b => this.equals(a, b))) {
@@ -242,10 +242,10 @@ const checks = [
   new EqualityCheck("tokensInStabilityPool", l => l.getKUSDInStabilityPool(), decimalsEqual)
 ];
 
-export const checkSubgraph = async (subgraph: SubgraphLiquity, l1Liquity: ReadableLiquity) => {
-  await Promise.all(checks.map(check => check.allEqual([subgraph, l1Liquity])));
+export const checkSubgraph = async (subgraph: SubgraphKumo, l1Kumo: ReadableKumo) => {
+  await Promise.all(checks.map(check => check.allEqual([subgraph, l1Kumo])));
 
-  const l1ListOfTroves = await getListOfTrovesBeforeRedistribution(l1Liquity);
+  const l1ListOfTroves = await getListOfTrovesBeforeRedistribution(l1Kumo);
   const subgraphListOfTroves = await getListOfTrovesBeforeRedistribution(subgraph);
   listOfTrovesShouldBeEqual(l1ListOfTroves, subgraphListOfTroves);
 
@@ -327,4 +327,4 @@ const truncateLastDigits = (n: number) => {
 };
 
 export const connectUsers = (users: Signer[]) =>
-  Promise.all(users.map(user => EthersLiquity.connect(user)));
+  Promise.all(users.map(user => EthersKumo.connect(user)));

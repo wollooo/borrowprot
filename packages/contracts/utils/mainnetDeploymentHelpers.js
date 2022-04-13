@@ -62,7 +62,7 @@ class MainnetDeploymentHelper {
     return contract
   }
 
-  async deployLiquityCoreMainnet(tellorMasterAddr, deploymentState) {
+  async deployKumoCoreMainnet(tellorMasterAddr, deploymentState) {
     // Get contract factories
     const priceFeedFactory = await this.getFactory("PriceFeed")
     const sortedTrovesFactory = await this.getFactory("SortedTroves")
@@ -193,11 +193,11 @@ class MainnetDeploymentHelper {
     return unipool
   }
 
-  async deployMultiTroveGetterMainnet(liquityCore, deploymentState) {
+  async deployMultiTroveGetterMainnet(kumoCore, deploymentState) {
     const multiTroveGetterFactory = await this.getFactory("MultiTroveGetter")
     const multiTroveGetterParams = [
-      liquityCore.troveManager.address,
-      liquityCore.sortedTroves.address
+      kumoCore.troveManager.address,
+      kumoCore.sortedTroves.address
     ]
     const multiTroveGetter = await this.loadOrDeploy(
       multiTroveGetterFactory,

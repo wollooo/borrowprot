@@ -9,9 +9,9 @@ import './Interfaces/ITroveManager.sol';
 import './Interfaces/IKUSDToken.sol';
 import './Interfaces/ISortedTroves.sol';
 import "./Interfaces/ICommunityIssuance.sol";
-import "./Dependencies/LiquityBase.sol";
+import "./Dependencies/KumoBase.sol";
 import "./Dependencies/SafeMath.sol";
-import "./Dependencies/LiquitySafeMath128.sol";
+import "./Dependencies/KumoSafeMath128.sol";
 import "./Dependencies/Ownable.sol";
 import "./Dependencies/CheckContract.sol";
 import "./Dependencies/console.sol";
@@ -45,7 +45,7 @@ import "./Dependencies/console.sol";
  * Stability Pool, they get a snapshot of the latest P and S: P_t and S_t, respectively.
  *
  * The formula for a depositor's accumulated ETH gain is derived here:
- * https://github.com/liquity/dev/blob/main/packages/contracts/mathProofs/Scalable%20Compounding%20Stability%20Pool%20Deposits.pdf
+ * https://github.com/kumo/dev/blob/main/packages/contracts/mathProofs/Scalable%20Compounding%20Stability%20Pool%20Deposits.pdf
  *
  * For a given deposit d_t, the ratio P/P_t tells us the factor by which a deposit has decreased since it joined the Stability Pool,
  * and the term d_t * (S - S_t)/P_t gives us the deposit's total accumulated ETH gain.
@@ -126,7 +126,7 @@ import "./Dependencies/console.sol";
  * --- UPDATING P WHEN A LIQUIDATION OCCURS ---
  *
  * Please see the implementation spec in the proof document, which closely follows on from the compounded deposit / ETH gain derivations:
- * https://github.com/liquity/liquity/blob/master/papers/Scalable_Reward_Distribution_with_Compounding_Stakes.pdf
+ * https://github.com/kumo/kumo/blob/master/papers/Scalable_Reward_Distribution_with_Compounding_Stakes.pdf
  *
  *
  * --- KUMO ISSUANCE TO STABILITY POOL DEPOSITORS ---
@@ -139,14 +139,14 @@ import "./Dependencies/console.sol";
  * by a given deposit, is split between the depositor and the front end through which the deposit was made, based on the front end's kickbackRate.
  *
  * Please see the system Readme for an overview:
- * https://github.com/liquity/dev/blob/main/README.md#kumo-issuance-to-stability-providers
+ * https://github.com/kumo/dev/blob/main/README.md#kumo-issuance-to-stability-providers
  *
  * We use the same mathematical product-sum approach to track KUMO gains for depositors, where 'G' is the sum corresponding to KUMO gains.
  * The product P (and snapshot P_t) is re-used, as the ratio P/P_t tracks a deposit's depletion due to liquidations.
  *
  */
-contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool {
-    using LiquitySafeMath128 for uint128;
+contract StabilityPool is KumoBase, Ownable, CheckContract, IStabilityPool {
+    using KumoSafeMath128 for uint128;
     using SafeMath for uint256;
 
     // bool public isInitialized;
@@ -395,7 +395,7 @@ contract StabilityPool is LiquityBase, Ownable, CheckContract, IStabilityPool {
         uint depositorETHGain = getDepositorETHGain(msg.sender);
 
         uint compoundedKUSDDeposit = getCompoundedKUSDDeposit(msg.sender);
-        uint KUSDtoWithdraw = LiquityMath._min(_amount, compoundedKUSDDeposit);
+        uint KUSDtoWithdraw = KumoMath._min(_amount, compoundedKUSDDeposit);
         uint KUSDLoss = initialDeposit.sub(compoundedKUSDDeposit); // Needed only for event log
 
         // First pay out any KUMO gains

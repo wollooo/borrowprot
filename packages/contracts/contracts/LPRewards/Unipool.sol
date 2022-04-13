@@ -4,7 +4,7 @@ pragma solidity 0.8.11;
 
 // import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-import "../Dependencies/LiquityMath.sol";
+import "../Dependencies/KumoMath.sol";
 import "../Dependencies/SafeMath.sol";
 import "../Dependencies/Ownable.sol";
 import "../Dependencies/CheckContract.sol";
@@ -19,7 +19,7 @@ import "../Dependencies/console.sol";
 // Some more useful references:
 // Synthetix proposal: https://sips.synthetix.io/sips/sip-31
 // Original audit: https://github.com/sigp/public-audits/blob/master/synthetix/unipool/review.pdf
-// Incremental changes (commit by commit) from the original to this version: https://github.com/liquity/dev/pull/271
+// Incremental changes (commit by commit) from the original to this version: https://github.com/kumo/dev/pull/271
 
 // LPTokenWrapper contains the basic staking functionality
 contract LPTokenWrapper is ILPTokenWrapper {
@@ -126,7 +126,7 @@ contract Unipool is LPTokenWrapper, Ownable, CheckContract, IUnipool {
 
     // Returns current timestamp if the rewards program has not finished yet, end time otherwise
     function lastTimeRewardApplicable() public view override returns (uint256) {
-        return LiquityMath._min(block.timestamp, periodFinish);
+        return KumoMath._min(block.timestamp, periodFinish);
     }
 
     // Returns the amount of rewards that correspond to each staked token

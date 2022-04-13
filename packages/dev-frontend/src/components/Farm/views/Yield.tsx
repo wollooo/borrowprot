@@ -1,28 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { Card, Paragraph, Text } from "theme-ui";
-import { Decimal, LiquityStoreState } from "@liquity/lib-base";
-import { useLiquitySelector } from "@liquity/lib-react";
+import { Decimal, KumoStoreState } from "@kumo/lib-base";
+import { useKumoSelector } from "@kumo/lib-react";
 import { InfoIcon } from "../../InfoIcon";
-import { useLiquity } from "../../../hooks/LiquityContext";
+import { useKumo } from "../../../hooks/KumoContext";
 import { Badge } from "../../Badge";
 import { fetchPrices } from "../context/fetchPrices";
 
 const selector = ({
   remainingLiquidityMiningKUMOReward,
   totalStakedUniTokens
-}: LiquityStoreState) => ({
+}: KumoStoreState) => ({
   remainingLiquidityMiningKUMOReward,
   totalStakedUniTokens
 });
 
 export const Yield: React.FC = () => {
   const {
-    liquity: {
+    kumo: {
       connection: { addresses, liquidityMiningKUMORewardRate }
     }
-  } = useLiquity();
+  } = useKumo();
 
-  const { remainingLiquidityMiningKUMOReward, totalStakedUniTokens } = useLiquitySelector(selector);
+  const { remainingLiquidityMiningKUMOReward, totalStakedUniTokens } = useKumoSelector(selector);
   const [kumoPrice, setKumoPrice] = useState<Decimal | undefined>(undefined);
   const [uniLpPrice, setUniLpPrice] = useState<Decimal | undefined>(undefined);
   const hasZeroValue = remainingLiquidityMiningKUMOReward.isZero || totalStakedUniTokens.isZero;

@@ -22,7 +22,7 @@ contract('TroveManager', async accounts => {
   let borrowerOperations
   
   beforeEach(async () => {
-    contracts = await deploymentHelper.deployLiquityCore()
+    contracts = await deploymentHelper.deployKumoCore()
     const KUMOContracts = await deploymentHelper.deployKUMOContracts(bountyAddress, lpRewardsAddress)
     
     kusdToken = contracts.kusdToken

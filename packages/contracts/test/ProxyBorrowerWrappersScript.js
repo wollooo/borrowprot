@@ -64,7 +64,7 @@ contract('BorrowerWrappers', async accounts => {
   const openTrove = async (params) => th.openTrove(contracts, params)
 
   beforeEach(async () => {
-    contracts = await deploymentHelper.deployLiquityCore()
+    contracts = await deploymentHelper.deployKumoCore()
     contracts.troveManager = await TroveManagerTester.new()
     contracts = await deploymentHelper.deployKUSDToken(contracts)
     const KUMOContracts = await deploymentHelper.deployKUMOTesterContractsHardhat(bountyAddress, lpRewardsAddress, multisig)

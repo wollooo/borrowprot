@@ -1,13 +1,13 @@
-const LiquityMathTester = artifacts.require("./LiquityMathTester.sol")
+const KumoMathTester = artifacts.require("./KumoMathTester.sol")
 
-contract('LiquityMath', async accounts => {
-  let liquityMathTester
+contract('KumoMath', async accounts => {
+  let kumoMathTester
   beforeEach('deploy tester', async () => {
-    liquityMathTester = await LiquityMathTester.new()
+    kumoMathTester = await KumoMathTester.new()
   })
 
   const checkFunction = async (func, cond, params) => {
-    assert.equal(await liquityMathTester[func](...params), cond(...params))
+    assert.equal(await kumoMathTester[func](...params), cond(...params))
   }
 
   it('max works if a > b', async () => {

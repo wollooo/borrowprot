@@ -6,7 +6,7 @@ import {
   KUSD_MINIMUM_DEBT,
   Trove,
   TroveWithPendingRedistribution
-} from "@liquity/lib-base";
+} from "@kumo/lib-base";
 
 import { Fixture } from "../fixture";
 import { deployer, funder, provider, subgraph } from "../globals";
@@ -34,7 +34,7 @@ export const chaos = async ({
 }: ChaosParams) => {
   const [frontend, ...randomUsers] = createRandomWallets(numberOfUsers + 1, provider);
 
-  const [deployerLiquity, funderLiquity, frontendLiquity, ...randomLiquities] = await connectUsers([
+  const [deployerKumo, funderKumo, frontendKumo, ...randomLiquities] = await connectUsers([
     deployer,
     funder,
     frontend,
@@ -42,11 +42,11 @@ export const chaos = async ({
   ]);
 
   const fixture = await Fixture.setup(
-    deployerLiquity,
+    deployerKumo,
     funder,
-    funderLiquity,
+    funderKumo,
     frontend.address,
-    frontendLiquity
+    frontendKumo
   );
 
   let previousListOfTroves: TroveWithPendingRedistribution[] | undefined = undefined;
@@ -65,50 +65,50 @@ export const chaos = async ({
 
     for (let i = 0; i < randomUsers.length; ++i) {
       const user = randomUsers[i];
-      const liquity = randomLiquities[i];
+      const kumo = randomLiquities[i];
 
       const x = Math.random();
 
       if (x < 0.5) {
-        const trove = await liquity.getTrove();
+        const trove = await kumo.getTrove();
 
         if (trove.isEmpty) {
-          await fixture.openRandomTrove(user.address, liquity);
+          await fixture.openRandomTrove(user.address, kumo);
         } else {
           if (x < 0.4) {
-            await fixture.randomlyAdjustTrove(user.address, liquity, trove);
+            await fixture.randomlyAdjustTrove(user.address, kumo, trove);
           } else {
-            await fixture.closeTrove(user.address, liquity, trove);
+            await fixture.closeTrove(user.address, kumo, trove);
           }
         }
       } else if (x < 0.7) {
-        const deposit = await liquity.getStabilityDeposit();
+        const deposit = await kumo.getStabilityDeposit();
 
         if (deposit.initialKUSD.isZero || x < 0.6) {
-          await fixture.depositRandomAmountInStabilityPool(user.address, liquity);
+          await fixture.depositRandomAmountInStabilityPool(user.address, kumo);
         } else {
-          await fixture.withdrawRandomAmountFromStabilityPool(user.address, liquity, deposit);
+          await fixture.withdrawRandomAmountFromStabilityPool(user.address, kumo, deposit);
         }
       } else if (x < 0.9) {
-        const stake = await liquity.getKUMOStake();
+        const stake = await kumo.getKUMOStake();
 
         if (stake.stakedKUMO.isZero || x < 0.8) {
-          await fixture.stakeRandomAmount(user.address, liquity);
+          await fixture.stakeRandomAmount(user.address, kumo);
         } else {
-          await fixture.unstakeRandomAmount(user.address, liquity, stake);
+          await fixture.unstakeRandomAmount(user.address, kumo, stake);
         }
       } else {
-        await fixture.redeemRandomAmount(user.address, liquity);
+        await fixture.redeemRandomAmount(user.address, kumo);
       }
 
-      // await fixture.sweepKUSD(liquity);
-      await fixture.sweepKUMO(liquity);
+      // await fixture.sweepKUSD(kumo);
+      await fixture.sweepKUMO(kumo);
 
-      const listOfTroves = await getListOfTrovesBeforeRedistribution(deployerLiquity);
-      const totalRedistributed = await deployerLiquity.getTotalRedistributed();
+      const listOfTroves = await getListOfTrovesBeforeRedistribution(deployerKumo);
+      const totalRedistributed = await deployerKumo.getTotalRedistributed();
 
       checkTroveOrdering(listOfTroves, totalRedistributed, price, previousListOfTroves);
-      await checkPoolBalances(deployerLiquity, listOfTroves, totalRedistributed);
+      await checkPoolBalances(deployerKumo, listOfTroves, totalRedistributed);
 
       previousListOfTroves = listOfTroves;
     }
@@ -116,7 +116,7 @@ export const chaos = async ({
     if (shouldCheckSubgraph) {
       const blockNumber = await provider.getBlockNumber();
       await subgraph.waitForBlock(blockNumber);
-      await checkSubgraph(subgraph, deployerLiquity);
+      await checkSubgraph(subgraph, deployerKumo);
     }
   }
 
@@ -124,18 +124,18 @@ export const chaos = async ({
 };
 
 export const order = async () => {
-  const [deployerLiquity, funderLiquity] = await connectUsers([deployer, funder]);
+  const [deployerKumo, funderKumo] = await connectUsers([deployer, funder]);
 
-  const initialPrice = await deployerLiquity.getPrice();
-  // let initialNumberOfTroves = await funderLiquity.getNumberOfTroves();
+  const initialPrice = await deployerKumo.getPrice();
+  // let initialNumberOfTroves = await funderKumo.getNumberOfTroves();
 
-  let [firstTrove] = await funderLiquity.getTroves({
+  let [firstTrove] = await funderKumo.getTroves({
     first: 1,
     sortedBy: "descendingCollateralRatio"
   });
 
   if (firstTrove.ownerAddress !== funder.address) {
-    const funderTrove = await funderLiquity.getTrove();
+    const funderTrove = await funderKumo.getTrove();
 
     const targetCollateralRatio = Decimal.max(
       firstTrove.collateralRatio(initialPrice).add(0.00001),
@@ -148,19 +148,19 @@ export const order = async () => {
         KUSD_MINIMUM_DEBT
       );
 
-      const fees = await funderLiquity.getFees();
+      const fees = await funderKumo.getFees();
 
-      await funderLiquity.openTrove(Trove.recreate(targetTrove, fees.borrowingRate()));
+      await funderKumo.openTrove(Trove.recreate(targetTrove, fees.borrowingRate()));
     } else {
       const targetTrove = funderTrove.setCollateral(
         funderTrove.debt.mulDiv(targetCollateralRatio, initialPrice)
       );
 
-      await funderLiquity.adjustTrove(funderTrove.adjustTo(targetTrove));
+      await funderKumo.adjustTrove(funderTrove.adjustTo(targetTrove));
     }
   }
 
-  [firstTrove] = await funderLiquity.getTroves({
+  [firstTrove] = await funderKumo.getTroves({
     first: 1,
     sortedBy: "descendingCollateralRatio"
   });
@@ -169,24 +169,24 @@ export const order = async () => {
     throw new Error("didn't manage to hoist Funder's Trove to head of SortedTroves");
   }
 
-  await deployerLiquity.setPrice(0.001);
+  await deployerKumo.setPrice(0.001);
 
   let numberOfTroves: number;
-  while ((numberOfTroves = await funderLiquity.getNumberOfTroves()) > 1) {
+  while ((numberOfTroves = await funderKumo.getNumberOfTroves()) > 1) {
     const numberOfTrovesToLiquidate = numberOfTroves > 10 ? 10 : numberOfTroves - 1;
 
     console.log(`${numberOfTroves} Troves left.`);
-    await funderLiquity.liquidateUpTo(numberOfTrovesToLiquidate);
+    await funderKumo.liquidateUpTo(numberOfTrovesToLiquidate);
   }
 
-  await deployerLiquity.setPrice(initialPrice);
+  await deployerKumo.setPrice(initialPrice);
 
-  if ((await funderLiquity.getNumberOfTroves()) !== 1) {
+  if ((await funderKumo.getNumberOfTroves()) !== 1) {
     throw new Error("didn't manage to liquidate every Trove");
   }
 
-  const funderTrove = await funderLiquity.getTrove();
-  const total = await funderLiquity.getTotal();
+  const funderTrove = await funderKumo.getTrove();
+  const total = await funderKumo.getTotal();
 
   const collateralDifference = Difference.between(total.collateral, funderTrove.collateral);
   const debtDifference = Difference.between(total.debt, funderTrove.debt);

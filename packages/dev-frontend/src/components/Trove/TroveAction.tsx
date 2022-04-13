@@ -1,8 +1,8 @@
 import { Button } from "theme-ui";
 
-import { Decimal, TroveChange } from "@liquity/lib-base";
+import { Decimal, TroveChange } from "@kumo/lib-base";
 
-import { useLiquity } from "../../hooks/LiquityContext";
+import { useKumo } from "../../hooks/KumoContext";
 import { useTransactionFunction } from "../Transaction";
 
 type TroveActionProps = {
@@ -19,18 +19,18 @@ export const TroveAction: React.FC<TroveActionProps> = ({
   maxBorrowingRate,
   borrowingFeeDecayToleranceMinutes
 }) => {
-  const { liquity } = useLiquity();
+  const { kumo } = useKumo();
 
   const [sendTransaction] = useTransactionFunction(
     transactionId,
     change.type === "creation"
-      ? liquity.send.openTrove.bind(liquity.send, change.params, {
+      ? kumo.send.openTrove.bind(kumo.send, change.params, {
           maxBorrowingRate,
           borrowingFeeDecayToleranceMinutes
         })
       : change.type === "closure"
-      ? liquity.send.closeTrove.bind(liquity.send)
-      : liquity.send.adjustTrove.bind(liquity.send, change.params, {
+      ? kumo.send.closeTrove.bind(kumo.send)
+      : kumo.send.adjustTrove.bind(kumo.send, change.params, {
           maxBorrowingRate,
           borrowingFeeDecayToleranceMinutes
         })

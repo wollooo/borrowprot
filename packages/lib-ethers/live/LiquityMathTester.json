@@ -1,7 +1,7 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "LiquityMathTester",
-  "sourceName": "contracts/TestContracts/LiquityMathTester.sol",
+  "contractName": "KumoMathTester",
+  "sourceName": "contracts/TestContracts/KumoMathTester.sol",
   "abi": [
     {
       "inputs": [

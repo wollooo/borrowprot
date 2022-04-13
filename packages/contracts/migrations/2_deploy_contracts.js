@@ -37,7 +37,7 @@ module.exports = function(deployer) {
     const kusdToken = await KUSDToken.deployed()
     const functionCaller = await FunctionCaller.deployed()
 
-    const liquityContracts = {
+    const kumoContracts = {
       borrowerOperations,
       priceFeed,
       kusdToken,
@@ -50,12 +50,12 @@ module.exports = function(deployer) {
     }
 
     // Grab contract addresses
-    const liquityAddresses = getAddresses(liquityContracts)
+    const kumoAddresses = getAddresses(kumoContracts)
     console.log('deploy_contracts.js - Deployed contract addresses: \n')
-    console.log(liquityAddresses)
+    console.log(kumoAddresses)
     console.log('\n')
 
     // Connect contracts to each other
-    await connectContracts(liquityContracts, liquityAddresses)
+    await connectContracts(kumoContracts, kumoAddresses)
   })
 }

@@ -1,8 +1,8 @@
 import { Button } from "theme-ui";
-import { Decimal, LiquityStoreState, StabilityDepositChange } from "@liquity/lib-base";
-import { useLiquitySelector } from "@liquity/lib-react";
+import { Decimal, KumoStoreState, StabilityDepositChange } from "@kumo/lib-base";
+import { useKumoSelector } from "@kumo/lib-react";
 
-import { useLiquity } from "../../hooks/LiquityContext";
+import { useKumo } from "../../hooks/KumoContext";
 import { useTransactionFunction } from "../Transaction";
 
 type StabilityDepositActionProps = {
@@ -10,7 +10,7 @@ type StabilityDepositActionProps = {
   change: StabilityDepositChange<Decimal>;
 };
 
-const selectFrontendRegistered = ({ frontend }: LiquityStoreState) =>
+const selectFrontendRegistered = ({ frontend }: KumoStoreState) =>
   frontend.status === "registered";
 
 export const StabilityDepositAction: React.FC<StabilityDepositActionProps> = ({
@@ -18,16 +18,16 @@ export const StabilityDepositAction: React.FC<StabilityDepositActionProps> = ({
   transactionId,
   change
 }) => {
-  const { config, liquity } = useLiquity();
-  const frontendRegistered = useLiquitySelector(selectFrontendRegistered);
+  const { config, kumo } = useKumo();
+  const frontendRegistered = useKumoSelector(selectFrontendRegistered);
 
   const frontendTag = frontendRegistered ? config.frontendTag : undefined;
 
   const [sendTransaction] = useTransactionFunction(
     transactionId,
     change.depositKUSD
-      ? liquity.send.depositKUSDInStabilityPool.bind(liquity.send, change.depositKUSD, frontendTag)
-      : liquity.send.withdrawKUSDFromStabilityPool.bind(liquity.send, change.withdrawKUSD)
+      ? kumo.send.depositKUSDInStabilityPool.bind(kumo.send, change.depositKUSD, frontendTag)
+      : kumo.send.withdrawKUSDFromStabilityPool.bind(kumo.send, change.withdrawKUSD)
   );
 
   return <Button onClick={sendTransaction}>{children}</Button>;

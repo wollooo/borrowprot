@@ -19,7 +19,7 @@ pragma solidity 0.8.11;
  * multiplying it by some factor in range ]0,1[
  *
  * Please see the implementation spec in the proof document, which closely follows on from the compounded deposit / ETH gain derivations:
- * https://github.com/liquity/liquity/blob/master/papers/Scalable_Reward_Distribution_with_Compounding_Stakes.pdf
+ * https://github.com/kumo/kumo/blob/master/papers/Scalable_Reward_Distribution_with_Compounding_Stakes.pdf
  *
  * --- KUMO ISSUANCE TO STABILITY POOL DEPOSITORS ---
  *
@@ -31,7 +31,7 @@ pragma solidity 0.8.11;
  * by a given deposit, is split between the depositor and the front end through which the deposit was made, based on the front end's kickbackRate.
  *
  * Please see the system Readme for an overview:
- * https://github.com/liquity/dev/blob/main/README.md#kumo-issuance-to-stability-providers
+ * https://github.com/kumo/dev/blob/main/README.md#kumo-issuance-to-stability-providers
  */
 interface IStabilityPool {
 
@@ -71,7 +71,7 @@ interface IStabilityPool {
     // --- Functions ---
 
     /*
-     * Called only once on init, to set addresses of other Liquity contracts
+     * Called only once on init, to set addresses of other Kumo contracts
      * Callable only by owner, renounces ownership at the end
      */
     function setAddresses(

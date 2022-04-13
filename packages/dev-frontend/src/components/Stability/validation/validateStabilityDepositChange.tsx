@@ -1,9 +1,9 @@
 import {
   Decimal,
-  LiquityStoreState,
+  KumoStoreState,
   StabilityDeposit,
   StabilityDepositChange
-} from "@liquity/lib-base";
+} from "@kumo/lib-base";
 
 import { COIN } from "../../../strings";
 import { Amount } from "../../ActionDescription";
@@ -15,7 +15,7 @@ export const selectForStabilityDepositChangeValidation = ({
   kusdBalance,
   ownFrontend,
   haveUndercollateralizedTroves
-}: LiquityStoreState) => ({
+}: KumoStoreState) => ({
   trove,
   kusdBalance,
   haveOwnFrontend: ownFrontend.status === "registered",

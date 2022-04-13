@@ -7,7 +7,7 @@ const { dec, toBN, assertRevert } = th
 
 contract('After the initial lockup period has passed', async accounts => {
   const [
-    liquityAG,
+    kumoAG,
     teamMember_1,
     teamMember_2,
     teamMember_3,
@@ -63,7 +63,7 @@ contract('After the initial lockup period has passed', async accounts => {
   beforeEach(async () => {
     // Deploy all contracts from the first account
     KUMOContracts = await deploymentHelper.deployKUMOTesterContractsHardhat(bountyAddress, lpRewardsAddress, multisig)
-    coreContracts = await deploymentHelper.deployLiquityCore()
+    coreContracts = await deploymentHelper.deployKumoCore()
 
     kumoStaking = KUMOContracts.kumoStaking
     kumoToken = KUMOContracts.kumoToken
@@ -83,13 +83,13 @@ contract('After the initial lockup period has passed', async accounts => {
     _18monthsFromSystemDeployment = await th.getTimeFromSystemDeployment(kumoToken, web3, secondsIn18Months)
 
     // Deploy 3 LCs for team members on vesting schedules
-    const deployedLCtx_T1 = await lockupContractFactory.deployLockupContract(teamMember_1, oneYearFromSystemDeployment, { from: liquityAG })
-    const deployedLCtx_T2 = await lockupContractFactory.deployLockupContract(teamMember_2, oneYearFromSystemDeployment, { from: liquityAG })
-    const deployedLCtx_T3 = await lockupContractFactory.deployLockupContract(teamMember_3, oneYearFromSystemDeployment, { from: liquityAG })
+    const deployedLCtx_T1 = await lockupContractFactory.deployLockupContract(teamMember_1, oneYearFromSystemDeployment, { from: kumoAG })
+    const deployedLCtx_T2 = await lockupContractFactory.deployLockupContract(teamMember_2, oneYearFromSystemDeployment, { from: kumoAG })
+    const deployedLCtx_T3 = await lockupContractFactory.deployLockupContract(teamMember_3, oneYearFromSystemDeployment, { from: kumoAG })
 
-    const deployedLCtx_I1 = await lockupContractFactory.deployLockupContract(investor_1, oneYearFromSystemDeployment, { from: liquityAG })
-    const deployedLCtx_I2 = await lockupContractFactory.deployLockupContract(investor_2, oneYearFromSystemDeployment, { from: liquityAG })
-    const deployedLCtx_I3 = await lockupContractFactory.deployLockupContract(investor_3, oneYearFromSystemDeployment, { from: liquityAG })
+    const deployedLCtx_I1 = await lockupContractFactory.deployLockupContract(investor_1, oneYearFromSystemDeployment, { from: kumoAG })
+    const deployedLCtx_I2 = await lockupContractFactory.deployLockupContract(investor_2, oneYearFromSystemDeployment, { from: kumoAG })
+    const deployedLCtx_I3 = await lockupContractFactory.deployLockupContract(investor_3, oneYearFromSystemDeployment, { from: kumoAG })
 
     // LCs for team members on vesting schedules
     LC_T1 = await th.getLCFromDeploymentTx(deployedLCtx_T1)
@@ -135,9 +135,9 @@ contract('After the initial lockup period has passed', async accounts => {
   describe('Deploying new LCs', async accounts => {
     it("KUMO Deployer can deploy new LCs", async () => {
       // KUMO deployer deploys LCs
-      const LCDeploymentTx_A = await lockupContractFactory.deployLockupContract(A, justOverOneYearFromSystemDeployment, { from: liquityAG })
-      const LCDeploymentTx_B = await lockupContractFactory.deployLockupContract(B, oneYearFromSystemDeployment, { from: liquityAG })
-      const LCDeploymentTx_C = await lockupContractFactory.deployLockupContract(C, '9595995999999900000023423234', { from: liquityAG })
+      const LCDeploymentTx_A = await lockupContractFactory.deployLockupContract(A, justOverOneYearFromSystemDeployment, { from: kumoAG })
+      const LCDeploymentTx_B = await lockupContractFactory.deployLockupContract(B, oneYearFromSystemDeployment, { from: kumoAG })
+      const LCDeploymentTx_C = await lockupContractFactory.deployLockupContract(C, '9595995999999900000023423234', { from: kumoAG })
 
       assert.isTrue(LCDeploymentTx_A.receipt.status)
       assert.isTrue(LCDeploymentTx_B.receipt.status)
@@ -148,7 +148,7 @@ contract('After the initial lockup period has passed', async accounts => {
       // Various EOAs deploy LCs
       const LCDeploymentTx_1 = await lockupContractFactory.deployLockupContract(A, justOverOneYearFromSystemDeployment, { from: teamMember_1 })
       const LCDeploymentTx_2 = await lockupContractFactory.deployLockupContract(C, oneYearFromSystemDeployment, { from: investor_2 })
-      const LCDeploymentTx_3 = await lockupContractFactory.deployLockupContract(liquityAG, '9595995999999900000023423234', { from: A })
+      const LCDeploymentTx_3 = await lockupContractFactory.deployLockupContract(kumoAG, '9595995999999900000023423234', { from: A })
 
       assert.isTrue(LCDeploymentTx_1.receipt.status)
       assert.isTrue(LCDeploymentTx_2.receipt.status)
@@ -347,7 +347,7 @@ contract('After the initial lockup period has passed', async accounts => {
       const variousEOAs = [
         teamMember_1,
         teamMember_3,
-        liquityAG,
+        kumoAG,
         investor_1,
         investor_2,
         investor_3,
@@ -492,16 +492,16 @@ contract('After the initial lockup period has passed', async accounts => {
 
 
     it("Anyone can transfer to an EOA", async () => {
-      // Start D, E, liquityAG with some KUMO
+      // Start D, E, kumoAG with some KUMO
       await kumoToken.unprotectedMint(D, dec(1, 24))
       await kumoToken.unprotectedMint(E, dec(2, 24))
-      await kumoToken.unprotectedMint(liquityAG, dec(3, 24))
+      await kumoToken.unprotectedMint(kumoAG, dec(3, 24))
       await kumoToken.unprotectedMint(multisig, dec(4, 24))
 
       // KUMO holders transfer to other EOAs
       const KUMOtransferTx_1 = await kumoToken.transfer(A, dec(1, 18), { from: D })
-      const KUMOtransferTx_2 = await kumoToken.transfer(liquityAG, dec(1, 18), { from: E })
-      const KUMOtransferTx_3 = await kumoToken.transfer(F, dec(1, 18), { from: liquityAG })
+      const KUMOtransferTx_2 = await kumoToken.transfer(kumoAG, dec(1, 18), { from: E })
+      const KUMOtransferTx_3 = await kumoToken.transfer(F, dec(1, 18), { from: kumoAG })
       const KUMOtransferTx_4 = await kumoToken.transfer(G, dec(1, 18), { from: multisig })
 
       assert.isTrue(KUMOtransferTx_1.receipt.status)
@@ -514,13 +514,13 @@ contract('After the initial lockup period has passed', async accounts => {
       // EOAs approve EOAs to spend KUMO
       const KUMOapproveTx_1 = await kumoToken.approve(A, dec(1, 18), { from: multisig })
       const KUMOapproveTx_2 = await kumoToken.approve(B, dec(1, 18), { from: G })
-      const KUMOapproveTx_3 = await kumoToken.approve(liquityAG, dec(1, 18), { from: F })
+      const KUMOapproveTx_3 = await kumoToken.approve(kumoAG, dec(1, 18), { from: F })
       await assert.isTrue(KUMOapproveTx_1.receipt.status)
       await assert.isTrue(KUMOapproveTx_2.receipt.status)
       await assert.isTrue(KUMOapproveTx_3.receipt.status)
     })
 
-    it("Anyone can increaseAllowance for any EOA or Liquity contract", async () => {
+    it("Anyone can increaseAllowance for any EOA or Kumo contract", async () => {
       // Anyone can increaseAllowance of EOAs to spend KUMO
       const KUMOIncreaseAllowanceTx_1 = await kumoToken.increaseAllowance(A, dec(1, 18), { from: multisig })
       const KUMOIncreaseAllowanceTx_2 = await kumoToken.increaseAllowance(B, dec(1, 18), { from: G })
@@ -529,13 +529,13 @@ contract('After the initial lockup period has passed', async accounts => {
       await assert.isTrue(KUMOIncreaseAllowanceTx_2.receipt.status)
       await assert.isTrue(KUMOIncreaseAllowanceTx_3.receipt.status)
 
-      // Increase allowance of Liquity contracts from F
+      // Increase allowance of Kumo contracts from F
       for (const contract of Object.keys(coreContracts)) {
         const KUMOIncreaseAllowanceTx = await kumoToken.increaseAllowance(coreContracts[contract].address, dec(1, 18), { from: F })
         await assert.isTrue(KUMOIncreaseAllowanceTx.receipt.status)
       }
 
-      // Increase allowance of Liquity contracts from multisig
+      // Increase allowance of Kumo contracts from multisig
       for (const contract of Object.keys(coreContracts)) {
         const KUMOIncreaseAllowanceTx = await kumoToken.increaseAllowance(coreContracts[contract].address, dec(1, 18), { from: multisig })
         await assert.isTrue(KUMOIncreaseAllowanceTx.receipt.status)
@@ -554,7 +554,7 @@ contract('After the initial lockup period has passed', async accounts => {
       }
     })
 
-    it("Anyone can decreaseAllowance for any EOA or Liquity contract", async () => {
+    it("Anyone can decreaseAllowance for any EOA or Kumo contract", async () => {
       //First, increase allowance of A, B LiqAG and core contracts
       const KUMOapproveTx_1 = await kumoToken.approve(A, dec(1, 18), { from: multisig })
       const KUMOapproveTx_2 = await kumoToken.approve(B, dec(1, 18), { from: G })
@@ -834,7 +834,7 @@ contract('After the initial lockup period has passed', async accounts => {
       const unlockTime = await LC_B.unlockTime()
       assert.isTrue(currentTime.gt(unlockTime))
 
-      const variousEOAs = [teamMember_2, liquityAG, investor_1, A, C, D, E]
+      const variousEOAs = [teamMember_2, kumoAG, investor_1, A, C, D, E]
 
       // Several EOAs attempt to withdraw from LC deployed by D
       for (account of variousEOAs) {

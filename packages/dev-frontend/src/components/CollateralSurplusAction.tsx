@@ -1,23 +1,23 @@
 import React, { useEffect } from "react";
 import { Button, Flex, Spinner } from "theme-ui";
 
-import { LiquityStoreState } from "@liquity/lib-base";
-import { useLiquitySelector } from "@liquity/lib-react";
+import { KumoStoreState } from "@kumo/lib-base";
+import { useKumoSelector } from "@kumo/lib-react";
 
-import { useLiquity } from "../hooks/LiquityContext";
+import { useKumo } from "../hooks/KumoContext";
 
 import { Transaction, useMyTransactionState } from "./Transaction";
 import { useTroveView } from "./Trove/context/TroveViewContext";
 
-const select = ({ collateralSurplusBalance }: LiquityStoreState) => ({
+const select = ({ collateralSurplusBalance }: KumoStoreState) => ({
   collateralSurplusBalance
 });
 
 export const CollateralSurplusAction: React.FC = () => {
-  const { collateralSurplusBalance } = useLiquitySelector(select);
+  const { collateralSurplusBalance } = useKumoSelector(select);
   const {
-    liquity: { send: liquity }
-  } = useLiquity();
+    kumo: { send: kumo }
+  } = useKumo();
 
   const myTransactionId = "claim-coll-surplus";
   const myTransactionState = useMyTransactionState(myTransactionId);
@@ -42,7 +42,7 @@ export const CollateralSurplusAction: React.FC = () => {
     <Flex variant="layout.actions">
       <Transaction
         id={myTransactionId}
-        send={liquity.claimCollateralSurplus.bind(liquity, undefined)}
+        send={kumo.claimCollateralSurplus.bind(kumo, undefined)}
       >
         <Button sx={{ mx: 2 }}>Claim {collateralSurplusBalance.prettify()} ETH</Button>
       </Transaction>

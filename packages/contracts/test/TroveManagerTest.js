@@ -55,7 +55,7 @@ contract('TroveManager', async accounts => {
   const withdrawKUSD = async (params) => th.withdrawKUSD(contracts, params)
 
   beforeEach(async () => {
-    contracts = await deploymentHelper.deployLiquityCore()
+    contracts = await deploymentHelper.deployKumoCore()
     contracts.troveManager = await TroveManagerTester.new()
     contracts.kusdToken = await KUSDTokenTester.new(
       contracts.troveManager.address,

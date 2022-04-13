@@ -8,10 +8,10 @@ import {
   Percent,
   MINIMUM_COLLATERAL_RATIO,
   CRITICAL_COLLATERAL_RATIO,
-  LiquityStoreState,
+  KumoStoreState,
   TroveClosureParams,
   TroveCreationParams
-} from "@liquity/lib-base";
+} from "@kumo/lib-base";
 
 import { COIN } from "../../../strings";
 
@@ -89,7 +89,7 @@ export const selectForTroveChangeValidation = ({
   accountBalance,
   kusdBalance,
   numberOfTroves
-}: LiquityStoreState) => ({ price, total, accountBalance, kusdBalance, numberOfTroves });
+}: KumoStoreState) => ({ price, total, accountBalance, kusdBalance, numberOfTroves });
 
 type TroveChangeValidationSelectedState = ReturnType<typeof selectForTroveChangeValidation>;
 

@@ -8,12 +8,12 @@ import {
   CRITICAL_COLLATERAL_RATIO,
   UserTrove,
   Decimal
-} from "@liquity/lib-base";
-import { BlockPolledLiquityStoreState } from "@liquity/lib-ethers";
-import { useLiquitySelector } from "@liquity/lib-react";
+} from "@kumo/lib-base";
+import { BlockPolledKumoStoreState } from "@kumo/lib-ethers";
+import { useKumoSelector } from "@kumo/lib-react";
 
 import { shortenAddress } from "../utils/shortenAddress";
-import { useLiquity } from "../hooks/LiquityContext";
+import { useKumo } from "../hooks/KumoContext";
 import { COIN } from "../strings";
 
 import { Icon } from "./Icon";
@@ -55,7 +55,7 @@ const select = ({
   total,
   kusdInStabilityPool,
   blockTag
-}: BlockPolledLiquityStoreState) => ({
+}: BlockPolledKumoStoreState) => ({
   numberOfTroves,
   price,
   recoveryMode: total.collateralRatioIsBelowCritical(price),
@@ -72,8 +72,8 @@ export const RiskyTroves: React.FC<RiskyTrovesProps> = ({ pageSize }) => {
     totalCollateralRatio,
     kusdInStabilityPool,
     price
-  } = useLiquitySelector(select);
-  const { liquity } = useLiquity();
+  } = useKumoSelector(select);
+  const { kumo } = useKumo();
 
   const [loading, setLoading] = useState(true);
   const [troves, setTroves] = useState<UserTrove[]>();
@@ -108,7 +108,7 @@ export const RiskyTroves: React.FC<RiskyTrovesProps> = ({ pageSize }) => {
 
     setLoading(true);
 
-    liquity
+    kumo
       .getTroves(
         {
           first: pageSize,
@@ -129,7 +129,7 @@ export const RiskyTroves: React.FC<RiskyTrovesProps> = ({ pageSize }) => {
     };
     // Omit blockTag from deps on purpose
     // eslint-disable-next-line
-  }, [liquity, clampedPage, pageSize, reload]);
+  }, [kumo, clampedPage, pageSize, reload]);
 
   useEffect(() => {
     forceReload();
@@ -329,7 +329,7 @@ export const RiskyTroves: React.FC<RiskyTrovesProps> = ({ pageSize }) => {
                                 )
                               : liquidatableInNormalMode(trove, price)
                           ]}
-                          send={liquity.send.liquidate.bind(liquity.send, trove.ownerAddress)}
+                          send={kumo.send.liquidate.bind(kumo.send, trove.ownerAddress)}
                         >
                           <Button variant="dangerIcon">
                             <Icon name="trash" />

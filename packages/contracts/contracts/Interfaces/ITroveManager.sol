@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.11;
 
-import "./ILiquityBase.sol";
+import "./IKumoBase.sol";
 import "./IStabilityPool.sol";
 import "./IKUSDToken.sol";
 import "./IKUMOToken.sol";
@@ -10,7 +10,7 @@ import "./IKUMOStaking.sol";
 
 
 // Common interface for the Trove Manager.
-interface ITroveManager is ILiquityBase {
+interface ITroveManager is IKumoBase {
     
     // --- Events ---
 

@@ -3,7 +3,7 @@ import { Box, Card, Container, Link, Paragraph } from "theme-ui";
 import { SystemStats } from "../components/SystemStats";
 import { Redemption } from "../components/Redemption/Redemption";
 import { InfoMessage } from "../components/InfoMessage";
-import { useLiquity } from "../hooks/LiquityContext";
+import { useKumo } from "../hooks/KumoContext";
 import { Icon } from "../components/Icon";
 
 const uniLink = (kusdAddress: string) =>
@@ -11,10 +11,10 @@ const uniLink = (kusdAddress: string) =>
 
 export const RedemptionPage: React.FC = () => {
   const {
-    liquity: {
+    kumo: {
       connection: { addresses }
     }
-  } = useLiquity();
+  } = useKumo();
 
   return (
     <Container variant="columns">

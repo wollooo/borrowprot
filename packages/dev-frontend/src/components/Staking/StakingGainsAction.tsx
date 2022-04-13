@@ -1,20 +1,20 @@
 import { Button } from "theme-ui";
 
-import { LiquityStoreState } from "@liquity/lib-base";
-import { useLiquitySelector } from "@liquity/lib-react";
+import { KumoStoreState } from "@kumo/lib-base";
+import { useKumoSelector } from "@kumo/lib-react";
 
-import { useLiquity } from "../../hooks/LiquityContext";
+import { useKumo } from "../../hooks/KumoContext";
 import { useTransactionFunction } from "../Transaction";
 
-const selectKUMOStake = ({ kumoStake }: LiquityStoreState) => kumoStake;
+const selectKUMOStake = ({ kumoStake }: KumoStoreState) => kumoStake;
 
 export const StakingGainsAction: React.FC = () => {
-  const { liquity } = useLiquity();
-  const { collateralGain, kusdGain } = useLiquitySelector(selectKUMOStake);
+  const { kumo } = useKumo();
+  const { collateralGain, kusdGain } = useKumoSelector(selectKUMOStake);
 
   const [sendTransaction] = useTransactionFunction(
     "stake",
-    liquity.send.withdrawGainsFromStaking.bind(liquity.send)
+    kumo.send.withdrawGainsFromStaking.bind(kumo.send)
   );
 
   return (

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Button } from "theme-ui";
-import { useLiquity } from "../../../hooks/LiquityContext";
+import { useKumo } from "../../../hooks/KumoContext";
 import { Transaction, useMyTransactionState } from "../../Transaction";
 import { useFarmView } from "../context/FarmViewContext";
 
@@ -10,8 +10,8 @@ export const UnstakeAndClaim: React.FC = () => {
   const { dispatchEvent } = useFarmView();
 
   const {
-    liquity: { send: liquity }
-  } = useLiquity();
+    kumo: { send: kumo }
+  } = useKumo();
 
   const transactionState = useMyTransactionState(transactionId);
 
@@ -24,7 +24,7 @@ export const UnstakeAndClaim: React.FC = () => {
   return (
     <Transaction
       id={transactionId}
-      send={liquity.exitLiquidityMining.bind(liquity)}
+      send={kumo.exitLiquidityMining.bind(kumo)}
       showFailure="asTooltip"
       tooltipPlacement="bottom"
     >

@@ -1,7 +1,7 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "LiquityBase",
-  "sourceName": "contracts/Dependencies/LiquityBase.sol",
+  "contractName": "KumoBase",
+  "sourceName": "contracts/Dependencies/KumoBase.sol",
   "abi": [
     {
       "inputs": [],

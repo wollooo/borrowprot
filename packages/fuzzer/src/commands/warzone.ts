@@ -1,7 +1,7 @@
 import { Wallet } from "@ethersproject/wallet";
 
-import { Decimal, KUSD_MINIMUM_DEBT, Trove } from "@liquity/lib-base";
-import { EthersLiquity } from "@liquity/lib-ethers";
+import { Decimal, KUSD_MINIMUM_DEBT, Trove } from "@kumo/lib-base";
+import { EthersKumo } from "@kumo/lib-ethers";
 
 import { deployer, funder, provider } from "../globals";
 
@@ -10,9 +10,9 @@ export interface WarzoneParams {
 }
 
 export const warzone = async ({ troves: numberOfTroves }: WarzoneParams) => {
-  const deployerLiquity = await EthersLiquity.connect(deployer);
+  const deployerKumo = await EthersKumo.connect(deployer);
 
-  const price = await deployerLiquity.getPrice();
+  const price = await deployerKumo.getPrice();
 
   for (let i = 1; i <= numberOfTroves; ++i) {
     const user = Wallet.createRandom().connect(provider);
@@ -20,24 +20,24 @@ export const warzone = async ({ troves: numberOfTroves }: WarzoneParams) => {
     const debt = KUSD_MINIMUM_DEBT.add(99999 * Math.random());
     const collateral = debt.mulDiv(1.11 + 3 * Math.random(), price);
 
-    const liquity = await EthersLiquity.connect(user);
+    const kumo = await EthersKumo.connect(user);
 
     await funder.sendTransaction({
       to: userAddress,
       value: Decimal.from(collateral).hex
     });
 
-    const fees = await liquity.getFees();
+    const fees = await kumo.getFees();
 
-    await liquity.openTrove(
+    await kumo.openTrove(
       Trove.recreate(new Trove(collateral, debt), fees.borrowingRate()),
       { borrowingFeeDecayToleranceMinutes: 0 },
       { gasPrice: 0 }
     );
 
     if (i % 4 === 0) {
-      const kusdBalance = await liquity.getKUSDBalance();
-      await liquity.depositKUSDInStabilityPool(kusdBalance);
+      const kusdBalance = await kumo.getKUSDBalance();
+      await kumo.depositKUSDInStabilityPool(kusdBalance);
     }
 
     if (i % 10 === 0) {

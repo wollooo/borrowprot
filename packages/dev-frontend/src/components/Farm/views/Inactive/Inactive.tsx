@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { Card, Heading, Box, Flex, Button, Link, Paragraph } from "theme-ui";
-import { useLiquity } from "../../../../hooks/LiquityContext";
+import { useKumo } from "../../../../hooks/KumoContext";
 import { Icon } from "../../../Icon";
 import { InfoMessage } from "../../../InfoMessage";
 import { useFarmView } from "../../context/FarmViewContext";
@@ -13,10 +13,10 @@ export const Inactive: React.FC = () => {
   const { dispatchEvent } = useFarmView();
 
   const {
-    liquity: {
+    kumo: {
       connection: { addresses }
     }
-  } = useLiquity();
+  } = useKumo();
 
   const handleStakePressed = useCallback(() => {
     dispatchEvent("STAKE_PRESSED");
