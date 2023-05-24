@@ -8,10 +8,10 @@ import {
   Percent,
   MINIMUM_COLLATERAL_RATIO,
   CRITICAL_COLLATERAL_RATIO,
-  KumoStoreState,
   TroveClosureParams,
   TroveCreationParams
 } from "@kumodao/lib-base";
+import { useLocation } from "react-router-dom";
 
 import { COIN } from "../../../strings";
 
@@ -25,73 +25,112 @@ type TroveAdjustmentDescriptionParams = {
   params: TroveAdjustmentParams<Decimal>;
 };
 
-const TroveChangeDescription: React.FC<TroveAdjustmentDescriptionParams> = ({ params }) => (
-  <ActionDescription>
-    {params.depositCollateral && params.borrowKUSD ? (
-      <>
-        You will deposit <Amount>{params.depositCollateral.prettify()} ETH</Amount> and receive{" "}
-        <Amount>
-          {params.borrowKUSD.prettify()} {COIN}
-        </Amount>
-      </>
-    ) : params.repayKUSD && params.withdrawCollateral ? (
-      <>
-        You will pay{" "}
-        <Amount>
-          {params.repayKUSD.prettify()} {COIN}
-        </Amount>{" "}
-        and receive <Amount>{params.withdrawCollateral.prettify()} ETH</Amount>
-      </>
-    ) : params.depositCollateral && params.repayKUSD ? (
-      <>
-        You will deposit <Amount>{params.depositCollateral.prettify()} ETH</Amount> and pay{" "}
-        <Amount>
-          {params.repayKUSD.prettify()} {COIN}
-        </Amount>
-      </>
-    ) : params.borrowKUSD && params.withdrawCollateral ? (
-      <>
-        You will receive <Amount>{params.withdrawCollateral.prettify()} ETH</Amount> and{" "}
-        <Amount>
-          {params.borrowKUSD.prettify()} {COIN}
-        </Amount>
-      </>
-    ) : params.depositCollateral ? (
-      <>
-        You will deposit <Amount>{params.depositCollateral.prettify()} ETH</Amount>
-      </>
-    ) : params.withdrawCollateral ? (
-      <>
-        You will receive <Amount>{params.withdrawCollateral.prettify()} ETH</Amount>
-      </>
-    ) : params.borrowKUSD ? (
-      <>
-        You will receive{" "}
-        <Amount>
-          {params.borrowKUSD.prettify()} {COIN}
-        </Amount>
-      </>
-    ) : (
-      <>
-        You will pay{" "}
-        <Amount>
-          {params.repayKUSD.prettify()} {COIN}
-        </Amount>
-      </>
-    )}
-    .
-  </ActionDescription>
-);
+const getPathName = (location: any) => {
+  return location && location.pathname.substring(location.pathname.lastIndexOf("/") + 1);
+};
 
-export const selectForTroveChangeValidation = ({
-  price,
-  total,
-  accountBalance,
-  kusdBalance,
-  numberOfTroves
-}: KumoStoreState) => ({ price, total, accountBalance, kusdBalance, numberOfTroves });
+let unit: string = "";
 
-type TroveChangeValidationSelectedState = ReturnType<typeof selectForTroveChangeValidation>;
+const TroveChangeDescription: React.FC<TroveAdjustmentDescriptionParams> = ({ params }) => {
+  const location = useLocation();
+  unit = getPathName(location).toUpperCase();
+  return (
+    <ActionDescription>
+      {params.depositCollateral && params.borrowKUSD ? (
+        <>
+          You will deposit{" "}
+          <Amount>
+            {params.depositCollateral.prettify()} {unit}
+          </Amount>{" "}
+          and receive{" "}
+          <Amount>
+            {params.borrowKUSD.prettify()} {COIN}
+          </Amount>
+        </>
+      ) : params.repayKUSD && params.withdrawCollateral ? (
+        <>
+          You will pay{" "}
+          <Amount>
+            {params.repayKUSD.prettify()} {COIN}
+          </Amount>{" "}
+          and receive{" "}
+          <Amount>
+            {params.withdrawCollateral.prettify()} {unit}
+          </Amount>
+        </>
+      ) : params.depositCollateral && params.repayKUSD ? (
+        <>
+          You will deposit{" "}
+          <Amount>
+            {params.depositCollateral.prettify()} {unit}
+          </Amount>{" "}
+          and pay{" "}
+          <Amount>
+            {params.repayKUSD.prettify()} {COIN}
+          </Amount>
+        </>
+      ) : params.borrowKUSD && params.withdrawCollateral ? (
+        <>
+          You will receive{" "}
+          <Amount>
+            {params.withdrawCollateral.prettify()} {unit}
+          </Amount>{" "}
+          and{" "}
+          <Amount>
+            {params.borrowKUSD.prettify()} {COIN}
+          </Amount>
+        </>
+      ) : params.depositCollateral ? (
+        <>
+          You will deposit{" "}
+          <Amount>
+            {params.depositCollateral.prettify()} {unit}
+          </Amount>
+        </>
+      ) : params.withdrawCollateral ? (
+        <>
+          You will receive{" "}
+          <Amount>
+            {params.withdrawCollateral.prettify()} {unit}
+          </Amount>
+        </>
+      ) : params.borrowKUSD ? (
+        <>
+          You will receive{" "}
+          <Amount>
+            {params.borrowKUSD.prettify()} {COIN}
+          </Amount>
+        </>
+      ) : (
+        <>
+          You will pay{" "}
+          <Amount>
+            {params.repayKUSD.prettify()} {COIN}
+          </Amount>
+        </>
+      )}
+      .
+    </ActionDescription>
+  );
+};
+
+// export const selectForTroveChangeValidation = ({
+//   price,
+//   total,
+//   accountBalance,
+//   kusdBalance,
+//   numberOfTroves
+// }: KumoStoreState) => ({ price, total, accountBalance, kusdBalance, numberOfTroves });
+type TroveChangeValidationSelectedStateType = {
+  price: Decimal;
+  total: Trove;
+  accountBalance: Decimal;
+  kusdBalance: Decimal;
+  numberOfTroves: Number;
+};
+
+// type TroveChangeValidationSelectedState = ReturnType<typeof selectForTroveChangeValidation>;
+type TroveChangeValidationSelectedState = TroveChangeValidationSelectedStateType;
 
 interface TroveChangeValidationContext extends TroveChangeValidationSelectedState {
   originalTrove: Trove;
@@ -134,7 +173,7 @@ export const validateTroveChange = (
   };
 
   if (change.type === "invalidCreation") {
-    // Trying to create a Trove with negative net debt
+    // Trying to create a Vault with negative net debt
     return [
       undefined,
       <ErrorDescription>
@@ -187,8 +226,8 @@ const validateTroveCreation = (
     if (!resultingTrove.isOpenableInRecoveryMode(price)) {
       return (
         <ErrorDescription>
-          You're not allowed to open a Trove with less than <Amount>{ccrPercent}</Amount> Collateral
-          Ratio during recovery mode. Please increase your Trove's Collateral Ratio.
+          You're not allowed to open a Vault with less than <Amount>{ccrPercent}</Amount> Collateral
+          Ratio during recovery mode. Please increase your Vault's Collateral Ratio.
         </ErrorDescription>
       );
     }
@@ -204,8 +243,8 @@ const validateTroveCreation = (
     if (wouldTriggerRecoveryMode) {
       return (
         <ErrorDescription>
-          You're not allowed to open a Trove that would cause the Total Collateral Ratio to fall
-          below <Amount>{ccrPercent}</Amount>. Please increase your Trove's Collateral Ratio.
+          You're not allowed to open a Vault that would cause the Total Collateral Ratio to fall
+          below <Amount>{ccrPercent}</Amount>. Please increase your Vault's Collateral Ratio.
         </ErrorDescription>
       );
     }
@@ -215,7 +254,10 @@ const validateTroveCreation = (
     return (
       <ErrorDescription>
         The amount you're trying to deposit exceeds your balance by{" "}
-        <Amount>{depositCollateral.sub(accountBalance).prettify()} ETH</Amount>.
+        <Amount>
+          {depositCollateral.sub(accountBalance).prettify()} {unit}
+        </Amount>
+        .
       </ErrorDescription>
     );
   }
@@ -275,7 +317,7 @@ const validateTroveAdjustment = (
       return (
         <ErrorDescription>
           The adjustment you're trying to make would cause the Total Collateral Ratio to fall below{" "}
-          <Amount>{ccrPercent}</Amount>. Please increase your Trove's Collateral Ratio.
+          <Amount>{ccrPercent}</Amount>. Please increase your Vault's Collateral Ratio.
         </ErrorDescription>
       );
     }
@@ -311,7 +353,10 @@ const validateTroveAdjustment = (
     return (
       <ErrorDescription>
         The amount you're trying to deposit exceeds your balance by{" "}
-        <Amount>{depositCollateral.sub(accountBalance).prettify()} ETH</Amount>.
+        <Amount>
+          {depositCollateral.sub(accountBalance).prettify()} {unit}
+        </Amount>
+        .
       </ErrorDescription>
     );
   }
@@ -331,7 +376,7 @@ const validateTroveClosure = (
   if (numberOfTroves === 1) {
     return (
       <ErrorDescription>
-        You're not allowed to close your Trove when there are no other Troves in the system.
+        You're not allowed to close your Vault when there are no other Vaults in the system.
       </ErrorDescription>
     );
   }
@@ -339,7 +384,7 @@ const validateTroveClosure = (
   if (recoveryMode) {
     return (
       <ErrorDescription>
-        You're not allowed to close your Trove during recovery mode.
+        You're not allowed to close your Vault during recovery mode.
       </ErrorDescription>
     );
   }
@@ -351,7 +396,7 @@ const validateTroveClosure = (
         <Amount>
           {repayKUSD.sub(kusdBalance).prettify()} {COIN}
         </Amount>{" "}
-        more to close your Trove.
+        more to close your Vault.
       </ErrorDescription>
     );
   }
@@ -359,7 +404,7 @@ const validateTroveClosure = (
   if (wouldTriggerRecoveryMode) {
     return (
       <ErrorDescription>
-        You're not allowed to close a Trove if it would cause the Total Collateralization Ratio to
+        You're not allowed to close a Vault if it would cause the Total Collateralization Ratio to
         fall below <Amount>{ccrPercent}</Amount>. Please wait until the Total Collateral Ratio
         increases.
       </ErrorDescription>

@@ -1,5 +1,4 @@
 import { WebSocketProvider as EthersWebSocketProvider } from "@ethersproject/providers";
-
 export class WebSocketProvider extends EthersWebSocketProvider {
   get isReady() {
     return (this._websocket as WebSocket).readyState === WebSocket.OPEN;

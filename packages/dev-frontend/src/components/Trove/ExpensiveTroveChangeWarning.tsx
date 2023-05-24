@@ -11,6 +11,7 @@ export type GasEstimationState =
   | { type: "complete"; populatedTx: PopulatedEthersKumoTransaction };
 
 type ExpensiveTroveChangeWarningParams = {
+  asset: string;
   troveChange?: Exclude<TroveChange<Decimal>, { type: "invalidCreation" }>;
   maxBorrowingRate: Decimal;
   borrowingFeeDecayToleranceMinutes: number;
@@ -19,36 +20,36 @@ type ExpensiveTroveChangeWarningParams = {
 };
 
 export const ExpensiveTroveChangeWarning: React.FC<ExpensiveTroveChangeWarningParams> = ({
+  asset,
   troveChange,
   maxBorrowingRate,
   borrowingFeeDecayToleranceMinutes,
   gasEstimationState,
   setGasEstimationState
 }) => {
-  const { liquity } = useKumo();
-
+  const { kumo } = useKumo();
   useEffect(() => {
     if (troveChange && troveChange.type !== "closure") {
       setGasEstimationState({ type: "inProgress" });
-
       let cancelled = false;
 
       const timeoutId = setTimeout(async () => {
+        console.log("Estimated TX cost: ", asset, troveChange);
         const populatedTx = await (troveChange.type === "creation"
-          ? liquity.populate.openTrove(troveChange.params, {
-              maxBorrowingRate,
-              borrowingFeeDecayToleranceMinutes
-            })
-          : liquity.populate.adjustTrove(troveChange.params, {
-              maxBorrowingRate,
-              borrowingFeeDecayToleranceMinutes
-            }));
+          ? kumo.populate.openTrove(troveChange.params, asset, {
+            maxBorrowingRate,
+            borrowingFeeDecayToleranceMinutes
+          })
+          : kumo.populate.adjustTrove(troveChange.params, asset, {
+            maxBorrowingRate,
+            borrowingFeeDecayToleranceMinutes
+          }));
 
         if (!cancelled) {
           setGasEstimationState({ type: "complete", populatedTx });
           console.log(
             "Estimated TX cost: " +
-              Decimal.from(`${populatedTx.rawPopulatedTransaction.gasLimit}`).prettify(0)
+            Decimal.from(`${populatedTx.rawPopulatedTransaction.gasLimit}`).prettify(0)
           );
         }
       }, 333);
@@ -71,12 +72,12 @@ export const ExpensiveTroveChangeWarning: React.FC<ExpensiveTroveChangeWarningPa
   ) {
     return troveChange.type === "creation" ? (
       <Warning>
-        The cost of opening a Trove in this collateral ratio range is rather high. To lower it,
+        The cost of opening a Vault in this collateral ratio range is rather high. To lower it,
         choose a slightly different collateral ratio.
       </Warning>
     ) : (
       <Warning>
-        The cost of adjusting a Trove into this collateral ratio range is rather high. To lower it,
+        The cost of adjusting a Vault into this collateral ratio range is rather high. To lower it,
         choose a slightly different collateral ratio.
       </Warning>
     );

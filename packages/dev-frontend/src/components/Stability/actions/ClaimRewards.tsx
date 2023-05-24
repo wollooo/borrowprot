@@ -1,4 +1,5 @@
 import React from "react";
+import { useParams } from "react-router-dom";
 import { Button } from "theme-ui";
 
 import { useKumo } from "../../../hooks/KumoContext";
@@ -9,15 +10,21 @@ type ClaimRewardsProps = {
 };
 
 export const ClaimRewards: React.FC<ClaimRewardsProps> = ({ disabled, children }) => {
-  const { liquity } = useKumo();
+  const { kumo } = useKumo();
+  const { collateralType } = useParams<{ collateralType: string }>();
 
   const [sendTransaction] = useTransactionFunction(
     "stability-deposit",
-    liquity.send.withdrawGainsFromStabilityPool.bind(liquity.send)
+    kumo.send.withdrawGainsFromStabilityPool.bind(kumo.send, collateralType)
   );
 
   return (
-    <Button onClick={sendTransaction} disabled={disabled}>
+    <Button
+      sx={{ mb: 2 }}
+      onClick={sendTransaction}
+      disabled={disabled}
+      variant={ disabled ? 'primaryInActive' : 'primary' }
+    >
       {children}
     </Button>
   );

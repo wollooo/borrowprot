@@ -1,7 +1,14 @@
 import React, { useCallback, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { Button, Flex } from "theme-ui";
 
-import { Decimal, Decimalish, KumoStoreState } from "@kumodao/lib-base";
+import {
+  Decimal,
+  Decimalish,
+  KumoStoreState,
+  StabilityDeposit,
+  Vault
+} from "@kumodao/lib-base";
 import { KumoStoreUpdate, useKumoReducer, useKumoSelector } from "@kumodao/lib-react";
 
 import { COIN } from "../../strings";
@@ -12,26 +19,23 @@ import { useMyTransactionState } from "../Transaction";
 import { StabilityDepositEditor } from "./StabilityDepositEditor";
 import { StabilityDepositAction } from "./StabilityDepositAction";
 import { useStabilityView } from "./context/StabilityViewContext";
-import {
-  selectForStabilityDepositChangeValidation,
-  validateStabilityDepositChange
-} from "./validation/validateStabilityDepositChange";
+import { validateStabilityDepositChange } from "./validation/validateStabilityDepositChange";
 
-const init = ({ stabilityDeposit }: KumoStoreState) => ({
-  originalDeposit: stabilityDeposit,
-  editedKUSD: stabilityDeposit.currentKUSD,
-  changePending: false
-});
-
-type StabilityDepositManagerState = ReturnType<typeof init>;
+type StabilityDepositManagerState = {
+  collateralType: string;
+  originalDeposit: StabilityDeposit;
+  editedKUSD: Decimal;
+  changePending: boolean;
+};
 type StabilityDepositManagerAction =
   | KumoStoreUpdate
   | { type: "startChange" | "finishChange" | "revert" }
   | { type: "setDeposit"; newValue: Decimalish };
 
-const reduceWith = (action: StabilityDepositManagerAction) => (
-  state: StabilityDepositManagerState
-): StabilityDepositManagerState => reduce(state, action);
+const reduceWith =
+  (action: StabilityDepositManagerAction) =>
+    (state: StabilityDepositManagerState): StabilityDepositManagerState =>
+      reduce(state, action);
 
 const finishChange = reduceWith({ type: "finishChange" });
 const revert = reduceWith({ type: "revert" });
@@ -40,8 +44,6 @@ const reduce = (
   state: StabilityDepositManagerState,
   action: StabilityDepositManagerAction
 ): StabilityDepositManagerState => {
-  // console.log(state);
-  // console.log(action);
 
   const { originalDeposit, editedKUSD, changePending } = state;
 
@@ -61,21 +63,18 @@ const reduce = (
       return { ...state, editedKUSD: originalDeposit.currentKUSD };
 
     case "updateStore": {
-      const {
-        stateChange: { stabilityDeposit: updatedDeposit }
-      } = action;
-
-      if (!updatedDeposit) {
+      const vault = action.stateChange.vaults?.find(vault => vault.asset === state.collateralType);
+      const updatedStabilityDeposit = vault?.stabilityDeposit;
+      if (!updatedStabilityDeposit) {
         return state;
       }
-
-      const newState = { ...state, originalDeposit: updatedDeposit };
+      const newState = { ...state, originalDeposit: updatedStabilityDeposit };
 
       const changeCommitted =
-        !updatedDeposit.initialKUSD.eq(originalDeposit.initialKUSD) ||
-        updatedDeposit.currentKUSD.gt(originalDeposit.currentKUSD) ||
-        updatedDeposit.collateralGain.lt(originalDeposit.collateralGain) ||
-        updatedDeposit.kumoReward.lt(originalDeposit.kumoReward);
+        !updatedStabilityDeposit.initialKUSD.eq(originalDeposit.initialKUSD) ||
+        updatedStabilityDeposit.currentKUSD.gt(originalDeposit.currentKUSD) ||
+        updatedStabilityDeposit.collateralGain.lt(originalDeposit.collateralGain) ||
+        updatedStabilityDeposit.kumoReward.lt(originalDeposit.kumoReward);
 
       if (changePending && changeCommitted) {
         return finishChange(revert(newState));
@@ -83,7 +82,7 @@ const reduce = (
 
       return {
         ...newState,
-        editedKUSD: updatedDeposit.apply(originalDeposit.whatChanged(editedKUSD))
+        editedKUSD: updatedStabilityDeposit.apply(originalDeposit.whatChanged(editedKUSD))
       };
     }
   }
@@ -91,16 +90,43 @@ const reduce = (
 
 const transactionId = "stability-deposit";
 
+const select = ({ vaults, kusdBalance, ownFrontend }: KumoStoreState) => ({
+  vaults,
+  kusdBalance,
+  ownFrontend
+});
+
 export const StabilityDepositManager: React.FC = () => {
-  const [{ originalDeposit, editedKUSD, changePending }, dispatch] = useKumoReducer(reduce, init);
-  const validationContext = useKumoSelector(selectForStabilityDepositChangeValidation);
+  const { collateralType } = useParams<{ collateralType: string }>();
+  const { vaults, kusdBalance, ownFrontend } = useKumoSelector(select);
+  const vault = vaults.find(vault => vault.asset === collateralType) ?? new Vault();
+  const { stabilityDeposit, trove, haveUndercollateralizedTroves } = vault;
+
+  const validationContext = {
+    trove,
+    kusdBalance,
+    haveOwnFrontend: ownFrontend.status === "registered",
+    haveUndercollateralizedTroves
+  };
+
+  const [{ originalDeposit, editedKUSD, changePending }, dispatch] = useKumoReducer(reduce, () => {
+    return {
+      collateralType,
+      originalDeposit: stabilityDeposit,
+      editedKUSD: stabilityDeposit?.currentKUSD,
+      changePending: false
+    };
+  });
+
   const { dispatchEvent } = useStabilityView();
 
   const handleCancel = useCallback(() => {
+    dispatchEvent("CLOSE_MODAL_PRESSED");
     dispatchEvent("CANCEL_PRESSED");
   }, [dispatchEvent]);
 
   const [validChange, description] = validateStabilityDepositChange(
+    collateralType,
     originalDeposit,
     editedKUSD,
     validationContext
@@ -138,16 +164,20 @@ export const StabilityDepositManager: React.FC = () => {
         ))}
 
       <Flex variant="layout.actions">
-        <Button variant="cancel" onClick={handleCancel}>
-          Cancel
+        <Button variant="secondary" sx={{ m: 3 }} onClick={handleCancel}>
+          CANCEL
         </Button>
 
         {validChange ? (
-          <StabilityDepositAction transactionId={transactionId} change={validChange}>
+          <StabilityDepositAction
+            transactionId={transactionId}
+            change={validChange}
+            asset={collateralType}
+          >
             Confirm
           </StabilityDepositAction>
         ) : (
-          <Button disabled>Confirm</Button>
+          <Button variant="primaryInActive" disabled sx={{ mb: 2 }}>CONFIRM</Button>
         )}
       </Flex>
     </StabilityDepositEditor>

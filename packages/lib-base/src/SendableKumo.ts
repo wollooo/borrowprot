@@ -125,8 +125,8 @@ export type KumoReceipt<R = unknown, D = unknown> = PendingReceipt | MinedReceip
 /** @internal */
 export type _SendableFrom<T, R, S> = {
   [M in keyof T]: T[M] extends (...args: infer A) => Promise<infer D>
-    ? (...args: A) => Promise<SentKumoTransaction<S, KumoReceipt<R, D>>>
-    : never;
+  ? (...args: A) => Promise<SentKumoTransaction<S, KumoReceipt<R, D>>>
+  : never;
 };
 
 /**
@@ -147,70 +147,82 @@ export interface SendableKumo<R = unknown, S = unknown>
   /** {@inheritDoc TransactableKumo.openTrove} */
   openTrove(
     params: TroveCreationParams<Decimalish>,
+    asset: string,
     maxBorrowingRate?: Decimalish
   ): Promise<SentKumoTransaction<S, KumoReceipt<R, TroveCreationDetails>>>;
 
   /** {@inheritDoc TransactableKumo.closeTrove} */
-  closeTrove(): Promise<SentKumoTransaction<S, KumoReceipt<R, TroveClosureDetails>>>;
+  closeTrove(asset: string): Promise<SentKumoTransaction<S, KumoReceipt<R, TroveClosureDetails>>>;
 
   /** {@inheritDoc TransactableKumo.adjustTrove} */
   adjustTrove(
     params: TroveAdjustmentParams<Decimalish>,
+    asset: string,
     maxBorrowingRate?: Decimalish
   ): Promise<SentKumoTransaction<S, KumoReceipt<R, TroveAdjustmentDetails>>>;
 
   /** {@inheritDoc TransactableKumo.depositCollateral} */
   depositCollateral(
+    asset: string,
     amount: Decimalish
   ): Promise<SentKumoTransaction<S, KumoReceipt<R, TroveAdjustmentDetails>>>;
 
   /** {@inheritDoc TransactableKumo.withdrawCollateral} */
   withdrawCollateral(
+    asset: string,
     amount: Decimalish
   ): Promise<SentKumoTransaction<S, KumoReceipt<R, TroveAdjustmentDetails>>>;
 
   /** {@inheritDoc TransactableKumo.borrowKUSD} */
   borrowKUSD(
+    asset: string,
     amount: Decimalish,
     maxBorrowingRate?: Decimalish
   ): Promise<SentKumoTransaction<S, KumoReceipt<R, TroveAdjustmentDetails>>>;
 
   /** {@inheritDoc TransactableKumo.repayKUSD} */
   repayKUSD(
+    asset: string,
     amount: Decimalish
   ): Promise<SentKumoTransaction<S, KumoReceipt<R, TroveAdjustmentDetails>>>;
 
   /** @internal */
-  setPrice(price: Decimalish): Promise<SentKumoTransaction<S, KumoReceipt<R, void>>>;
+  setPrice(
+    asset: string,
+    price: Decimalish
+  ): Promise<SentKumoTransaction<S, KumoReceipt<R, void>>>;
 
   /** {@inheritDoc TransactableKumo.liquidate} */
   liquidate(
+    asset: string,
     address: string | string[]
   ): Promise<SentKumoTransaction<S, KumoReceipt<R, LiquidationDetails>>>;
 
   /** {@inheritDoc TransactableKumo.liquidateUpTo} */
   liquidateUpTo(
+    asset: string,
     maximumNumberOfTrovesToLiquidate: number
   ): Promise<SentKumoTransaction<S, KumoReceipt<R, LiquidationDetails>>>;
 
   /** {@inheritDoc TransactableKumo.depositKUSDInStabilityPool} */
   depositKUSDInStabilityPool(
     amount: Decimalish,
-    frontendTag?: string
+    asset: string,
   ): Promise<SentKumoTransaction<S, KumoReceipt<R, StabilityDepositChangeDetails>>>;
 
   /** {@inheritDoc TransactableKumo.withdrawKUSDFromStabilityPool} */
   withdrawKUSDFromStabilityPool(
-    amount: Decimalish
+    amount: Decimalish,
+    asset: string
   ): Promise<SentKumoTransaction<S, KumoReceipt<R, StabilityDepositChangeDetails>>>;
 
   /** {@inheritDoc TransactableKumo.withdrawGainsFromStabilityPool} */
-  withdrawGainsFromStabilityPool(): Promise<
+  withdrawGainsFromStabilityPool(asset: string): Promise<
     SentKumoTransaction<S, KumoReceipt<R, StabilityPoolGainsWithdrawalDetails>>
   >;
 
   /** {@inheritDoc TransactableKumo.transferCollateralGainToTrove} */
-  transferCollateralGainToTrove(): Promise<
+  transferCollateralGainToTrove(asset: string, assetName: string): Promise<
     SentKumoTransaction<S, KumoReceipt<R, CollateralGainTransferDetails>>
   >;
 
@@ -228,12 +240,13 @@ export interface SendableKumo<R = unknown, S = unknown>
 
   /** {@inheritDoc TransactableKumo.redeemKUSD} */
   redeemKUSD(
+    asset: string,
     amount: Decimalish,
     maxRedemptionRate?: Decimalish
   ): Promise<SentKumoTransaction<S, KumoReceipt<R, RedemptionDetails>>>;
 
   /** {@inheritDoc TransactableKumo.claimCollateralSurplus} */
-  claimCollateralSurplus(): Promise<SentKumoTransaction<S, KumoReceipt<R, void>>>;
+  claimCollateralSurplus(asset: string): Promise<SentKumoTransaction<S, KumoReceipt<R, void>>>;
 
   /** {@inheritDoc TransactableKumo.stakeKUMO} */
   stakeKUMO(amount: Decimalish): Promise<SentKumoTransaction<S, KumoReceipt<R, void>>>;
@@ -245,9 +258,7 @@ export interface SendableKumo<R = unknown, S = unknown>
   withdrawGainsFromStaking(): Promise<SentKumoTransaction<S, KumoReceipt<R, void>>>;
 
   /** {@inheritDoc TransactableKumo.approveUniTokens} */
-  approveUniTokens(
-    allowance?: Decimalish
-  ): Promise<SentKumoTransaction<S, KumoReceipt<R, void>>>;
+  approveUniTokens(allowance?: Decimalish): Promise<SentKumoTransaction<S, KumoReceipt<R, void>>>;
 
   /** {@inheritDoc TransactableKumo.stakeUniTokens} */
   stakeUniTokens(amount: Decimalish): Promise<SentKumoTransaction<S, KumoReceipt<R, void>>>;
@@ -256,15 +267,11 @@ export interface SendableKumo<R = unknown, S = unknown>
   unstakeUniTokens(amount: Decimalish): Promise<SentKumoTransaction<S, KumoReceipt<R, void>>>;
 
   /** {@inheritDoc TransactableKumo.withdrawKUMORewardFromLiquidityMining} */
-  withdrawKUMORewardFromLiquidityMining(): Promise<
-    SentKumoTransaction<S, KumoReceipt<R, void>>
-  >;
+  withdrawKUMORewardFromLiquidityMining(): Promise<SentKumoTransaction<S, KumoReceipt<R, void>>>;
 
   /** {@inheritDoc TransactableKumo.exitLiquidityMining} */
   exitLiquidityMining(): Promise<SentKumoTransaction<S, KumoReceipt<R, void>>>;
 
   /** {@inheritDoc TransactableKumo.registerFrontend} */
-  registerFrontend(
-    kickbackRate: Decimalish
-  ): Promise<SentKumoTransaction<S, KumoReceipt<R, void>>>;
+  registerFrontend(assetName: string, kickbackRate: Decimalish): Promise<SentKumoTransaction<S, KumoReceipt<R, void>>>;
 }

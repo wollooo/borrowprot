@@ -1,3 +1,4 @@
+import { Provider } from "@ethersproject/abstract-provider";
 import { Decimal } from "./Decimal";
 import { Trove, TroveWithPendingRedistribution, UserTrove } from "./Trove";
 import { StabilityDeposit } from "./StabilityDeposit";
@@ -59,47 +60,52 @@ export interface ReadableKumo {
    * @remarks
    * Needed when dealing with instances of {@link @kumodao/lib-base#TroveWithPendingRedistribution}.
    */
-  getTotalRedistributed(): Promise<Trove>;
+  getTotalRedistributed(asset: string): Promise<Trove>;
 
   /**
    * Get a Trove in its state after the last direct modification.
    *
+   * @param asset - Address of the ERC20 Asset
    * @param address - Address that owns the Trove.
    *
    * @remarks
    * The current state of a Trove can be fetched using
    * {@link @kumodao/lib-base#ReadableKumo.getTrove | getTrove()}.
    */
-  getTroveBeforeRedistribution(address?: string): Promise<TroveWithPendingRedistribution>;
+  getTroveBeforeRedistribution(
+    asset: string,
+    address: string
+  ): Promise<TroveWithPendingRedistribution>;
 
   /**
    * Get the current state of a Trove.
    *
+   * @param asset - Address of the ERC20 Asset
    * @param address - Address that owns the Trove.
    */
-  getTrove(address?: string): Promise<UserTrove>;
+  getTrove(asset: string, address: string): Promise<UserTrove>;
 
   /**
    * Get number of Troves that are currently open.
    */
-  getNumberOfTroves(): Promise<number>;
+  getNumberOfTroves(asset: string): Promise<number>;
 
   /**
    * Get the current price of the native currency (e.g. Ether) in USD.
    */
-  getPrice(): Promise<Decimal>;
+  getPrice(asset: string): Promise<Decimal>;
 
   /**
    * Get the total amount of collateral and debt in the Kumo system.
    */
-  getTotal(): Promise<Trove>;
+  getTotal(asset: string): Promise<Trove>;
 
   /**
    * Get the current state of a Stability Deposit.
    *
    * @param address - Address that owns the Stability Deposit.
    */
-  getStabilityDeposit(address?: string): Promise<StabilityDeposit>;
+  getStabilityDeposit(asset: string, address: string): Promise<StabilityDeposit>;
 
   /**
    * Get the remaining KUMO that will be collectively rewarded to stability depositors.
@@ -109,35 +115,42 @@ export interface ReadableKumo {
   /**
    * Get the total amount of KUSD currently deposited in the Stability Pool.
    */
-  getKUSDInStabilityPool(): Promise<Decimal>;
+  getKUSDInStabilityPool(asset: string): Promise<Decimal>;
 
   /**
    * Get the amount of KUSD held by an address.
    *
    * @param address - Address whose balance should be retrieved.
    */
-  getKUSDBalance(address?: string): Promise<Decimal>;
+  getKUSDBalance(address: string): Promise<Decimal>;
+
+  /**
+   * Get the amount of BCT held by an address.
+   *
+   * @param address - Address whose balance should be retrieved.
+   */
+  getAssetBalance(address: string, assetType: string, provider: Provider): Promise<Decimal>;
 
   /**
    * Get the amount of KUMO held by an address.
    *
    * @param address - Address whose balance should be retrieved.
    */
-  getKUMOBalance(address?: string): Promise<Decimal>;
+  getKUMOBalance(address: string): Promise<Decimal>;
 
   /**
    * Get the amount of Uniswap ETH/KUSD LP tokens held by an address.
    *
    * @param address - Address whose balance should be retrieved.
    */
-  getUniTokenBalance(address?: string): Promise<Decimal>;
+  getUniTokenBalance(address: string): Promise<Decimal>;
 
   /**
    * Get the liquidity mining contract's allowance of a holder's Uniswap ETH/KUSD LP tokens.
    *
    * @param address - Address holding the Uniswap ETH/KUSD LP tokens.
    */
-  getUniTokenAllowance(address?: string): Promise<Decimal>;
+  getUniTokenAllowance(address: string): Promise<Decimal>;
 
   /**
    * Get the remaining KUMO that will be collectively rewarded to liquidity miners.
@@ -149,7 +162,7 @@ export interface ReadableKumo {
    *
    * @param address - Address whose LP stake should be retrieved.
    */
-  getLiquidityMiningStake(address?: string): Promise<Decimal>;
+  getLiquidityMiningStake(address: string): Promise<Decimal>;
 
   /**
    * Get the total amount of Uniswap ETH/KUSD LP tokens currently staked in liquidity mining.
@@ -161,7 +174,7 @@ export interface ReadableKumo {
    *
    * @param address - Address whose KUMO reward should be retrieved.
    */
-  getLiquidityMiningKUMOReward(address?: string): Promise<Decimal>;
+  getLiquidityMiningKUMOReward(address: string): Promise<Decimal>;
 
   /**
    * Get the amount of leftover collateral available for withdrawal by an address.
@@ -172,10 +185,11 @@ export interface ReadableKumo {
    * can be withdrawn from using
    * {@link @kumodao/lib-base#TransactableKumo.claimCollateralSurplus | claimCollateralSurplus()}.
    */
-  getCollateralSurplusBalance(address?: string): Promise<Decimal>;
+  getCollateralSurplusBalance(asset: string, address: string): Promise<Decimal>;
 
   /** @internal */
   getTroves(
+    asset: string,
     params: TroveListingParams & { beforeRedistribution: true }
   ): Promise<TroveWithPendingRedistribution[]>;
 
@@ -185,19 +199,19 @@ export interface ReadableKumo {
    * @param params - Controls how the list is sorted, and where the slice begins and ends.
    * @returns Pairs of owner addresses and their Troves.
    */
-  getTroves(params: TroveListingParams): Promise<UserTrove[]>;
+  getTroves(asset: string, params: TroveListingParams): Promise<UserTrove[]>;
 
   /**
    * Get a calculator for current fees.
    */
-  getFees(): Promise<Fees>;
+  getFees(asset: string): Promise<Fees>;
 
   /**
    * Get the current state of an KUMO Stake.
    *
    * @param address - Address that owns the KUMO Stake.
    */
-  getKUMOStake(address?: string): Promise<KUMOStake>;
+  getKUMOStake(asset: string, address: string): Promise<KUMOStake>;
 
   /**
    * Get the total amount of KUMO currently staked.
@@ -209,5 +223,5 @@ export interface ReadableKumo {
    *
    * @param address - Address to check.
    */
-  getFrontendStatus(address?: string): Promise<FrontendStatus>;
+  getFrontendStatus(asset: string, address: string): Promise<FrontendStatus>;
 }

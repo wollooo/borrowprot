@@ -25,6 +25,7 @@ import {
   PopulatedEthersKumoTransaction,
   SentEthersKumoTransaction
 } from "./PopulatableEthersKumo";
+import { _getContracts } from "./EthersKumoConnection";
 
 const sendTransaction = <T>(tx: PopulatedEthersKumoTransaction<T>) => tx.send();
 
@@ -34,7 +35,8 @@ const sendTransaction = <T>(tx: PopulatedEthersKumoTransaction<T>) => tx.send();
  * @public
  */
 export class SendableEthersKumo
-  implements SendableKumo<EthersTransactionReceipt, EthersTransactionResponse> {
+  implements SendableKumo<EthersTransactionReceipt, EthersTransactionResponse>
+{
   private _populate: PopulatableEthersKumo;
 
   constructor(populatable: PopulatableEthersKumo) {
@@ -44,122 +46,141 @@ export class SendableEthersKumo
   /** {@inheritDoc @kumodao/lib-base#SendableKumo.openTrove} */
   async openTrove(
     params: TroveCreationParams<Decimalish>,
+    asset: string,
     maxBorrowingRateOrOptionalParams?: Decimalish | BorrowingOperationOptionalParams,
     overrides?: EthersTransactionOverrides
   ): Promise<SentEthersKumoTransaction<TroveCreationDetails>> {
     return this._populate
-      .openTrove(params, maxBorrowingRateOrOptionalParams, overrides)
+      .openTrove(params, asset, maxBorrowingRateOrOptionalParams, overrides)
       .then(sendTransaction);
   }
 
   /** {@inheritDoc @kumodao/lib-base#SendableKumo.closeTrove} */
   closeTrove(
+    asset: string,
     overrides?: EthersTransactionOverrides
   ): Promise<SentEthersKumoTransaction<TroveClosureDetails>> {
-    return this._populate.closeTrove(overrides).then(sendTransaction);
+    return this._populate.closeTrove(asset, overrides).then(sendTransaction);
   }
 
   /** {@inheritDoc @kumodao/lib-base#SendableKumo.adjustTrove} */
   adjustTrove(
     params: TroveAdjustmentParams<Decimalish>,
+    asset: string,
     maxBorrowingRateOrOptionalParams?: Decimalish | BorrowingOperationOptionalParams,
     overrides?: EthersTransactionOverrides
   ): Promise<SentEthersKumoTransaction<TroveAdjustmentDetails>> {
     return this._populate
-      .adjustTrove(params, maxBorrowingRateOrOptionalParams, overrides)
+      .adjustTrove(params, asset, maxBorrowingRateOrOptionalParams, overrides)
       .then(sendTransaction);
   }
 
   /** {@inheritDoc @kumodao/lib-base#SendableKumo.depositCollateral} */
   depositCollateral(
+    asset: string,
     amount: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<SentEthersKumoTransaction<TroveAdjustmentDetails>> {
-    return this._populate.depositCollateral(amount, overrides).then(sendTransaction);
+    return this._populate.depositCollateral(asset, amount, overrides).then(sendTransaction);
   }
 
   /** {@inheritDoc @kumodao/lib-base#SendableKumo.withdrawCollateral} */
   withdrawCollateral(
+    asset: string,
     amount: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<SentEthersKumoTransaction<TroveAdjustmentDetails>> {
-    return this._populate.withdrawCollateral(amount, overrides).then(sendTransaction);
+    return this._populate.withdrawCollateral(asset, amount, overrides).then(sendTransaction);
   }
 
   /** {@inheritDoc @kumodao/lib-base#SendableKumo.borrowKUSD} */
   borrowKUSD(
+    asset: string,
     amount: Decimalish,
     maxBorrowingRate?: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<SentEthersKumoTransaction<TroveAdjustmentDetails>> {
-    return this._populate.borrowKUSD(amount, maxBorrowingRate, overrides).then(sendTransaction);
+    return this._populate
+      .borrowKUSD(asset, amount, maxBorrowingRate, overrides)
+      .then(sendTransaction);
   }
 
   /** {@inheritDoc @kumodao/lib-base#SendableKumo.repayKUSD} */
   repayKUSD(
+    asset: string,
     amount: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<SentEthersKumoTransaction<TroveAdjustmentDetails>> {
-    return this._populate.repayKUSD(amount, overrides).then(sendTransaction);
+    return this._populate.repayKUSD(asset, amount, overrides).then(sendTransaction);
   }
 
   /** @internal */
   setPrice(
+    asset: string,
     price: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<SentEthersKumoTransaction<void>> {
-    return this._populate.setPrice(price, overrides).then(sendTransaction);
+    return this._populate.setPrice(asset, price, overrides).then(sendTransaction);
   }
 
   /** {@inheritDoc @kumodao/lib-base#SendableKumo.liquidate} */
   liquidate(
+    asset: string,
     address: string | string[],
     overrides?: EthersTransactionOverrides
   ): Promise<SentEthersKumoTransaction<LiquidationDetails>> {
-    return this._populate.liquidate(address, overrides).then(sendTransaction);
+    return this._populate.liquidate(asset, address, overrides).then(sendTransaction);
   }
 
   /** {@inheritDoc @kumodao/lib-base#SendableKumo.liquidateUpTo} */
   liquidateUpTo(
+    asset: string,
     maximumNumberOfTrovesToLiquidate: number,
     overrides?: EthersTransactionOverrides
   ): Promise<SentEthersKumoTransaction<LiquidationDetails>> {
     return this._populate
-      .liquidateUpTo(maximumNumberOfTrovesToLiquidate, overrides)
+      .liquidateUpTo(asset, maximumNumberOfTrovesToLiquidate, overrides)
       .then(sendTransaction);
   }
 
   /** {@inheritDoc @kumodao/lib-base#SendableKumo.depositKUSDInStabilityPool} */
   depositKUSDInStabilityPool(
     amount: Decimalish,
+    asset: string,
     frontendTag?: string,
     overrides?: EthersTransactionOverrides
   ): Promise<SentEthersKumoTransaction<StabilityDepositChangeDetails>> {
     return this._populate
-      .depositKUSDInStabilityPool(amount, frontendTag, overrides)
+      .depositKUSDInStabilityPool(amount, asset, frontendTag, overrides)
       .then(sendTransaction);
   }
 
   /** {@inheritDoc @kumodao/lib-base#SendableKumo.withdrawKUSDFromStabilityPool} */
   withdrawKUSDFromStabilityPool(
     amount: Decimalish,
+    asset: string,
     overrides?: EthersTransactionOverrides
   ): Promise<SentEthersKumoTransaction<StabilityDepositChangeDetails>> {
-    return this._populate.withdrawKUSDFromStabilityPool(amount, overrides).then(sendTransaction);
+    return this._populate
+      .withdrawKUSDFromStabilityPool(amount, asset, overrides)
+      .then(sendTransaction);
   }
 
   /** {@inheritDoc @kumodao/lib-base#SendableKumo.withdrawGainsFromStabilityPool} */
   withdrawGainsFromStabilityPool(
+    asset: string,
     overrides?: EthersTransactionOverrides
   ): Promise<SentEthersKumoTransaction<StabilityPoolGainsWithdrawalDetails>> {
-    return this._populate.withdrawGainsFromStabilityPool(overrides).then(sendTransaction);
+    return this._populate.withdrawGainsFromStabilityPool(asset, overrides).then(sendTransaction);
   }
 
   /** {@inheritDoc @kumodao/lib-base#SendableKumo.transferCollateralGainToTrove} */
   transferCollateralGainToTrove(
+    asset: string,
+    assetName: string,
     overrides?: EthersTransactionOverrides
   ): Promise<SentEthersKumoTransaction<CollateralGainTransferDetails>> {
-    return this._populate.transferCollateralGainToTrove(overrides).then(sendTransaction);
+    return this._populate.transferCollateralGainToTrove(asset, assetName, overrides).then(sendTransaction);
   }
 
   /** {@inheritDoc @kumodao/lib-base#SendableKumo.sendKUSD} */
@@ -182,18 +203,22 @@ export class SendableEthersKumo
 
   /** {@inheritDoc @kumodao/lib-base#SendableKumo.redeemKUSD} */
   redeemKUSD(
+    asset: string,
     amount: Decimalish,
     maxRedemptionRate?: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<SentEthersKumoTransaction<RedemptionDetails>> {
-    return this._populate.redeemKUSD(amount, maxRedemptionRate, overrides).then(sendTransaction);
+    return this._populate
+      .redeemKUSD(asset, amount, maxRedemptionRate, overrides)
+      .then(sendTransaction);
   }
 
   /** {@inheritDoc @kumodao/lib-base#SendableKumo.claimCollateralSurplus} */
   claimCollateralSurplus(
+    asset: string,
     overrides?: EthersTransactionOverrides
   ): Promise<SentEthersKumoTransaction<void>> {
-    return this._populate.claimCollateralSurplus(overrides).then(sendTransaction);
+    return this._populate.claimCollateralSurplus(asset, overrides).then(sendTransaction);
   }
 
   /** {@inheritDoc @kumodao/lib-base#SendableKumo.stakeKUMO} */
@@ -221,10 +246,11 @@ export class SendableEthersKumo
 
   /** {@inheritDoc @kumodao/lib-base#SendableKumo.registerFrontend} */
   registerFrontend(
+    assetName: string,
     kickbackRate: Decimalish,
     overrides?: EthersTransactionOverrides
   ): Promise<SentEthersKumoTransaction<void>> {
-    return this._populate.registerFrontend(kickbackRate, overrides).then(sendTransaction);
+    return this._populate.registerFrontend(assetName, kickbackRate, overrides).then(sendTransaction);
   }
 
   /** @internal */

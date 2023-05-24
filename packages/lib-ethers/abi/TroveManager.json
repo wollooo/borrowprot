@@ -1,183 +1,580 @@
 [
   {
-    "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
         "internalType": "address",
-        "name": "_activePoolAddress",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_ETHDrawn",
+        "type": "uint256"
+      }
+    ],
+    "name": "callGetRedemptionFee",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_troveOwner",
         "type": "address"
       }
     ],
-    "name": "ActivePoolAddressChanged",
-    "type": "event"
+    "name": "callInternalRemoveTroveOwner",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "internalType": "uint256",
+        "name": "_coll",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_debt",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_price",
+        "type": "uint256"
+      }
+    ],
+    "name": "computeICR",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_debtVal",
+        "type": "uint256"
+      }
+    ],
+    "name": "getActualDebtFromComposite",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_coll",
+        "type": "uint256"
+      }
+    ],
+    "name": "getCollGasCompensation",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_debt",
+        "type": "uint256"
+      }
+    ],
+    "name": "getCompositeDebt",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      }
+    ],
+    "name": "getkusdGasCompensation",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      }
+    ],
+    "name": "minutesPassedSinceLastFeeOp",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
         "name": "_baseRate",
         "type": "uint256"
       }
     ],
-    "name": "BaseRateUpdated",
-    "type": "event"
+    "name": "setBaseRate",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
         "internalType": "address",
-        "name": "_newBorrowerOperationsAddress",
+        "name": "_asset",
         "type": "address"
       }
     ],
-    "name": "BorrowerOperationsAddressChanged",
-    "type": "event"
+    "name": "setLastFeeOpTimeToNow",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
         "internalType": "address",
-        "name": "_collSurplusPoolAddress",
+        "name": "_asset",
         "type": "address"
       }
     ],
-    "name": "CollSurplusPoolAddressChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
+    "name": "unprotectedDecayBaseRateFromBorrowing",
+    "outputs": [
       {
-        "indexed": false,
-        "internalType": "address",
-        "name": "_defaultPoolAddress",
-        "type": "address"
-      }
-    ],
-    "name": "DefaultPoolAddressChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "_gasPoolAddress",
-        "type": "address"
-      }
-    ],
-    "name": "GasPoolAddressChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "_kumoStakingAddress",
-        "type": "address"
-      }
-    ],
-    "name": "KUMOStakingAddressChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "_kumoTokenAddress",
-        "type": "address"
-      }
-    ],
-    "name": "KUMOTokenAddressChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "_newKUSDTokenAddress",
-        "type": "address"
-      }
-    ],
-    "name": "KUSDTokenAddressChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
         "internalType": "uint256",
-        "name": "_L_ETH",
+        "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "_selector",
+        "type": "bytes4"
+      }
+    ],
+    "name": "CannotAddFunctionToDiamondThatAlreadyExists",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4[]",
+        "name": "_selectors",
+        "type": "bytes4[]"
+      }
+    ],
+    "name": "CannotAddSelectorsToZeroAddress",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "_selector",
+        "type": "bytes4"
+      }
+    ],
+    "name": "CannotRemoveFunctionThatDoesNotExist",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "_selector",
+        "type": "bytes4"
+      }
+    ],
+    "name": "CannotRemoveImmutableFunction",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "_selector",
+        "type": "bytes4"
+      }
+    ],
+    "name": "CannotReplaceFunctionThatDoesNotExists",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "_selector",
+        "type": "bytes4"
+      }
+    ],
+    "name": "CannotReplaceFunctionWithTheSameFunctionFromTheSameFacet",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4[]",
+        "name": "_selectors",
+        "type": "bytes4[]"
+      }
+    ],
+    "name": "CannotReplaceFunctionsFromFacetWithZeroAddress",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "_selector",
+        "type": "bytes4"
+      }
+    ],
+    "name": "CannotReplaceImmutableFunction",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "_action",
+        "type": "uint8"
+      }
+    ],
+    "name": "IncorrectFacetCutAction",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_initializationContractAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_calldata",
+        "type": "bytes"
+      }
+    ],
+    "name": "InitializationFunctionReverted",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_contractAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "_message",
+        "type": "string"
+      }
+    ],
+    "name": "NoBytecodeAtAddress",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_facetAddress",
+        "type": "address"
+      }
+    ],
+    "name": "NoSelectorsProvidedForFacetForCut",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_user",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_contractOwner",
+        "type": "address"
+      }
+    ],
+    "name": "NotContractOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_facetAddress",
+        "type": "address"
+      }
+    ],
+    "name": "RemoveFacetAddressMustBeZeroAddress",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "facetAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "enum IDiamondCut.FacetCutAction",
+            "name": "action",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes4[]",
+            "name": "functionSelectors",
+            "type": "bytes4[]"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct IDiamondCut.FacetCut[]",
+        "name": "_diamondCut",
+        "type": "tuple[]"
       },
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "_L_KUSDDebt",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "_init",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "_calldata",
+        "type": "bytes"
       }
     ],
-    "name": "LTermsUpdated",
+    "name": "DiamondCut",
     "type": "event"
   },
   {
-    "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_lastFeeOpTime",
-        "type": "uint256"
+        "components": [
+          {
+            "internalType": "address",
+            "name": "facetAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "enum IDiamondCut.FacetCutAction",
+            "name": "action",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes4[]",
+            "name": "functionSelectors",
+            "type": "bytes4[]"
+          }
+        ],
+        "internalType": "struct IDiamondCut.FacetCut[]",
+        "name": "_diamondCut",
+        "type": "tuple[]"
+      },
+      {
+        "internalType": "address",
+        "name": "_init",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_calldata",
+        "type": "bytes"
       }
     ],
-    "name": "LastFeeOpTimeUpdated",
-    "type": "event"
+    "name": "diamondCut",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_liquidatedDebt",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_liquidatedColl",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_collGasCompensation",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_kusdGasCompensation",
-        "type": "uint256"
+        "internalType": "bytes4",
+        "name": "_functionSelector",
+        "type": "bytes4"
       }
     ],
-    "name": "Liquidation",
-    "type": "event"
+    "name": "facetAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "facetAddress_",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "facetAddresses",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "facetAddresses_",
+        "type": "address[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_facet",
+        "type": "address"
+      }
+    ],
+    "name": "facetFunctionSelectors",
+    "outputs": [
+      {
+        "internalType": "bytes4[]",
+        "name": "_facetFunctionSelectors",
+        "type": "bytes4[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "facets",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "facetAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes4[]",
+            "name": "functionSelectors",
+            "type": "bytes4[]"
+          }
+        ],
+        "internalType": "struct IDiamondLoupe.Facet[]",
+        "name": "facets_",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "_interfaceId",
+        "type": "bytes4"
+      }
+    ],
+    "name": "supportsInterface",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "anonymous": false,
@@ -199,225 +596,30 @@
     "type": "event"
   },
   {
-    "anonymous": false,
-    "inputs": [
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
       {
-        "indexed": false,
         "internalType": "address",
-        "name": "_newPriceFeedAddress",
+        "name": "owner_",
         "type": "address"
       }
     ],
-    "name": "PriceFeedAddressChanged",
-    "type": "event"
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_attemptedKUSDAmount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_actualKUSDAmount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_ETHSent",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_ETHFee",
-        "type": "uint256"
-      }
-    ],
-    "name": "Redemption",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
         "internalType": "address",
-        "name": "_sortedTrovesAddress",
+        "name": "_newOwner",
         "type": "address"
       }
     ],
-    "name": "SortedTrovesAddressChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "_stabilityPoolAddress",
-        "type": "address"
-      }
-    ],
-    "name": "StabilityPoolAddressChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_totalStakesSnapshot",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_totalCollateralSnapshot",
-        "type": "uint256"
-      }
-    ],
-    "name": "SystemSnapshotsUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_newTotalStakes",
-        "type": "uint256"
-      }
-    ],
-    "name": "TotalStakesUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "_borrower",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_newIndex",
-        "type": "uint256"
-      }
-    ],
-    "name": "TroveIndexUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_borrower",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_debt",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_coll",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "enum TroveManager.TroveManagerOperation",
-        "name": "_operation",
-        "type": "uint8"
-      }
-    ],
-    "name": "TroveLiquidated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_L_ETH",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_L_KUSDDebt",
-        "type": "uint256"
-      }
-    ],
-    "name": "TroveSnapshotsUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "_borrower",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_debt",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_coll",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "_stake",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "enum TroveManager.TroveManagerOperation",
-        "name": "_operation",
-        "type": "uint8"
-      }
-    ],
-    "name": "TroveUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newAddress",
-        "type": "address"
-      }
-    ],
-    "name": "VaultParametersBaseChanged",
-    "type": "event"
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
     "inputs": [],
@@ -429,12 +631,18 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "view",
+    "stateMutability": "pure",
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "BOOTSTRAP_PERIOD",
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      }
+    ],
+    "name": "L_ASSETS",
     "outputs": [
       {
         "internalType": "uint256",
@@ -446,99 +654,14 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "BORROWING_FEE_FLOOR",
-    "outputs": [
+    "inputs": [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "CCR",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "DECIMAL_PRECISION",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "KUSD_GAS_COMPENSATION",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "L_ETH",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "L_KUSDDebt",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "MAX_BORROWING_FEE",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "MCR",
+    "name": "L_KUSDDebts",
     "outputs": [
       {
         "internalType": "uint256",
@@ -559,20 +682,7 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "MIN_NET_DEBT",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
+    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -590,32 +700,6 @@
   },
   {
     "inputs": [],
-    "name": "PERCENT_DIVISOR",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "REDEMPTION_FEE_FLOOR",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "SECONDS_IN_ONE_MINUTE",
     "outputs": [
       {
@@ -624,14 +708,19 @@
         "type": "uint256"
       }
     ],
-    "stateMutability": "view",
+    "stateMutability": "pure",
     "type": "function"
   },
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
-        "name": "",
+        "name": "_index",
         "type": "uint256"
       }
     ],
@@ -650,62 +739,53 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "_borrower",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_asset",
         "type": "address"
       }
     ],
     "name": "Troves",
     "outputs": [
       {
-        "internalType": "uint256",
-        "name": "debt",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "coll",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "stake",
-        "type": "uint256"
-      },
-      {
-        "internalType": "enum TroveManager.Status",
-        "name": "status",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint128",
-        "name": "arrayIndex",
-        "type": "uint128"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "_100pct",
-    "outputs": [
-      {
-        "internalType": "uint256",
+        "components": [
+          {
+            "internalType": "address",
+            "name": "asset",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "debt",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "coll",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "stake",
+            "type": "uint256"
+          },
+          {
+            "internalType": "enum Status",
+            "name": "status",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint128",
+            "name": "arrayIndex",
+            "type": "uint128"
+          }
+        ],
+        "internalType": "struct Trove",
         "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "activePool",
-    "outputs": [
-      {
-        "internalType": "contract IActivePool",
-        "name": "",
-        "type": "address"
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",
@@ -713,6 +793,24 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      }
+    ],
+    "name": "addNewAsset",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
       {
         "internalType": "address",
         "name": "_borrower",
@@ -734,17 +832,10 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_borrower",
+        "name": "_asset",
         "type": "address"
       }
     ],
-    "name": "applyPendingRewards",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "baseRate",
     "outputs": [
       {
@@ -754,19 +845,6 @@
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address[]",
-        "name": "_troveArray",
-        "type": "address[]"
-      }
-    ],
-    "name": "batchLiquidateTroves",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -784,6 +862,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
       {
         "internalType": "uint256",
         "name": "_price",
@@ -805,6 +888,11 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
         "name": "_borrower",
         "type": "address"
       }
@@ -815,7 +903,13 @@
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      }
+    ],
     "name": "decayBaseRateFromBorrowing",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -823,6 +917,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
       {
         "internalType": "address",
         "name": "_borrower",
@@ -849,6 +948,11 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
         "name": "_borrower",
         "type": "address"
       },
@@ -870,20 +974,12 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "defaultPool",
-    "outputs": [
-      {
-        "internalType": "contract IDefaultPool",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
       {
         "internalType": "uint256",
         "name": "_KUSDDebt",
@@ -904,6 +1000,11 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
         "name": "_KUSDDebt",
         "type": "uint256"
@@ -921,7 +1022,13 @@
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      }
+    ],
     "name": "getBorrowingRate",
     "outputs": [
       {
@@ -934,7 +1041,13 @@
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      }
+    ],
     "name": "getBorrowingRateWithDecay",
     "outputs": [
       {
@@ -948,6 +1061,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
       {
         "internalType": "address",
         "name": "_borrower",
@@ -974,6 +1092,11 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
         "name": "_borrower",
         "type": "address"
       }
@@ -997,7 +1120,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "pendingETHReward",
+        "name": "pendingReward",
         "type": "uint256"
       }
     ],
@@ -1005,7 +1128,13 @@
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      }
+    ],
     "name": "getEntireSystemColl",
     "outputs": [
       {
@@ -1018,7 +1147,13 @@
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      }
+    ],
     "name": "getEntireSystemDebt",
     "outputs": [
       {
@@ -1032,6 +1167,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
       {
         "internalType": "address",
         "name": "_borrower",
@@ -1053,23 +1193,9 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_borrower",
+        "name": "_asset",
         "type": "address"
-      }
-    ],
-    "name": "getPendingETHReward",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
+      },
       {
         "internalType": "address",
         "name": "_borrower",
@@ -1090,8 +1216,61 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_borrower",
+        "type": "address"
+      }
+    ],
+    "name": "getPendingReward",
+    "outputs": [
+      {
         "internalType": "uint256",
-        "name": "_ETHDrawn",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_assetDraw",
+        "type": "uint256"
+      }
+    ],
+    "name": "getRedemptionFee",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_assetDraw",
         "type": "uint256"
       }
     ],
@@ -1107,7 +1286,13 @@
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      }
+    ],
     "name": "getRedemptionRate",
     "outputs": [
       {
@@ -1120,7 +1305,13 @@
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      }
+    ],
     "name": "getRedemptionRateWithDecay",
     "outputs": [
       {
@@ -1134,6 +1325,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
       {
         "internalType": "uint256",
         "name": "_price",
@@ -1155,6 +1351,11 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
         "name": "_borrower",
         "type": "address"
       }
@@ -1172,6 +1373,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
       {
         "internalType": "address",
         "name": "_borrower",
@@ -1192,6 +1398,11 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
         "name": "_index",
         "type": "uint256"
@@ -1209,7 +1420,13 @@
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      }
+    ],
     "name": "getTroveOwnersCount",
     "outputs": [
       {
@@ -1223,6 +1440,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
       {
         "internalType": "address",
         "name": "_borrower",
@@ -1244,6 +1466,11 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
         "name": "_borrower",
         "type": "address"
       }
@@ -1263,23 +1490,9 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_borrower",
+        "name": "_asset",
         "type": "address"
-      }
-    ],
-    "name": "hasPendingRewards",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
+      },
       {
         "internalType": "address",
         "name": "_borrower",
@@ -1306,6 +1519,11 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
         "name": "_borrower",
         "type": "address"
       },
@@ -1328,7 +1546,20 @@
   },
   {
     "inputs": [],
-    "name": "isOwner",
+    "name": "isInitialized",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "isRedemptionWhitelisted",
     "outputs": [
       {
         "internalType": "bool",
@@ -1379,8 +1610,14 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "lastETHError_Redistribution",
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      }
+    ],
+    "name": "lastAssetError_Redistribution",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1392,7 +1629,13 @@
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      }
+    ],
     "name": "lastFeeOperationTime",
     "outputs": [
       {
@@ -1405,7 +1648,13 @@
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      }
+    ],
     "name": "lastKUSDDebtError_Redistribution",
     "outputs": [
       {
@@ -1421,6 +1670,480 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      }
+    ],
+    "name": "redemptionWhitelist",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_borrower",
+        "type": "address"
+      }
+    ],
+    "name": "removeStake",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_borrower",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      }
+    ],
+    "name": "rewardSnapshots",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "asset",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "KUSDDebt",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct RewardSnapshot",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_kumoParamsAddress",
+        "type": "address"
+      }
+    ],
+    "name": "setAddresses",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_borrower",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_num",
+        "type": "uint256"
+      }
+    ],
+    "name": "setTroveStatus",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "sortedTroves",
+    "outputs": [
+      {
+        "internalType": "contract ISortedTroves",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "stabilityPoolFactory",
+    "outputs": [
+      {
+        "internalType": "contract IStabilityPoolFactory",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      }
+    ],
+    "name": "totalCollateralSnapshot",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      }
+    ],
+    "name": "totalStakes",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      }
+    ],
+    "name": "totalStakesSnapshot",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_L_ETH",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_L_KUSDDebt",
+        "type": "uint256"
+      }
+    ],
+    "name": "LTermsUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_liquidatedDebt",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_liquidatedColl",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_collGasCompensation",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_kusdGasCompensation",
+        "type": "uint256"
+      }
+    ],
+    "name": "Liquidation",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_attemptedKUSDAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_actualKUSDAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_AssetSent",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_AssetFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "Redemption",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_totalStakesSnapshot",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_totalCollateralSnapshot",
+        "type": "uint256"
+      }
+    ],
+    "name": "SystemSnapshotsUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_newTotalStakes",
+        "type": "uint256"
+      }
+    ],
+    "name": "TotalStakesUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_borrower",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_debt",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_coll",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum TroveManagerOperation",
+        "name": "_operation",
+        "type": "uint8"
+      }
+    ],
+    "name": "TroveLiquidated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_borrower",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_debt",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_coll",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_stake",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum TroveManagerOperation",
+        "name": "_operation",
+        "type": "uint8"
+      }
+    ],
+    "name": "TroveUpdated",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_borrower",
+        "type": "address"
+      }
+    ],
+    "name": "applyPendingRewards",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "internalType": "address[]",
+        "name": "_troveArray",
+        "type": "address[]"
+      }
+    ],
+    "name": "batchLiquidateTroves",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_borrower",
+        "type": "address"
+      }
+    ],
+    "name": "hasPendingRewards",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
         "name": "_borrower",
         "type": "address"
       }
@@ -1433,6 +2156,11 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
         "name": "_n",
         "type": "uint256"
@@ -1444,33 +2172,12 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "owner",
-    "outputs": [
+    "inputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "_asset",
         "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "priceFeed",
-    "outputs": [
-      {
-        "internalType": "contract IPriceFeed",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
+      },
       {
         "internalType": "uint256",
         "name": "_KUSDamount",
@@ -1516,187 +2223,9 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_borrower",
-        "type": "address"
-      }
-    ],
-    "name": "removeStake",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "rewardSnapshots",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "ETH",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "KUSDDebt",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_borrowerOperationsAddress",
+        "name": "_asset",
         "type": "address"
       },
-      {
-        "internalType": "address",
-        "name": "_activePoolAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_defaultPoolAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_stabilityPoolAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_gasPoolAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_collSurplusPoolAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_priceFeedAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_kusdTokenAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_sortedTrovesAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_kumoTokenAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_kumoStakingAddress",
-        "type": "address"
-      }
-    ],
-    "name": "setAddresses",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_borrower",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_num",
-        "type": "uint256"
-      }
-    ],
-    "name": "setTroveStatus",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "sortedTroves",
-    "outputs": [
-      {
-        "internalType": "contract ISortedTroves",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "stabilityPool",
-    "outputs": [
-      {
-        "internalType": "contract IStabilityPool",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "totalCollateralSnapshot",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "totalStakes",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "totalStakesSnapshot",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
       {
         "internalType": "address",
         "name": "_borrower",
@@ -1718,6 +2247,11 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
         "name": "_borrower",
         "type": "address"
       }
@@ -1726,5 +2260,106 @@
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MIN_NET_DEBT",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_baseRate",
+        "type": "uint256"
+      }
+    ],
+    "name": "BaseRateUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_lastFeeOpTime",
+        "type": "uint256"
+      }
+    ],
+    "name": "LastFeeOpTimeUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_borrower",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_newIndex",
+        "type": "uint256"
+      }
+    ],
+    "name": "TroveIndexUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_asset",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_L_ETH",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_L_KUSDDebt",
+        "type": "uint256"
+      }
+    ],
+    "name": "TroveSnapshotsUpdated",
+    "type": "event"
   }
 ]

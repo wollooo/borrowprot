@@ -21,8 +21,14 @@ import PriceFeed from "../../contracts/artifacts/contracts/PriceFeed.sol/PriceFe
 import PriceFeedTestnet from "../../contracts/artifacts/contracts/TestContracts/PriceFeedTestnet.sol/PriceFeedTestnet.json";
 import SortedTroves from "../../contracts/artifacts/contracts/SortedTroves.sol/SortedTroves.json";
 import StabilityPool from "../../contracts/artifacts/contracts/StabilityPool.sol/StabilityPool.json";
-import TroveManager from "../../contracts/artifacts/contracts/TroveManager.sol/TroveManager.json";
+import IStabilityPool from "../../contracts/artifacts/contracts/Interfaces/IStabilityPool.sol/IStabilityPool.json";
+import StabilityPoolFactory from "../../contracts/artifacts/contracts/StabilityPoolFactory.sol/StabilityPoolFactory.json";
+import TroveManager from "../../contracts/artifacts/hardhat-diamond-abi/HardhatDiamondABI.sol/TroveManager.json";
+import TroveManagerDiamond from "../../contracts/artifacts/contracts/TroveManagerDiamond.sol/TroveManagerDiamond.json";
 import Unipool from "../../contracts/artifacts/contracts/LPRewards/Unipool.sol/Unipool.json";
+import KumoParameters from "../../contracts/artifacts/contracts/KumoParameters.sol/KumoParameters.json";
+import ERC20Test from "../../contracts/artifacts/contracts/TestContracts/ERC20Test.sol/ERC20Test.json";
+
 
 const getTupleType = (components: ParamType[], flexible: boolean) => {
   if (components.every(component => component.name)) {
@@ -160,9 +166,14 @@ const contractArtifacts = [
   PriceFeed,
   PriceFeedTestnet,
   SortedTroves,
+  IStabilityPool,
   StabilityPool,
+  StabilityPoolFactory,
   TroveManager,
-  Unipool
+  TroveManagerDiamond,
+  Unipool,
+  KumoParameters,
+  ERC20Test
 ];
 
 const contracts = contractArtifacts.map(({ contractName, abi }) => ({

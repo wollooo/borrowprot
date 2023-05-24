@@ -9,7 +9,7 @@ Make a new Stability Deposit, or top up existing one.
 <b>Signature:</b>
 
 ```typescript
-depositKUSDInStabilityPool(amount: Decimalish, frontendTag?: string): Promise<StabilityDepositChangeDetails>;
+depositKUSDInStabilityPool(amount: Decimalish, asset: string): Promise<StabilityDepositChangeDetails>;
 ```
 
 ## Parameters
@@ -17,7 +17,7 @@ depositKUSDInStabilityPool(amount: Decimalish, frontendTag?: string): Promise<St
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  amount | [Decimalish](./lib-base.decimalish.md) | Amount of KUSD to add to new or existing deposit. |
-|  frontendTag | string | Address that should receive a share of this deposit's KUMO rewards. |
+|  asset | string |  |
 
 <b>Returns:</b>
 

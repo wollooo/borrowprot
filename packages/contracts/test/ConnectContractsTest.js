@@ -1,353 +1,337 @@
-const deploymentHelper = require("../utils/deploymentHelpers.js")
+const deploymentHelper = require("../utils/deploymentHelpers.js");
+
+contract(
+  "Deployment script - Sets correct contract addresses dependencies after deployment",
+  async accounts => {
+    const [owner] = accounts;
+
+    const [bountyAddress, lpRewardsAddress, multisig] = accounts.slice(997, 1000);
+
+    let priceFeed;
+    let kusdToken;
+    let sortedTroves;
+    let troveManager;
+    let activePool;
+    let stabilityPool;
+    let stabilityPoolFactory;
+    let defaultPool;
+    let functionCaller;
+    let borrowerOperations;
+    let kumoStaking;
+    let kumoToken;
+    let communityIssuance;
+    let lockupContractFactory;
+    let kumoParameters;
 
-contract('Deployment script - Sets correct contract addresses dependencies after deployment', async accounts => {
-  const [owner] = accounts;
+    before(async () => {
+      const coreContracts = await deploymentHelper.deployKumoCore();
+      const KUMOContracts = await deploymentHelper.deployKUMOContracts(
+        bountyAddress,
+        lpRewardsAddress,
+        multisig
+      );
 
-  const [bountyAddress, lpRewardsAddress, multisig] = accounts.slice(997, 1000)
-  
-  let priceFeed
-  let kusdToken
-  let sortedTroves
-  let troveManager
-  let activePool
-  let stabilityPool
-  let defaultPool
-  let functionCaller
-  let borrowerOperations
-  let kumoStaking
-  let kumoToken
-  let communityIssuance
-  let lockupContractFactory
+      priceFeed = coreContracts.priceFeedTestnet;
+      kusdToken = coreContracts.kusdToken;
+      sortedTroves = coreContracts.sortedTroves;
+      troveManager = coreContracts.troveManager;
+      activePool = coreContracts.activePool;
+      stabilityPoolFactory = coreContracts.stabilityPoolFactory;
+      defaultPool = coreContracts.defaultPool;
+      functionCaller = coreContracts.functionCaller;
+      borrowerOperations = coreContracts.borrowerOperations;
+      kumoParameters = coreContracts.kumoParameters;
 
-  before(async () => {
-    const coreContracts = await deploymentHelper.deployKumoCore()
-    const KUMOContracts = await deploymentHelper.deployKUMOContracts(bountyAddress, lpRewardsAddress, multisig)
+      kumoStaking = KUMOContracts.kumoStaking;
+      kumoToken = KUMOContracts.kumoToken;
+      communityIssuance = KUMOContracts.communityIssuance;
+      lockupContractFactory = KUMOContracts.lockupContractFactory;
 
-    priceFeed = coreContracts.priceFeedTestnet
-    kusdToken = coreContracts.kusdToken
-    sortedTroves = coreContracts.sortedTroves
-    troveManager = coreContracts.troveManager
-    activePool = coreContracts.activePool
-    stabilityPool = coreContracts.stabilityPool
-    defaultPool = coreContracts.defaultPool
-    functionCaller = coreContracts.functionCaller
-    borrowerOperations = coreContracts.borrowerOperations
+      await deploymentHelper.connectKUMOContracts(KUMOContracts);
+      await deploymentHelper.connectCoreContracts(coreContracts, KUMOContracts);
+      await deploymentHelper.connectKUMOContractsToCore(KUMOContracts, coreContracts);
 
-    kumoStaking = KUMOContracts.kumoStaking
-    kumoToken = KUMOContracts.kumoToken
-    communityIssuance = KUMOContracts.communityIssuance
-    lockupContractFactory = KUMOContracts.lockupContractFactory
+      erc20Asset1 = await deploymentHelper.deployERC20Asset("Carbon Token X", "CTX");
+      assetAddress1 = erc20Asset1.address;
 
-    await deploymentHelper.connectKUMOContracts(KUMOContracts)
-    await deploymentHelper.connectCoreContracts(coreContracts, KUMOContracts)
-    await deploymentHelper.connectKUMOContractsToCore(KUMOContracts, coreContracts)
-  })
+      await deploymentHelper.addNewAssetToSystem(coreContracts, KUMOContracts, assetAddress1);
 
-  it('Sets the correct PriceFeed address in TroveManager', async () => {
-    const priceFeedAddress = priceFeed.address
+      stabilityPool = await deploymentHelper.getStabilityPoolByAsset(coreContracts, assetAddress1);
+    });
 
-    const recordedPriceFeedAddress = await troveManager.priceFeed()
+    it("Check if correct Addresses in Vault Parameters", async () => {
+      assert.equal(priceFeed.address, await kumoParameters.priceFeed());
+      assert.equal(activePool.address, await kumoParameters.activePool());
+      assert.equal(defaultPool.address, await kumoParameters.defaultPool());
+    });
 
-    assert.equal(priceFeedAddress, recordedPriceFeedAddress)
-  })
+    it("Sets the correct KUSDToken address in TroveManager", async () => {
+      const kusdTokenAddress = kusdToken.address;
 
-  it('Sets the correct KUSDToken address in TroveManager', async () => {
-    const kusdTokenAddress = kusdToken.address
+      const recordedClvTokenAddress = await troveManager.kusdToken();
 
-    const recordedClvTokenAddress = await troveManager.kusdToken()
+      assert.equal(kusdTokenAddress, recordedClvTokenAddress);
+    });
 
-    assert.equal(kusdTokenAddress, recordedClvTokenAddress)
-  })
+    it("Sets the correct SortedTroves address in TroveManager", async () => {
+      const sortedTrovesAddress = sortedTroves.address;
 
-  it('Sets the correct SortedTroves address in TroveManager', async () => {
-    const sortedTrovesAddress = sortedTroves.address
+      const recordedSortedTrovesAddress = await troveManager.sortedTroves();
 
-    const recordedSortedTrovesAddress = await troveManager.sortedTroves()
+      assert.equal(sortedTrovesAddress, recordedSortedTrovesAddress);
+    });
 
-    assert.equal(sortedTrovesAddress, recordedSortedTrovesAddress)
-  })
+    it("Sets the correct BorrowerOperations address in TroveManager", async () => {
+      const borrowerOperationsAddress = borrowerOperations.address;
 
-  it('Sets the correct BorrowerOperations address in TroveManager', async () => {
-    const borrowerOperationsAddress = borrowerOperations.address
+      const recordedBorrowerOperationsAddress = await troveManager.borrowerOperationsAddress();
 
-    const recordedBorrowerOperationsAddress = await troveManager.borrowerOperationsAddress()
+      assert.equal(borrowerOperationsAddress, recordedBorrowerOperationsAddress);
+    });
 
-    assert.equal(borrowerOperationsAddress, recordedBorrowerOperationsAddress)
-  })
+    // StabilityPool in TroveM
+    it("Sets the correct StabilityPoolFactory address in TroveManager", async () => {
+      const stabilityPoolFactoryAddress = stabilityPoolFactory.address;
 
-  // ActivePool in TroveM
-  it('Sets the correct ActivePool address in TroveManager', async () => {
-    const activePoolAddress = activePool.address
+      const recordedStabilityPoolFactoryAddresss = await troveManager.stabilityPoolFactory();
 
-    const recordedActivePoolAddresss = await troveManager.activePool()
+      assert.equal(stabilityPoolFactoryAddress, recordedStabilityPoolFactoryAddresss);
+    });
 
-    assert.equal(activePoolAddress, recordedActivePoolAddresss)
-  })
+    // KUMO Staking in TroveM
+    it("Sets the correct KUMOStaking address in TroveManager", async () => {
+      const kumoStakingAddress = kumoStaking.address;
 
-  // DefaultPool in TroveM
-  it('Sets the correct DefaultPool address in TroveManager', async () => {
-    const defaultPoolAddress = defaultPool.address
+      const recordedKUMOStakingAddress = await troveManager.kumoStaking();
+      assert.equal(kumoStakingAddress, recordedKUMOStakingAddress);
+    });
 
-    const recordedDefaultPoolAddresss = await troveManager.defaultPool()
+    // Active Pool
 
-    assert.equal(defaultPoolAddress, recordedDefaultPoolAddresss)
-  })
+    it("Sets the correct StabilityPool address in ActivePool", async () => {
+      const stabilityPoolFactoryAddress = stabilityPoolFactory.address;
 
-  // StabilityPool in TroveM
-  it('Sets the correct StabilityPool address in TroveManager', async () => {
-    const stabilityPoolAddress = stabilityPool.address
+      const recordedStabilityPoolFactoryAddress = await activePool.stabilityPoolFactory();
 
-    const recordedStabilityPoolAddresss = await troveManager.stabilityPool()
+      assert.equal(stabilityPoolFactoryAddress, recordedStabilityPoolFactoryAddress);
+    });
 
-    assert.equal(stabilityPoolAddress, recordedStabilityPoolAddresss)
-  })
+    it("Sets the correct DefaultPool address in ActivePool", async () => {
+      const defaultPoolAddress = defaultPool.address;
 
-  // KUMO Staking in TroveM
-  it('Sets the correct KUMOStaking address in TroveManager', async () => {
-    const kumoStakingAddress = kumoStaking.address
+      const recordedDefaultPoolAddress = await activePool.defaultPoolAddress();
 
-    const recordedKUMOStakingAddress = await troveManager.kumoStaking()
-    assert.equal(kumoStakingAddress, recordedKUMOStakingAddress)
-  })
+      assert.equal(defaultPoolAddress, recordedDefaultPoolAddress);
+    });
 
-  // Active Pool
+    it("Sets the correct BorrowerOperations address in ActivePool", async () => {
+      const borrowerOperationsAddress = borrowerOperations.address;
 
-  it('Sets the correct StabilityPool address in ActivePool', async () => {
-    const stabilityPoolAddress = stabilityPool.address
+      const recordedBorrowerOperationsAddress = await activePool.borrowerOperationsAddress();
 
-    const recordedStabilityPoolAddress = await activePool.stabilityPoolAddress()
+      assert.equal(borrowerOperationsAddress, recordedBorrowerOperationsAddress);
+    });
 
-    assert.equal(stabilityPoolAddress, recordedStabilityPoolAddress)
-  })
+    it("Sets the correct TroveManager address in ActivePool", async () => {
+      const troveManagerAddress = troveManager.address;
 
-  it('Sets the correct DefaultPool address in ActivePool', async () => {
-    const defaultPoolAddress = defaultPool.address
+      const recordedTroveManagerAddress = await activePool.troveManagerAddress();
+      assert.equal(troveManagerAddress, recordedTroveManagerAddress);
+    });
 
-    const recordedDefaultPoolAddress = await activePool.defaultPoolAddress()
+    // Stability Pool
+    it("Sets the correct BorrowerOperations address in StabilityPool", async () => {
+      const borrowerOperationsAddress = borrowerOperations.address;
 
-    assert.equal(defaultPoolAddress, recordedDefaultPoolAddress)
-  })
+      const recordedBorrowerOperationsAddress = await stabilityPool.borrowerOperations();
 
-  it('Sets the correct BorrowerOperations address in ActivePool', async () => {
-    const borrowerOperationsAddress = borrowerOperations.address
+      assert.equal(borrowerOperationsAddress, recordedBorrowerOperationsAddress);
+    });
 
-    const recordedBorrowerOperationsAddress = await activePool.borrowerOperationsAddress()
+    it("Sets the correct KUSDToken address in StabilityPool", async () => {
+      const kusdTokenAddress = kusdToken.address;
 
-    assert.equal(borrowerOperationsAddress, recordedBorrowerOperationsAddress)
-  })
+      const recordedClvTokenAddress = await stabilityPool.kusdToken();
 
-  it('Sets the correct TroveManager address in ActivePool', async () => {
-    const troveManagerAddress = troveManager.address
+      assert.equal(kusdTokenAddress, recordedClvTokenAddress);
+    });
 
-    const recordedTroveManagerAddress = await activePool.troveManagerAddress()
-    assert.equal(troveManagerAddress, recordedTroveManagerAddress)
-  })
+    it("Sets the correct KUMOStaking address in ActivePool", async () => {
+      const kumoStakingAddress = kumoStaking.address;
 
-  // Stability Pool
+      const recordedkumoStakingAddress = await activePool.kumoStakingAddress();
+      assert.equal(kumoStakingAddress, kumoStakingAddress);
+    });
 
-  it('Sets the correct ActivePool address in StabilityPool', async () => {
-    const activePoolAddress = activePool.address
+    it("Sets the correct TroveManager address in StabilityPool", async () => {
+      const troveManagerAddress = troveManager.address;
 
-    const recordedActivePoolAddress = await stabilityPool.activePool()
-    assert.equal(activePoolAddress, recordedActivePoolAddress)
-  })
+      const recordedTroveManagerAddress = await stabilityPool.troveManager();
+      assert.equal(troveManagerAddress, recordedTroveManagerAddress);
+    });
 
-  it('Sets the correct BorrowerOperations address in StabilityPool', async () => {
-    const borrowerOperationsAddress = borrowerOperations.address
+    // Default Pool
 
-    const recordedBorrowerOperationsAddress = await stabilityPool.borrowerOperations()
+    it("Sets the correct TroveManager address in DefaultPool", async () => {
+      const troveManagerAddress = troveManager.address;
 
-    assert.equal(borrowerOperationsAddress, recordedBorrowerOperationsAddress)
-  })
+      const recordedTroveManagerAddress = await defaultPool.troveManagerAddress();
+      assert.equal(troveManagerAddress, recordedTroveManagerAddress);
+    });
 
-  it('Sets the correct KUSDToken address in StabilityPool', async () => {
-    const kusdTokenAddress = kusdToken.address
+    it("Sets the correct ActivePool address in DefaultPool", async () => {
+      const activePoolAddress = activePool.address;
 
-    const recordedClvTokenAddress = await stabilityPool.kusdToken()
+      const recordedActivePoolAddress = await defaultPool.activePoolAddress();
+      assert.equal(activePoolAddress, recordedActivePoolAddress);
+    });
 
-    assert.equal(kusdTokenAddress, recordedClvTokenAddress)
-  })
+    it("Sets the correct TroveManager address in SortedTroves", async () => {
+      const borrowerOperationsAddress = borrowerOperations.address;
 
-  it('Sets the correct TroveManager address in StabilityPool', async () => {
-    const troveManagerAddress = troveManager.address
+      const recordedBorrowerOperationsAddress = await sortedTroves.borrowerOperationsAddress();
+      assert.equal(borrowerOperationsAddress, recordedBorrowerOperationsAddress);
+    });
 
-    const recordedTroveManagerAddress = await stabilityPool.troveManager()
-    assert.equal(troveManagerAddress, recordedTroveManagerAddress)
-  })
+    it("Sets the correct BorrowerOperations address in SortedTroves", async () => {
+      const troveManagerAddress = troveManager.address;
 
-  // Default Pool
+      const recordedTroveManagerAddress = await sortedTroves.troveManager();
+      assert.equal(troveManagerAddress, recordedTroveManagerAddress);
+    });
 
-  it('Sets the correct TroveManager address in DefaultPool', async () => {
-    const troveManagerAddress = troveManager.address
+    //--- BorrowerOperations ---
 
-    const recordedTroveManagerAddress = await defaultPool.troveManagerAddress()
-    assert.equal(troveManagerAddress, recordedTroveManagerAddress)
-  })
+    it("Sets the correct KumoParameters address in BorrowerOperations", async () => {
+      assert.equal(kumoParameters.address, await borrowerOperations.kumoParams());
+    });
 
-  it('Sets the correct ActivePool address in DefaultPool', async () => {
-    const activePoolAddress = activePool.address
+    // TroveManager in BO
+    it("Sets the correct TroveManager address in BorrowerOperations", async () => {
+      const troveManagerAddress = troveManager.address;
 
-    const recordedActivePoolAddress = await defaultPool.activePoolAddress()
-    assert.equal(activePoolAddress, recordedActivePoolAddress)
-  })
+      const recordedTroveManagerAddress = await borrowerOperations.troveManager();
+      assert.equal(troveManagerAddress, recordedTroveManagerAddress);
+    });
 
-  it('Sets the correct TroveManager address in SortedTroves', async () => {
-    const borrowerOperationsAddress = borrowerOperations.address
+    // setSortedTroves in BO
+    it("Sets the correct SortedTroves address in BorrowerOperations", async () => {
+      const sortedTrovesAddress = sortedTroves.address;
 
-    const recordedBorrowerOperationsAddress = await sortedTroves.borrowerOperationsAddress()
-    assert.equal(borrowerOperationsAddress, recordedBorrowerOperationsAddress)
-  })
+      const recordedSortedTrovesAddress = await borrowerOperations.sortedTroves();
+      assert.equal(sortedTrovesAddress, recordedSortedTrovesAddress);
+    });
 
-  it('Sets the correct BorrowerOperations address in SortedTroves', async () => {
-    const troveManagerAddress = troveManager.address
+    // setActivePool in BO
+    // ActivePool is set in KumoParameters
+    // it('Sets the correct ActivePool address in BorrowerOperations', async () => {
+    //   const activePoolAddress = activePool.address
 
-    const recordedTroveManagerAddress = await sortedTroves.troveManager()
-    assert.equal(troveManagerAddress, recordedTroveManagerAddress)
-  })
+    //   const recordedActivePoolAddress = await borrowerOperations.activePool()
+    //   assert.equal(activePoolAddress, recordedActivePoolAddress)
+    // })
 
-  //--- BorrowerOperations ---
+    // KUMO Staking in BO
+    it("Sets the correct KUMOStaking address in BorrowerOperations", async () => {
+      const kumoStakingAddress = kumoStaking.address;
 
-  // TroveManager in BO
-  it('Sets the correct TroveManager address in BorrowerOperations', async () => {
-    const troveManagerAddress = troveManager.address
+      const recordedKUMOStakingAddress = await borrowerOperations.kumoStakingAddress();
+      assert.equal(kumoStakingAddress, recordedKUMOStakingAddress);
+    });
 
-    const recordedTroveManagerAddress = await borrowerOperations.troveManager()
-    assert.equal(troveManagerAddress, recordedTroveManagerAddress)
-  })
+    // --- KUMO Staking ---
 
-  // setPriceFeed in BO
-  it('Sets the correct PriceFeed address in BorrowerOperations', async () => {
-    const priceFeedAddress = priceFeed.address
+    // Sets KUMOToken in KUMOStaking
+    it("Sets the correct KUMOToken address in KUMOStaking", async () => {
+      const kumoTokenAddress = kumoToken.address;
 
-    const recordedPriceFeedAddress = await borrowerOperations.priceFeed()
-    assert.equal(priceFeedAddress, recordedPriceFeedAddress)
-  })
+      const recordedKUMOTokenAddress = await kumoStaking.kumoToken();
+      assert.equal(kumoTokenAddress, recordedKUMOTokenAddress);
+    });
 
-  // setSortedTroves in BO
-  it('Sets the correct SortedTroves address in BorrowerOperations', async () => {
-    const sortedTrovesAddress = sortedTroves.address
+    // Sets ActivePool in KUMOStaking
+    it("Sets the correct ActivePool address in KUMOStaking", async () => {
+      const activePoolAddress = activePool.address;
 
-    const recordedSortedTrovesAddress = await borrowerOperations.sortedTroves()
-    assert.equal(sortedTrovesAddress, recordedSortedTrovesAddress)
-  })
+      const recordedActivePoolAddress = await kumoStaking.activePoolAddress();
+      assert.equal(activePoolAddress, recordedActivePoolAddress);
+    });
 
-  // setActivePool in BO
-  it('Sets the correct ActivePool address in BorrowerOperations', async () => {
-    const activePoolAddress = activePool.address
+    // Sets KUSDToken in KUMOStaking
+    it("Sets the correct ActivePool address in KUMOStaking", async () => {
+      const kusdTokenAddress = kusdToken.address;
 
-    const recordedActivePoolAddress = await borrowerOperations.activePool()
-    assert.equal(activePoolAddress, recordedActivePoolAddress)
-  })
+      const recordedKUSDTokenAddress = await kumoStaking.kusdToken();
+      assert.equal(kusdTokenAddress, recordedKUSDTokenAddress);
+    });
 
-  // setDefaultPool in BO
-  it('Sets the correct DefaultPool address in BorrowerOperations', async () => {
-    const defaultPoolAddress = defaultPool.address
+    // Sets TroveManager in KUMOStaking
+    it("Sets the correct ActivePool address in KUMOStaking", async () => {
+      const troveManagerAddress = troveManager.address;
 
-    const recordedDefaultPoolAddress = await borrowerOperations.defaultPool()
-    assert.equal(defaultPoolAddress, recordedDefaultPoolAddress)
-  })
+      const recordedTroveManagerAddress = await kumoStaking.troveManagerAddress();
+      assert.equal(troveManagerAddress, recordedTroveManagerAddress);
+    });
 
-  // KUMO Staking in BO
-  it('Sets the correct KUMOStaking address in BorrowerOperations', async () => {
-    const kumoStakingAddress = kumoStaking.address
+    // Sets BorrowerOperations in KUMOStaking
+    it("Sets the correct BorrowerOperations address in KUMOStaking", async () => {
+      const borrowerOperationsAddress = borrowerOperations.address;
 
-    const recordedKUMOStakingAddress = await borrowerOperations.kumoStakingAddress()
-    assert.equal(kumoStakingAddress, recordedKUMOStakingAddress)
-  })
+      const recordedBorrowerOperationsAddress = await kumoStaking.borrowerOperationsAddress();
+      assert.equal(borrowerOperationsAddress, recordedBorrowerOperationsAddress);
+    });
 
+    // ---  KUMOToken ---
 
-  // --- KUMO Staking ---
+    // Sets CI in KUMOToken
+    it("Sets the correct CommunityIssuance address in KUMOToken", async () => {
+      const communityIssuanceAddress = communityIssuance.address;
 
-  // Sets KUMOToken in KUMOStaking
-  it('Sets the correct KUMOToken address in KUMOStaking', async () => {
-    const kumoTokenAddress = kumoToken.address
+      const recordedcommunityIssuanceAddress = await kumoToken.communityIssuanceAddress();
+      assert.equal(communityIssuanceAddress, recordedcommunityIssuanceAddress);
+    });
 
-    const recordedKUMOTokenAddress = await kumoStaking.kumoToken()
-    assert.equal(kumoTokenAddress, recordedKUMOTokenAddress)
-  })
+    // Sets KUMOStaking in KUMOToken
+    it("Sets the correct KUMOStaking address in KUMOToken", async () => {
+      const kumoStakingAddress = kumoStaking.address;
 
-  // Sets ActivePool in KUMOStaking
-  it('Sets the correct ActivePool address in KUMOStaking', async () => {
-    const activePoolAddress = activePool.address
+      const recordedKUMOStakingAddress = await kumoToken.kumoStakingAddress();
+      assert.equal(kumoStakingAddress, recordedKUMOStakingAddress);
+    });
 
-    const recordedActivePoolAddress = await kumoStaking.activePoolAddress()
-    assert.equal(activePoolAddress, recordedActivePoolAddress)
-  })
+    // Sets LCF in KUMOToken
+    it("Sets the correct LockupContractFactory address in KUMOToken", async () => {
+      const LCFAddress = lockupContractFactory.address;
 
-  // Sets KUSDToken in KUMOStaking
-  it('Sets the correct ActivePool address in KUMOStaking', async () => {
-    const kusdTokenAddress = kusdToken.address
+      const recordedLCFAddress = await kumoToken.lockupContractFactory();
+      assert.equal(LCFAddress, recordedLCFAddress);
+    });
 
-    const recordedKUSDTokenAddress = await kumoStaking.kusdToken()
-    assert.equal(kusdTokenAddress, recordedKUSDTokenAddress)
-  })
+    // --- LCF  ---
 
-  // Sets TroveManager in KUMOStaking
-  it('Sets the correct ActivePool address in KUMOStaking', async () => {
-    const troveManagerAddress = troveManager.address
+    // Sets KUMOToken in LockupContractFactory
+    it("Sets the correct KUMOToken address in LockupContractFactory", async () => {
+      const kumoTokenAddress = kumoToken.address;
 
-    const recordedTroveManagerAddress = await kumoStaking.troveManagerAddress()
-    assert.equal(troveManagerAddress, recordedTroveManagerAddress)
-  })
+      const recordedKUMOTokenAddress = await lockupContractFactory.kumoTokenAddress();
+      assert.equal(kumoTokenAddress, recordedKUMOTokenAddress);
+    });
 
-  // Sets BorrowerOperations in KUMOStaking
-  it('Sets the correct BorrowerOperations address in KUMOStaking', async () => {
-    const borrowerOperationsAddress = borrowerOperations.address
+    // --- CI ---
 
-    const recordedBorrowerOperationsAddress = await kumoStaking.borrowerOperationsAddress()
-    assert.equal(borrowerOperationsAddress, recordedBorrowerOperationsAddress)
-  })
+    // Sets KUMOToken in CommunityIssuance
+    it("Sets the correct KUMOToken address in CommunityIssuance", async () => {
+      const kumoTokenAddress = kumoToken.address;
 
-  // ---  KUMOToken ---
+      const recordedKUMOTokenAddress = await communityIssuance.kumoToken();
+      assert.equal(kumoTokenAddress, recordedKUMOTokenAddress);
+    });
 
-  // Sets CI in KUMOToken
-  it('Sets the correct CommunityIssuance address in KUMOToken', async () => {
-    const communityIssuanceAddress = communityIssuance.address
+    it("Sets the correct StabilityPool address in CommunityIssuance", async () => {
+      const stabilityPoolFactoryAddress = stabilityPoolFactory.address;
 
-    const recordedcommunityIssuanceAddress = await kumoToken.communityIssuanceAddress()
-    assert.equal(communityIssuanceAddress, recordedcommunityIssuanceAddress)
-  })
-
-  // Sets KUMOStaking in KUMOToken
-  it('Sets the correct KUMOStaking address in KUMOToken', async () => {
-    const kumoStakingAddress = kumoStaking.address
-
-    const recordedKUMOStakingAddress =  await kumoToken.kumoStakingAddress()
-    assert.equal(kumoStakingAddress, recordedKUMOStakingAddress)
-  })
-
-  // Sets LCF in KUMOToken
-  it('Sets the correct LockupContractFactory address in KUMOToken', async () => {
-    const LCFAddress = lockupContractFactory.address
-
-    const recordedLCFAddress =  await kumoToken.lockupContractFactory()
-    assert.equal(LCFAddress, recordedLCFAddress)
-  })
-
-  // --- LCF  ---
-
-  // Sets KUMOToken in LockupContractFactory
-  it('Sets the correct KUMOToken address in LockupContractFactory', async () => {
-    const kumoTokenAddress = kumoToken.address
-
-    const recordedKUMOTokenAddress = await lockupContractFactory.kumoTokenAddress()
-    assert.equal(kumoTokenAddress, recordedKUMOTokenAddress)
-  })
-
-  // --- CI ---
-
-  // Sets KUMOToken in CommunityIssuance
-  it('Sets the correct KUMOToken address in CommunityIssuance', async () => {
-    const kumoTokenAddress = kumoToken.address
-
-    const recordedKUMOTokenAddress = await communityIssuance.kumoToken()
-    assert.equal(kumoTokenAddress, recordedKUMOTokenAddress)
-  })
-
-  it('Sets the correct StabilityPool address in CommunityIssuance', async () => {
-    const stabilityPoolAddress = stabilityPool.address
-
-    const recordedStabilityPoolAddress = await communityIssuance.stabilityPoolAddress()
-    assert.equal(stabilityPoolAddress, recordedStabilityPoolAddress)
-  })
-})
+      const recordedStabilityPoolFactoryAddress = await communityIssuance.stabilityPoolFactory();
+      assert.equal(stabilityPoolFactoryAddress, recordedStabilityPoolFactoryAddress);
+    });
+  }
+);

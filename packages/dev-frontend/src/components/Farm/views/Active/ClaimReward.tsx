@@ -10,7 +10,7 @@ export const ClaimReward: React.FC = () => {
   const { dispatchEvent } = useFarmView();
 
   const {
-    liquity: { send: liquity }
+    kumo: { send: kumo }
   } = useKumo();
 
   const transactionState = useMyTransactionState(transactionId);
@@ -24,11 +24,11 @@ export const ClaimReward: React.FC = () => {
   return (
     <Transaction
       id={transactionId}
-      send={liquity.withdrawKUMORewardFromLiquidityMining.bind(liquity)}
+      send={kumo.withdrawKUMORewardFromLiquidityMining.bind(kumo)}
       showFailure="asTooltip"
       tooltipPlacement="bottom"
     >
-      <Button>Claim reward</Button>
+      <Button>CLAIM REWARD</Button>
     </Transaction>
   );
 };

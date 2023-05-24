@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.11;
 
-import "./Interfaces/ITroveManager.sol";
+import "./Interfaces/ITroveManagerDiamond.sol";
 import "./Interfaces/ISortedTroves.sol";
 import "./Dependencies/KumoBase.sol";
 import "./Dependencies/CheckContract.sol";
@@ -10,11 +10,15 @@ import "./Dependencies/SafeMath.sol";
 
 contract HintHelpers is KumoBase, CheckContract {
     using SafeMath for uint256;
-    string constant public NAME = "HintHelpers";
+    string public constant NAME = "HintHelpers";
 
-	bool public isInitialized;
+    struct LocalRedemptionVars {
+        address _asset;
+    }
+
+    bool public isInitialized;
     ISortedTroves public sortedTroves;
-    ITroveManager public troveManager;
+    ITroveManagerDiamond public troveManager;
 
     // --- Events ---
 
@@ -25,24 +29,24 @@ contract HintHelpers is KumoBase, CheckContract {
 
     function setAddresses(
         address _sortedTrovesAddress,
-        address _troveManagerAddress
-    )
-        external
-        onlyOwner 
-        {
-		// require(!isInitialized, "Already initialized");
-		checkContract(_sortedTrovesAddress);
-		checkContract(_troveManagerAddress);
-		// checkContract(_vaultParametersAddress);
-		// isInitialized = true;
+        address _troveManagerAddress,
+        address _kumoParamsAddress
+    ) external onlyOwner {
+        // require(!isInitialized, "Already initialized");
+        checkContract(_sortedTrovesAddress);
+        checkContract(_troveManagerAddress);
+        checkContract(_kumoParamsAddress);
+        // isInitialized = true;
 
-		// __Ownable_init();
+        // __Ownable_init();
 
         sortedTroves = ISortedTroves(_sortedTrovesAddress);
-        troveManager = ITroveManager(_troveManagerAddress);
+        troveManager = ITroveManagerDiamond(_troveManagerAddress);
 
         emit SortedTrovesAddressChanged(_sortedTrovesAddress);
         emit TroveManagerAddressChanged(_troveManagerAddress);
+
+        setKumoParameters(_kumoParamsAddress);
 
         _renounceOwnership();
     }
@@ -67,25 +71,31 @@ contract HintHelpers is KumoBase, CheckContract {
      */
 
     function getRedemptionHints(
-        uint _KUSDamount, 
-        uint _price,
-        uint _maxIterations
+        address _asset,
+        uint256 _KUSDamount,
+        uint256 _price,
+        uint256 _maxIterations
     )
         external
         view
         returns (
             address firstRedemptionHint,
-            uint partialRedemptionHintNICR,
-            uint truncatedKUSDamount
+            uint256 partialRedemptionHintNICR,
+            uint256 truncatedKUSDamount
         )
     {
         ISortedTroves sortedTrovesCached = sortedTroves;
+        LocalRedemptionVars memory vars = LocalRedemptionVars(_asset);
 
-        uint remainingKUSD = _KUSDamount;
-        address currentTroveuser = sortedTrovesCached.getLast();
+        uint256 remainingKUSD = _KUSDamount;
+        address currentTroveuser = sortedTrovesCached.getLast(vars._asset);
 
-        while (currentTroveuser != address(0) && troveManager.getCurrentICR(currentTroveuser, _price) < MCR) {
-            currentTroveuser = sortedTrovesCached.getPrev(currentTroveuser);
+        while (
+            currentTroveuser != address(0) &&
+            troveManager.getCurrentICR(vars._asset, currentTroveuser, _price) <
+            kumoParams.MCR(_asset)
+        ) {
+            currentTroveuser = sortedTrovesCached.getPrev(vars._asset, currentTroveuser);
         }
 
         firstRedemptionHint = currentTroveuser;
@@ -95,20 +105,26 @@ contract HintHelpers is KumoBase, CheckContract {
         }
 
         while (currentTroveuser != address(0) && remainingKUSD > 0 && _maxIterations-- > 0) {
-            uint netKUSDDebt = _getNetDebt(troveManager.getTroveDebt(currentTroveuser))
-                .add(troveManager.getPendingKUSDDebtReward(currentTroveuser));
+            uint256 netKUSDDebt = _getNetDebt(
+                vars._asset,
+                troveManager.getTroveDebt(vars._asset, currentTroveuser)
+            ).add(troveManager.getPendingKUSDDebtReward(vars._asset, currentTroveuser));
 
             if (netKUSDDebt > remainingKUSD) {
-                if (netKUSDDebt > MIN_NET_DEBT) {
-                    uint maxRedeemableKUSD = KumoMath._min(remainingKUSD, netKUSDDebt.sub(MIN_NET_DEBT));
+                if (netKUSDDebt > kumoParams.MIN_NET_DEBT(vars._asset)) {
+                    uint256 maxRedeemableKUSD = KumoMath._min(
+                        remainingKUSD,
+                        netKUSDDebt.sub(kumoParams.MIN_NET_DEBT(vars._asset))
+                    );
 
-                    uint ETH = troveManager.getTroveColl(currentTroveuser)
-                        .add(troveManager.getPendingETHReward(currentTroveuser));
+                    uint256 ETH = troveManager.getTroveColl(vars._asset, currentTroveuser).add(
+                        troveManager.getPendingReward(vars._asset, currentTroveuser)
+                    );
 
-                    uint newColl = ETH.sub(maxRedeemableKUSD.mul(DECIMAL_PRECISION).div(_price));
-                    uint newDebt = netKUSDDebt.sub(maxRedeemableKUSD);
+                    uint256 newColl = ETH.sub(maxRedeemableKUSD.mul(DECIMAL_PRECISION).div(_price));
+                    uint256 newDebt = netKUSDDebt.sub(maxRedeemableKUSD);
 
-                    uint compositeDebt = _getCompositeDebt(newDebt);
+                    uint256 compositeDebt = _getCompositeDebt(vars._asset, newDebt);
                     partialRedemptionHintNICR = KumoMath._computeNominalCR(newColl, compositeDebt);
 
                     remainingKUSD = remainingKUSD.sub(maxRedeemableKUSD);
@@ -118,7 +134,7 @@ contract HintHelpers is KumoBase, CheckContract {
                 remainingKUSD = remainingKUSD.sub(netKUSDDebt);
             }
 
-            currentTroveuser = sortedTrovesCached.getPrev(currentTroveuser);
+            currentTroveuser = sortedTrovesCached.getPrev(_asset, currentTroveuser);
         }
 
         truncatedKUSDamount = _KUSDamount.sub(remainingKUSD);
@@ -133,32 +149,41 @@ contract HintHelpers is KumoBase, CheckContract {
     Submitting numTrials = k * sqrt(length), with k = 15 makes it very, very likely that the ouput address will 
     be <= sqrt(length) positions away from the correct insert position.
     */
-    function getApproxHint(uint _CR, uint _numTrials, uint _inputRandomSeed)
+    function getApproxHint(
+        address _asset,
+        uint256 _CR,
+        uint256 _numTrials,
+        uint256 _inputRandomSeed
+    )
         external
         view
-        returns (address hintAddress, uint diff, uint latestRandomSeed)
+        returns (
+            address hintAddress,
+            uint256 diff,
+            uint256 latestRandomSeed
+        )
     {
-        uint arrayLength = troveManager.getTroveOwnersCount();
+        uint256 arrayLength = troveManager.getTroveOwnersCount(_asset);
 
         if (arrayLength == 0) {
             return (address(0), 0, _inputRandomSeed);
         }
 
-        hintAddress = sortedTroves.getLast();
-        diff = KumoMath._getAbsoluteDifference(_CR, troveManager.getNominalICR(hintAddress));
+        hintAddress = sortedTroves.getLast(_asset);
+        diff = KumoMath._getAbsoluteDifference(_CR, troveManager.getNominalICR(_asset, hintAddress));
         latestRandomSeed = _inputRandomSeed;
 
-        uint i = 1;
+        uint256 i = 1;
 
         while (i < _numTrials) {
-            latestRandomSeed = uint(keccak256(abi.encodePacked(latestRandomSeed)));
+            latestRandomSeed = uint256(keccak256(abi.encodePacked(latestRandomSeed)));
 
-            uint arrayIndex = latestRandomSeed % arrayLength;
-            address currentAddress = troveManager.getTroveFromTroveOwnersArray(arrayIndex);
-            uint currentNICR = troveManager.getNominalICR(currentAddress);
+            uint256 arrayIndex = latestRandomSeed % arrayLength;
+            address currentAddress = troveManager.getTroveFromTroveOwnersArray(_asset, arrayIndex);
+            uint256 currentNICR = troveManager.getNominalICR(_asset, currentAddress);
 
             // check if abs(current - CR) > abs(closest - CR), and update closest if current is closer
-            uint currentDiff = KumoMath._getAbsoluteDifference(currentNICR, _CR);
+            uint256 currentDiff = KumoMath._getAbsoluteDifference(currentNICR, _CR);
 
             if (currentDiff < diff) {
                 diff = currentDiff;
@@ -168,11 +193,15 @@ contract HintHelpers is KumoBase, CheckContract {
         }
     }
 
-    function computeNominalCR(uint _coll, uint _debt) external pure returns (uint) {
+    function computeNominalCR(uint256 _coll, uint256 _debt) external pure returns (uint256) {
         return KumoMath._computeNominalCR(_coll, _debt);
     }
 
-    function computeCR(uint _coll, uint _debt, uint _price) external pure returns (uint) {
+    function computeCR(
+        uint256 _coll,
+        uint256 _debt,
+        uint256 _price
+    ) external pure returns (uint256) {
         return KumoMath._computeCR(_coll, _debt, _price);
     }
 }

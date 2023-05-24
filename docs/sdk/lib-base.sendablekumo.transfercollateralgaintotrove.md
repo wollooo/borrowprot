@@ -9,8 +9,16 @@ Transfer [collateral gain](./lib-base.stabilitydeposit.collateralgain.md) from S
 <b>Signature:</b>
 
 ```typescript
-transferCollateralGainToTrove(): Promise<SentKumoTransaction<S, KumoReceipt<R, CollateralGainTransferDetails>>>;
+transferCollateralGainToTrove(asset: string, assetName: string): Promise<SentKumoTransaction<S, KumoReceipt<R, CollateralGainTransferDetails>>>;
 ```
+
+## Parameters
+
+|  Parameter | Type | Description |
+|  --- | --- | --- |
+|  asset | string |  |
+|  assetName | string |  |
+
 <b>Returns:</b>
 
 Promise&lt;[SentKumoTransaction](./lib-base.sentkumotransaction.md)<!-- -->&lt;S, [KumoReceipt](./lib-base.kumoreceipt.md)<!-- -->&lt;R, [CollateralGainTransferDetails](./lib-base.collateralgaintransferdetails.md)<!-- -->&gt;&gt;&gt;

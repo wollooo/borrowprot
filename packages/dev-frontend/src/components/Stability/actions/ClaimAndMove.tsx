@@ -5,22 +5,29 @@ import { useTransactionFunction } from "../../Transaction";
 
 type ClaimAndMoveProps = {
   disabled?: boolean;
+  asset: string;
+  assetName: string;
 };
 
-export const ClaimAndMove: React.FC<ClaimAndMoveProps> = ({ disabled, children }) => {
-  const { liquity } = useKumo();
+export const ClaimAndMove: React.FC<ClaimAndMoveProps> = ({
+  disabled,
+  asset,
+  assetName,
+  children
+}) => {
+  const { kumo } = useKumo();
 
   const [sendTransaction] = useTransactionFunction(
     "stability-deposit",
-    liquity.send.transferCollateralGainToTrove.bind(liquity.send)
+    kumo.send.transferCollateralGainToTrove.bind(kumo.send, asset, assetName)
   );
 
   return (
     <Button
-      variant="outline"
-      sx={{ mt: 3, width: "100%" }}
+      sx={{ mb: 2 }}
       onClick={sendTransaction}
       disabled={disabled}
+      variant={ disabled ? 'primaryInActive' : 'primary' }
     >
       {children}
     </Button>

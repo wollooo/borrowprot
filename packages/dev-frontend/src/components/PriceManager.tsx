@@ -1,25 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Card, Box, Heading, Flex, Button, Label, Input } from "theme-ui";
-
-import { Decimal, KumoStoreState } from "@kumodao/lib-base";
-import { useKumoSelector } from "@kumodao/lib-react";
-
+import { Box, Flex, Button, Label, Input } from "theme-ui";
+import { Decimal } from "@kumodao/lib-base";
 import { useKumo } from "../hooks/KumoContext";
 
 import { Icon } from "./Icon";
 import { Transaction } from "./Transaction";
 
-const selectPrice = ({ price }: KumoStoreState) => price;
-
-export const PriceManager: React.FC = () => {
+export const PriceManager: React.FC<{ price: Decimal; assetAddress: string }> = ({
+  price,
+  assetAddress
+}) => {
   const {
-    liquity: {
-      send: liquity,
+    kumo: {
+      send: kumo,
       connection: { _priceFeedIsTestnet: canSetPrice }
     }
   } = useKumo();
 
-  const price = useKumoSelector(selectPrice);
   const [editedPrice, setEditedPrice] = useState(price.toString(2));
 
   useEffect(() => {
@@ -27,44 +24,43 @@ export const PriceManager: React.FC = () => {
   }, [price]);
 
   return (
-    <Card>
-      <Heading>Price feed</Heading>
+    <Box sx={{ p: [2, 3] }}>
+      <Flex sx={{ alignItems: "stretch" }}>
+        <Label variant="unitSecondary" sx={{ borderTopLeftRadius : '12px', borderBottomLeftRadius : '12px' }}>$</Label>
+        <Input
+          type={canSetPrice ? "number" : "text"}
+          step="any"
+          value={editedPrice}
+          onChange={e => setEditedPrice(e.target.value)}
+          disabled={!canSetPrice}
+          sx={{ ":focus": { outline: "none" }, bg: 'transparent', borderTopRightRadius : '12px', borderBottomRightRadius : '12px' }}
+        />
 
-      <Box sx={{ p: [2, 3] }}>
-        <Flex sx={{ alignItems: "stretch" }}>
-          <Label>ETH</Label>
-
-          <Label variant="unit">$</Label>
-
-          <Input
-            type={canSetPrice ? "number" : "text"}
-            step="any"
-            value={editedPrice}
-            onChange={e => setEditedPrice(e.target.value)}
-            disabled={!canSetPrice}
-          />
-
-          {canSetPrice && (
-            <Flex sx={{ ml: 2, alignItems: "center" }}>
-              <Transaction
-                id="set-price"
-                tooltip="Set"
-                tooltipPlacement="bottom"
-                send={overrides => {
-                  if (!editedPrice) {
-                    throw new Error("Invalid price");
-                  }
-                  return liquity.setPrice(Decimal.from(editedPrice), overrides);
+        {canSetPrice && (
+          <Flex sx={{ ml: 2, alignItems: "center" }}>
+            <Transaction
+              id="set-price"
+              tooltip="Set"
+              tooltipPlacement="bottom"
+              send={overrides => {
+                if (!editedPrice) {
+                  throw new Error("Invalid price");
+                }
+                return kumo.setPrice(assetAddress, Decimal.from(editedPrice), overrides);
+              }}
+            >
+              <Button
+                sx={{
+                  height: 34,
+                  width: 34
                 }}
               >
-                <Button variant="icon">
-                  <Icon name="chart-line" size="lg" />
-                </Button>
-              </Transaction>
-            </Flex>
-          )}
-        </Flex>
-      </Box>
-    </Card>
+                <Icon name="chart-line" size="xs" />
+              </Button>
+            </Transaction>
+          </Flex>
+        )}
+      </Flex>
+    </Box>
   );
 };

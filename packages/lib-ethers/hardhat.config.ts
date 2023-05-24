@@ -19,6 +19,7 @@ import { deployAndSetupContracts, deployTellorCaller, setSilent } from "./utils/
 import { _connectToContracts, _KumoDeploymentJSON, _priceFeedIsTestnet } from "./src/contracts";
 
 import accounts from "./accounts.json";
+import { HardhatEthersHelpers } from "@nomiclabs/hardhat-ethers/types";
 
 dotenv.config();
 
@@ -50,10 +51,23 @@ const generateRandomAccounts = (numberOfAccounts: number) => {
   return accounts;
 };
 
+const generateAccountArray = (numberOfAccounts: number, accounts: {
+  privateKey: string;
+  balance: string;
+}[]) => {
+  const accountArray = new Array<string>(numberOfAccounts);
+  for (let i = 0; i < numberOfAccounts; ++i) {
+    accountArray[i] = accounts[i].privateKey;
+  }
+
+  return accountArray;
+
+}
+
 const deployerAccount = process.env.DEPLOYER_PRIVATE_KEY || Wallet.createRandom().privateKey;
 const devChainRichAccount = "0x4d5db4107d237df6a3d58ee5f70ae63d73d7658d4026f2eefd2f204c81682cb7";
 
-const alchemyKey = "Kof4wTwV6VCW_QrnUjL5VnV4LQ-nYPJf";
+const alchemyKey = process.env.ALCHEMY_API_KEY;
 
 const alchemyNetwork = (name: string): { [name: string]: NetworkUserConfig } => ({
   [name]: {
@@ -73,7 +87,7 @@ const oracleAddresses = {
   "polygon-mumbai": {
     chainlink: "0x0715A7794a1dc8e42615F059dD6e406A6594651A",
     tellor: "0x41b66dd93b03e89D29114a7613A6f9f0d4F40178"
-  },
+  }
 };
 
 const hasOracles = (network: string): network is keyof typeof oracleAddresses =>
@@ -81,12 +95,13 @@ const hasOracles = (network: string): network is keyof typeof oracleAddresses =>
 
 const wethAddresses = {
   mainnet: "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
-  "polygon-mumbai": "0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa",
+  "polygon-mumbai": "0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa"
 };
 
 const hasWETH = (network: string): network is keyof typeof wethAddresses => network in wethAddresses;
 
 const config: HardhatUserConfig = {
+  // defaultNetwork: "dev",
   networks: {
     hardhat: {
       accounts: accounts.slice(0, numAccounts),
@@ -98,20 +113,22 @@ const config: HardhatUserConfig = {
       // This is closer to what will happen in production
       throwOnCallFailures: false,
       throwOnTransactionFailures: false,
+      allowUnlimitedContractSize: true
     },
 
     dev: {
       url: "http://localhost:8545",
-      accounts: [deployerAccount, devChainRichAccount, ...generateRandomAccounts(numAccounts - 2)]
+      accounts: generateAccountArray(numAccounts, accounts),
+      allowUnlimitedContractSize: true
     },
 
-    ...alchemyNetwork("polygon-mumbai"),
+    ...alchemyNetwork("polygon-mumbai")
   },
 
   paths: {
     artifacts,
     cache
-  }
+  },
 };
 
 declare module "hardhat/types/runtime" {
@@ -131,11 +148,17 @@ const getLiveArtifact = (name: string): { abi: JsonFragment[]; bytecode: string 
 const getContractFactory: (
   env: HardhatRuntimeEnvironment
 ) => (name: string, signer: Signer) => Promise<ContractFactory> = useLiveVersion
-  ? env => (name, signer) => {
+    ? env => (name, signer) => {
       const { abi, bytecode } = getLiveArtifact(name);
       return env.ethers.getContractFactory(abi, bytecode, signer);
     }
-  : env => env.ethers.getContractFactory;
+    : env => env.ethers.getContractFactory;
+
+const ethers = (
+  env: HardhatRuntimeEnvironment
+): HardhatEthersHelpers => {
+  return env.ethers;
+}
 
 extendEnvironment(env => {
   env.deployKumo = async (
@@ -146,9 +169,10 @@ extendEnvironment(env => {
   ) => {
     const deployment = await deployAndSetupContracts(
       deployer,
-      getContractFactory(env),
+      ethers(env),
       !useRealPriceFeed,
       env.network.name === "dev",
+      await env.ethers.getSigners(),
       wethAddress,
       overrides
     );

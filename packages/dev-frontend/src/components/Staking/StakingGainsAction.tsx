@@ -9,17 +9,17 @@ import { useTransactionFunction } from "../Transaction";
 const selectKUMOStake = ({ kumoStake }: KumoStoreState) => kumoStake;
 
 export const StakingGainsAction: React.FC = () => {
-  const { liquity } = useKumo();
+  const { kumo } = useKumo();
   const { collateralGain, kusdGain } = useKumoSelector(selectKUMOStake);
 
   const [sendTransaction] = useTransactionFunction(
     "stake",
-    liquity.send.withdrawGainsFromStaking.bind(liquity.send)
+    kumo.send.withdrawGainsFromStaking.bind(kumo.send)
   );
 
   return (
     <Button onClick={sendTransaction} disabled={collateralGain.isZero && kusdGain.isZero}>
-      Claim gains
+      CLAIM GAINS
     </Button>
   );
 };

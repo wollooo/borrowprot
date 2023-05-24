@@ -4,7 +4,6 @@ import { Flex, Spinner, Heading, ThemeProvider, Paragraph, Link } from "theme-ui
 
 import { BatchedWebSocketAugmentedWeb3Provider } from "@kumodao/providers";
 import { KumoProvider } from "./hooks/KumoContext";
-import { WalletConnector } from "./components/WalletConnector";
 import { TransactionProvider } from "./components/Transaction";
 import { Icon } from "./components/Icon";
 import { getConfig } from "./config";
@@ -12,6 +11,9 @@ import theme from "./theme";
 
 import { DisposableWalletProvider } from "./testUtils/DisposableWalletProvider";
 import { KumoFrontend } from "./KumoFrontend";
+import { WalletViewProvider } from "./components/WalletConnect/context/WalletViewProvider";
+import { SwitchNetworkViewProvider } from "./components/SwitchNetwork/context/SwitchNetworkViewProvider";
+import { BrowserRouter } from "react-router-dom";
 
 if (window.ethereum) {
   // Silence MetaMask warning in console
@@ -56,13 +58,11 @@ const UnsupportedMainnetFallback: React.FC = () => (
       <Icon name="exclamation-triangle" /> This app is for testing purposes only.
     </Heading>
 
-    <Paragraph sx={{ mb: 3 }}>
-      Please change your network to Mumbai.
-    </Paragraph>
+    <Paragraph sx={{ mb: 3 }}>Please change your network to Mumbai.</Paragraph>
 
     <Paragraph>
       If you'd like to use the Kumo Protocol on mainnet, please pick a frontend{" "}
-      <Link href="https://www.liquity.org/frontend">
+      <Link href="https://kumo.earth/">
         here <Icon name="external-link-alt" size="xs" />
       </Link>
       .
@@ -97,21 +97,29 @@ const App = () => {
   );
 
   return (
+    <BrowserRouter>
     <EthersWeb3ReactProvider>
       <ThemeProvider theme={theme}>
-        <WalletConnector loader={loader}>
-          <KumoProvider
-            loader={loader}
-            unsupportedNetworkFallback={unsupportedNetworkFallback}
-            unsupportedMainnetFallback={<UnsupportedMainnetFallback />}
-          >
-            <TransactionProvider>
-              <KumoFrontend loader={loader} />
-            </TransactionProvider>
-          </KumoProvider>
-        </WalletConnector>
+        <WalletViewProvider>
+          <SwitchNetworkViewProvider>
+            {/* <WalletConnector loader={loader}> */}
+            <KumoProvider
+              loader={loader}
+              unsupportedNetworkFallback={unsupportedNetworkFallback}
+              unsupportedMainnetFallback={<UnsupportedMainnetFallback />}
+            >
+              <TransactionProvider>
+               
+                <KumoFrontend loader={loader} />
+               
+              </TransactionProvider>
+            </KumoProvider>
+          </SwitchNetworkViewProvider>
+          {/* </WalletConnector> */}
+        </WalletViewProvider>
       </ThemeProvider>
     </EthersWeb3ReactProvider>
+    </BrowserRouter>
   );
 };
 
