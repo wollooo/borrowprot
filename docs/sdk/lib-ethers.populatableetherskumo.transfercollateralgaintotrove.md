@@ -9,13 +9,15 @@ Transfer [collateral gain](./lib-base.stabilitydeposit.collateralgain.md) from S
 <b>Signature:</b>
 
 ```typescript
-transferCollateralGainToTrove(overrides?: EthersTransactionOverrides): Promise<PopulatedEthersKumoTransaction<CollateralGainTransferDetails>>;
+transferCollateralGainToTrove(asset: string, assetName: string, overrides?: EthersTransactionOverrides): Promise<PopulatedEthersKumoTransaction<CollateralGainTransferDetails>>;
 ```
 
 ## Parameters
 
 |  Parameter | Type | Description |
 |  --- | --- | --- |
+|  asset | string |  |
+|  assetName | string |  |
 |  overrides | [EthersTransactionOverrides](./lib-ethers.etherstransactionoverrides.md) |  |
 
 <b>Returns:</b>

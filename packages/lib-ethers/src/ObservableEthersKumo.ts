@@ -8,8 +8,9 @@ import {
   Trove,
   TroveWithPendingRedistribution
 } from "@kumodao/lib-base";
+import { _KumoContract, _KumoContracts } from "./contracts";
 
-import { _getContracts, _requireAddress } from "./EthersKumoConnection";
+import { _getContracts, _InternalEthersKumoConnection, _requireAddress, _getStabilityPoolByAsset } from "./EthersKumoConnection";
 import { ReadableEthersKumo } from "./ReadableEthersKumo";
 
 const debouncingDelayMs = 50;
@@ -39,37 +40,39 @@ const debounce = (listener: (latestBlock: number) => void) => {
 /** @alpha */
 export class ObservableEthersKumo implements ObservableKumo {
   private readonly _readable: ReadableEthersKumo;
+  private readonly _asset: string;
 
   constructor(readable: ReadableEthersKumo) {
     this._readable = readable;
+    this._asset = "MCO2";
   }
 
   watchTotalRedistributed(
     onTotalRedistributedChanged: (totalRedistributed: Trove) => void
   ): () => void {
     const { activePool, defaultPool } = _getContracts(this._readable.connection);
-    const etherSent = activePool.filters.EtherSent();
+    const assetSent = activePool.filters.AssetSent();
 
     const redistributionListener = debounce((blockTag: number) => {
-      this._readable.getTotalRedistributed({ blockTag }).then(onTotalRedistributedChanged);
+      this._readable.getTotalRedistributed(this._asset, { blockTag }).then(onTotalRedistributedChanged);
     });
 
-    const etherSentListener = (toAddress: string, _amount: BigNumber, event: Event) => {
+    const assetSentListener = (toAddress: string, _amount: BigNumber, event: Event) => {
       if (toAddress === defaultPool.address) {
         redistributionListener(event);
       }
     };
 
-    activePool.on(etherSent, etherSentListener);
+    activePool.on(assetSent, assetSentListener);
 
     return () => {
-      activePool.removeListener(etherSent, etherSentListener);
+      activePool.removeListener(assetSent, assetSentListener);
     };
   }
 
   watchTroveWithoutRewards(
     onTroveChanged: (trove: TroveWithPendingRedistribution) => void,
-    address?: string
+    address: string
   ): () => void {
     address ??= _requireAddress(this._readable.connection);
 
@@ -78,7 +81,7 @@ export class ObservableEthersKumo implements ObservableKumo {
     const troveUpdatedByBorrowerOperations = borrowerOperations.filters.TroveUpdated(address);
 
     const troveListener = debounce((blockTag: number) => {
-      this._readable.getTroveBeforeRedistribution(address, { blockTag }).then(onTroveChanged);
+      this._readable.getTroveBeforeRedistribution(this._asset, address, { blockTag }).then(onTroveChanged);
     });
 
     troveManager.on(troveUpdatedByTroveManager, troveListener);
@@ -96,7 +99,7 @@ export class ObservableEthersKumo implements ObservableKumo {
     const troveUpdated = TroveUpdated();
 
     const troveUpdatedListener = debounce((blockTag: number) => {
-      this._readable.getNumberOfTroves({ blockTag }).then(onNumberOfTrovesChanged);
+      this._readable.getNumberOfTroves("MCO2", { blockTag }).then(onNumberOfTrovesChanged);
     });
 
     troveManager.on(troveUpdated, troveUpdatedListener);
@@ -120,7 +123,7 @@ export class ObservableEthersKumo implements ObservableKumo {
     const troveUpdated = TroveUpdated();
 
     const totalListener = debounce((blockTag: number) => {
-      this._readable.getTotal({ blockTag }).then(onTotalChanged);
+      this._readable.getTotal(this._asset, { blockTag }).then(onTotalChanged);
     });
 
     troveManager.on(troveUpdated, totalListener);
@@ -132,22 +135,23 @@ export class ObservableEthersKumo implements ObservableKumo {
 
   watchStabilityDeposit(
     onStabilityDepositChanged: (stabilityDeposit: StabilityDeposit) => void,
-    address?: string
+    assetName: string,
+    address: string
   ): () => void {
     address ??= _requireAddress(this._readable.connection);
-
-    const { activePool, stabilityPool } = _getContracts(this._readable.connection);
+    const stabilityPool = _getStabilityPoolByAsset(assetName, this._readable.connection);
+    const { activePool } = _getContracts(this._readable.connection);
     const { UserDepositChanged } = stabilityPool.filters;
-    const { EtherSent } = activePool.filters;
+    const { AssetSent } = activePool.filters;
 
     const userDepositChanged = UserDepositChanged(address);
-    const etherSent = EtherSent();
+    const assetSent = AssetSent();
 
     const depositListener = debounce((blockTag: number) => {
-      this._readable.getStabilityDeposit(address, { blockTag }).then(onStabilityDepositChanged);
+      this._readable.getStabilityDeposit(assetName, address, { blockTag }).then(onStabilityDepositChanged);
     });
 
-    const etherSentListener = (toAddress: string, _amount: BigNumber, event: Event) => {
+    const assetSentListener = (toAddress: string, _amount: BigNumber, event: Event) => {
       if (toAddress === stabilityPool.address) {
         // Liquidation while Stability Pool has some deposits
         // There may be new gains
@@ -156,18 +160,20 @@ export class ObservableEthersKumo implements ObservableKumo {
     };
 
     stabilityPool.on(userDepositChanged, depositListener);
-    activePool.on(etherSent, etherSentListener);
+    activePool.on(assetSent, assetSentListener);
 
     return () => {
       stabilityPool.removeListener(userDepositChanged, depositListener);
-      activePool.removeListener(etherSent, etherSentListener);
+      activePool.removeListener(assetSent, assetSentListener);
     };
   }
 
   watchKUSDInStabilityPool(
+    assetName: string,
     onKUSDInStabilityPoolChanged: (kusdInStabilityPool: Decimal) => void
   ): () => void {
-    const { kusdToken, stabilityPool } = _getContracts(this._readable.connection);
+    const stabilityPool = _getStabilityPoolByAsset(assetName, this._readable.connection);
+    const { kusdToken } = _getContracts(this._readable.connection);
     const { Transfer } = kusdToken.filters;
 
     const transferKUSDFromStabilityPool = Transfer(stabilityPool.address);
@@ -176,7 +182,7 @@ export class ObservableEthersKumo implements ObservableKumo {
     const stabilityPoolKUSDFilters = [transferKUSDFromStabilityPool, transferKUSDToStabilityPool];
 
     const stabilityPoolKUSDListener = debounce((blockTag: number) => {
-      this._readable.getKUSDInStabilityPool({ blockTag }).then(onKUSDInStabilityPoolChanged);
+      this._readable.getKUSDInStabilityPool(assetName, { blockTag }).then(onKUSDInStabilityPoolChanged);
     });
 
     stabilityPoolKUSDFilters.forEach(filter => kusdToken.on(filter, stabilityPoolKUSDListener));
@@ -187,7 +193,7 @@ export class ObservableEthersKumo implements ObservableKumo {
       );
   }
 
-  watchKUSDBalance(onKUSDBalanceChanged: (balance: Decimal) => void, address?: string): () => void {
+  watchKUSDBalance(onKUSDBalanceChanged: (balance: Decimal) => void, address: string): () => void {
     address ??= _requireAddress(this._readable.connection);
 
     const { kusdToken } = _getContracts(this._readable.connection);

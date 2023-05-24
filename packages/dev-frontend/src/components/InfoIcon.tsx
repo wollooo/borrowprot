@@ -13,7 +13,7 @@ export const InfoIcon: React.FC<InfoIconProps> = ({ placement = "right", tooltip
     <Tippy interactive={true} placement={placement} content={tooltip} maxWidth="268px">
       <span>
         &nbsp;
-        <Icon name="question-circle" size={size} />
+        <Icon name="question-circle" size={size} color="#da357a" />
       </span>
     </Tippy>
   );

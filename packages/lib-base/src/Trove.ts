@@ -565,12 +565,10 @@ export class Trove {
     if (this.collateral.eq(that.collateral) && this.debt.eq(that.debt)) {
       return undefined;
     }
-
     if (this.isEmpty) {
       if (that.debt.lt(KUSD_LIQUIDATION_RESERVE)) {
         return invalidTroveCreation(that, "missingLiquidationReserve");
       }
-
       return troveCreation({
         depositCollateral: that.collateral,
         borrowKUSD: unapplyFee(borrowingRate, that.netDebt)

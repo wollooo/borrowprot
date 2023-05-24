@@ -7,6 +7,7 @@ const { toUtf8Bytes } = require('@ethersproject/strings');
 const { pack } = require('@ethersproject/solidity');
 const { hexlify } = require("@ethersproject/bytes");
 const { ecsign } = require('ethereumjs-util');
+const { ZERO_ADDRESS } = require("@openzeppelin/test-helpers/src/constants.js");
 
 
 // the second account our hardhatenv creates (for EOA A)
@@ -19,7 +20,6 @@ const dec = th.dec
 const getDifference = th.getDifference
 const timeValues = testHelpers.TimeValues
 
-const ZERO_ADDRESS = th.ZERO_ADDRESS
 const assertRevert = th.assertRevert
 
 contract('KUMO Token', async accounts => {
@@ -138,7 +138,7 @@ contract('KUMO Token', async accounts => {
 
   it('totalSupply(): gets the total supply', async () => {
     const total = (await kumoTokenTester.totalSupply()).toString()
-   
+
     assert.equal(total, dec(100, 24))
   })
 

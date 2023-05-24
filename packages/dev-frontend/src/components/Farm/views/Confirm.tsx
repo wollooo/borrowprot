@@ -15,15 +15,15 @@ const transactionId = "farm-confirm";
 export const Confirm: React.FC<ConfirmProps> = ({ amount }) => {
   const { dispatchEvent } = useFarmView();
   const {
-    liquity: { send: liquity }
+    kumo: { send: kumo }
   } = useKumo();
 
   const transactionState = useMyTransactionState(transactionId);
   const { isValid, isWithdrawing, amountChanged } = useValidationState(amount);
 
   const transactionAction = isWithdrawing
-    ? liquity.unstakeUniTokens.bind(liquity, amountChanged)
-    : liquity.stakeUniTokens.bind(liquity, amountChanged);
+    ? kumo.unstakeUniTokens.bind(kumo, amountChanged)
+    : kumo.stakeUniTokens.bind(kumo, amountChanged);
 
   const shouldDisable = amountChanged.isZero || !isValid;
 
@@ -40,7 +40,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ amount }) => {
       showFailure="asTooltip"
       tooltipPlacement="bottom"
     >
-      <Button disabled={shouldDisable}>Confirm</Button>
+      <Button disabled={shouldDisable} variant={ shouldDisable ? 'primaryInActive' : 'primary' }>CONFIRM</Button>
     </Transaction>
   );
 };

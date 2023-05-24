@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Text, Flex, Label, Input, SxProp, Button, ThemeUICSSProperties } from "theme-ui";
-
+import { Text, Flex, Label, Input, SxProp, Box, Button, ThemeUICSSProperties } from "theme-ui";
+import { Decimal } from "@kumodao/lib-base";
 import { Icon } from "../Icon";
 
 type RowProps = SxProp & {
@@ -23,6 +23,7 @@ export const Row: React.FC<RowProps> = ({ sx, label, labelId, labelFor, children
           position: "absolute",
 
           fontSize: 1,
+          fontWeight: "bold",
           border: 1,
           borderColor: "transparent"
         }}
@@ -34,6 +35,37 @@ export const Row: React.FC<RowProps> = ({ sx, label, labelId, labelFor, children
       </Label>
       {children}
     </Flex>
+  );
+};
+
+type TokenUsdProps = SxProp & {
+  tokenPrice: Decimal;
+  editedVal: Decimal;
+  right?: string;
+};
+
+export const TokenUsd: React.FC<TokenUsdProps> = ({
+  tokenPrice = Decimal.ZERO,
+  editedVal = Decimal.ZERO,
+  right = "50px"
+}) => {
+  return (
+    <Box
+      sx={{
+        p: 0,
+        pl: 0,
+        position: "absolute",
+        pt: "12px",
+        right: right,
+        top: "25px",
+        fontSize: 2,
+        fontWeight: "bold",
+        border: 1,
+        borderColor: "transparent"
+      }}
+    >
+      ${editedVal.mul(tokenPrice).prettify(2)}
+    </Box>
   );
 };
 
@@ -71,6 +103,7 @@ type StaticAmountsProps = {
   color?: string;
   pendingAmount?: string;
   pendingColor?: string;
+  tokenPrice?: Decimal;
   onClick?: () => void;
 };
 
@@ -83,6 +116,7 @@ export const StaticAmounts: React.FC<StaticAmountsProps & SxProp> = ({
   color,
   pendingAmount,
   pendingColor,
+  tokenPrice,
   onClick,
   children
 }) => {
@@ -103,11 +137,13 @@ export const StaticAmounts: React.FC<StaticAmountsProps & SxProp> = ({
     >
       <Flex sx={{ alignItems: "center" }}>
         <Text sx={{ color, fontWeight: "medium" }}>{amount}</Text>
-
+        {tokenPrice && (
+          <TokenUsd tokenPrice={tokenPrice} editedVal={Decimal.from(amount)} right="20px" />
+        )}
         {unit && (
           <>
             &nbsp;
-            <Text sx={{ fontWeight: "light", opacity: 0.8 }}>{unit}</Text>
+            <Text sx={{ fontWeight: "mediumBold", opacity: 0.5 }}>{unit}</Text>
           </>
         )}
 
@@ -137,8 +173,8 @@ const staticStyle: ThemeUICSSProperties = {
   pt: "28px",
 
   fontSize: 3,
-
-  border: 1,
+  border: 'none',
+  // border: 1,
   borderColor: "transparent"
 };
 
@@ -174,6 +210,7 @@ export const StaticRow: React.FC<StaticRowProps> = ({
 
 type DisabledEditableRowProps = Omit<StaticAmountsProps, "labelledBy" | "onClick"> & {
   label: string;
+  tokenPrice?: Decimal;
 };
 
 export const DisabledEditableRow: React.FC<DisabledEditableRowProps> = ({
@@ -183,13 +220,14 @@ export const DisabledEditableRow: React.FC<DisabledEditableRowProps> = ({
   amount,
   color,
   pendingAmount,
-  pendingColor
+  pendingColor,
+  tokenPrice
 }) => (
   <Row labelId={`${inputId}-label`} {...{ label, unit }}>
     <StaticAmounts
-      sx={{ ...editableStyle, boxShadow: 0 }}
+      sx={{ ...editableStyle, boxShadow: 0, position: "relative" }}
       labelledBy={`${inputId}-label`}
-      {...{ inputId, amount, unit, color, pendingAmount, pendingColor }}
+      {...{ inputId, amount, unit, color, pendingAmount, pendingColor, tokenPrice }}
     />
   </Row>
 );
@@ -200,6 +238,7 @@ type EditableRowProps = DisabledEditableRowProps & {
   setEditedAmount: (editedAmount: string) => void;
   maxAmount?: string;
   maxedOut?: boolean;
+  tokenPrice?: Decimal;
 };
 
 export const EditableRow: React.FC<EditableRowProps> = ({
@@ -214,16 +253,18 @@ export const EditableRow: React.FC<EditableRowProps> = ({
   editedAmount,
   setEditedAmount,
   maxAmount,
-  maxedOut
+  maxedOut,
+  tokenPrice
 }) => {
   const [editing, setEditing] = editingState;
   const [invalid, setInvalid] = useState(false);
 
   return editing === inputId ? (
-    <Row {...{ label, labelFor: inputId, unit }}>
+    <Row {...{ label, labelFor: inputId, unit }} sx={{ position: "relative" }}>
       <Input
         autoFocus
         id={inputId}
+        aria-label={inputId}
         type="number"
         step="any"
         defaultValue={editedAmount}
@@ -244,24 +285,34 @@ export const EditableRow: React.FC<EditableRowProps> = ({
         sx={{
           ...editableStyle,
           fontWeight: "medium",
-          bg: invalid ? "invalid" : "background"
+          bg: invalid && "invalid",
+          outline: "none"
         }}
       />
+      {tokenPrice && <TokenUsd tokenPrice={tokenPrice} editedVal={Decimal.from(editedAmount)} />}
     </Row>
   ) : (
-    <Row labelId={`${inputId}-label`} {...{ label, unit }}>
+    <Row labelId={`${inputId}-label`} {...{ label, unit }} sx={{ position: "relative" }}>
       <StaticAmounts
         sx={{
           ...editableStyle,
-          bg: invalid ? "invalid" : "background"
+          bg: invalid && "invalid"
         }}
         labelledBy={`${inputId}-label`}
         onClick={() => setEditing(inputId)}
         {...{ inputId, amount, unit, color, pendingAmount, pendingColor, invalid }}
       >
+        {tokenPrice && (
+          <TokenUsd tokenPrice={tokenPrice} editedVal={Decimal.from(editedAmount)} right="80px" />
+        )}
         {maxAmount && (
           <Button
-            sx={{ fontSize: 1, p: 1, px: 3 }}
+            sx={{
+              fontSize: 1,
+              py: 1,
+              px: 3,
+              borderRadius: '72px'
+            }}
             onClick={event => {
               setEditedAmount(maxAmount);
               event.stopPropagation();

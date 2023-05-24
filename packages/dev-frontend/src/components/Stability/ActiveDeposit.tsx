@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { Card, Heading, Box, Flex, Button } from "theme-ui";
 
-import { KumoStoreState } from "@kumodao/lib-base";
+import { KumoStoreState, Vault } from "@kumodao/lib-base";
 import { useKumoSelector } from "@kumodao/lib-react";
 
 import { COIN, GT } from "../../strings";
@@ -12,20 +13,19 @@ import { DisabledEditableRow, StaticRow } from "../Trove/Editor";
 import { ClaimAndMove } from "./actions/ClaimAndMove";
 import { ClaimRewards } from "./actions/ClaimRewards";
 import { useStabilityView } from "./context/StabilityViewContext";
-import { RemainingKUMO } from "./RemainingKUMO";
 import { Yield } from "./Yield";
 import { InfoIcon } from "../InfoIcon";
 
-const selector = ({ stabilityDeposit, trove, kusdInStabilityPool }: KumoStoreState) => ({
-  stabilityDeposit,
-  trove,
-  kusdInStabilityPool
+const select = ({ vaults }: KumoStoreState) => ({
+  vaults
 });
 
 export const ActiveDeposit: React.FC = () => {
   const { dispatchEvent } = useStabilityView();
-  const { stabilityDeposit, trove, kusdInStabilityPool } = useKumoSelector(selector);
-
+  const { collateralType } = useParams<{ collateralType: string }>();
+  const { vaults } = useKumoSelector(select);
+  const vault = vaults.find(vault => vault.asset === collateralType) || new Vault();
+  const { stabilityDeposit, trove, kusdInStabilityPool } = vault;
   const poolShare = stabilityDeposit.currentKUSD.mulDiv(100, kusdInStabilityPool);
 
   const handleAdjustDeposit = useCallback(() => {
@@ -49,14 +49,15 @@ export const ActiveDeposit: React.FC = () => {
   }, [transactionState.type, dispatchEvent]);
 
   return (
-    <Card>
-      <Heading>
-        Stability Pool
-        {!isWaitingForTransaction && (
-          <Flex sx={{ justifyContent: "flex-end" }}>
-            <RemainingKUMO />
-          </Flex>
-        )}
+    <Card variant="modalCard">
+      <Heading as="h2">
+        {collateralType?.toUpperCase()} Stability Pool
+        <span
+          style={{ marginLeft: "auto", cursor: "pointer" }}
+          onClick={() => dispatchEvent("CLOSE_MODAL_PRESSED")}
+        >
+          <Icon name="window-close" size={"1x"} color="#da357a" />
+        </span>
       </Heading>
       <Box sx={{ p: [2, 3] }}>
         <Box>
@@ -70,23 +71,23 @@ export const ActiveDeposit: React.FC = () => {
           <StaticRow
             label="Pool share"
             inputId="deposit-share"
-            amount={poolShare.prettify(4)}
+            amount={poolShare.prettify(0)}
             unit="%"
           />
 
           <StaticRow
             label="Liquidation gain"
             inputId="deposit-gain"
-            amount={stabilityDeposit.collateralGain.prettify(4)}
+            amount={stabilityDeposit.collateralGain.prettify(0)}
             color={stabilityDeposit.collateralGain.nonZero && "success"}
-            unit="ETH"
+            unit={collateralType?.toUpperCase()}
           />
 
           <Flex sx={{ alignItems: "center" }}>
             <StaticRow
               label="Reward"
               inputId="deposit-reward"
-              amount={stabilityDeposit.kumoReward.prettify()}
+              amount={stabilityDeposit.kumoReward.prettify(0)}
               color={stabilityDeposit.kumoReward.nonZero && "success"}
               unit={GT}
               infoIcon={
@@ -108,19 +109,21 @@ export const ActiveDeposit: React.FC = () => {
         </Box>
 
         <Flex variant="layout.actions">
-          <Button variant="outline" onClick={handleAdjustDeposit}>
+          <Button onClick={handleAdjustDeposit} sx={{ mt: 3, mb: 2 }}>
             <Icon name="pen" size="sm" />
-            &nbsp;Adjust
+            &nbsp;ADJUST
           </Button>
 
-          <ClaimRewards disabled={!hasGain && !hasReward}>Claim ETH and KUMO</ClaimRewards>
+          <ClaimRewards disabled={!hasGain && !hasReward}>
+            CLAIM {collateralType?.toUpperCase()} and KUMO
+          </ClaimRewards>
+          {hasTrove && (
+            <ClaimAndMove disabled={!hasGain} asset={vault?.assetAddress} assetName={vault?.asset}>
+              CLAIM KUMO and MOVE {collateralType?.toUpperCase()} to VAULT
+            </ClaimAndMove>
+          )}
         </Flex>
-
-        {hasTrove && (
-          <ClaimAndMove disabled={!hasGain}>Claim KUMO and move ETH to Trove</ClaimAndMove>
-        )}
       </Box>
-
       {isWaitingForTransaction && <LoadingOverlay />}
     </Card>
   );

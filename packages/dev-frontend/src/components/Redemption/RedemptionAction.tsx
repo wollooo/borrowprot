@@ -7,6 +7,7 @@ import { useTransactionFunction } from "../Transaction";
 
 type RedemptionActionProps = {
   transactionId: string;
+  asset: string;
   disabled?: boolean;
   kusdAmount: Decimal;
   maxRedemptionRate: Decimal;
@@ -14,22 +15,22 @@ type RedemptionActionProps = {
 
 export const RedemptionAction: React.FC<RedemptionActionProps> = ({
   transactionId,
+  asset,
   disabled,
   kusdAmount,
   maxRedemptionRate
 }) => {
   const {
-    liquity: { send: liquity }
+    kumo: { send: kumo }
   } = useKumo();
 
   const [sendTransaction] = useTransactionFunction(
     transactionId,
-    liquity.redeemKUSD.bind(liquity, kusdAmount, maxRedemptionRate)
+    kumo.redeemKUSD.bind(kumo, asset, kusdAmount, maxRedemptionRate)
   );
-
   return (
-    <Button disabled={disabled} onClick={sendTransaction}>
-      Confirm
+    <Button sx={{ m: 3 }} disabled={disabled} variant={ disabled ? 'primaryInActive' : 'primary' }  onClick={sendTransaction}>
+      CONFIRM
     </Button>
   );
 };

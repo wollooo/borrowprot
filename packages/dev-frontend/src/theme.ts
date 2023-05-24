@@ -1,49 +1,58 @@
 import { Theme, ThemeUIStyleObject } from "theme-ui";
 
 const baseColors = {
-  blue: "#1542cd",
-  purple: "#745ddf",
-  cyan: "#2eb6ea",
-  green: "#28c081",
+  black: "#000000",
+  white: "#fff",
+  magenta: "#da357a",
+  magentaLight: "#f0cfdc",
+  magentaDark: "#a81f58",
+  magentaMedium: "#de96b3",
+  lightGrey: "#e6e6e6",
+  transparent: "transparent",
+
+  blue: "#00aed6",
+  darkBlue: "#4721BD",
+  orange: "#f6701f",
+  green: "#4BAD79",
   yellow: "#fd9d28",
   red: "#dc2c10",
   lightRed: "#ff755f"
 };
 
 const colors = {
-  primary: baseColors.blue,
-  secondary: baseColors.purple,
-  accent: baseColors.cyan,
+  text: baseColors.black,
+  textWhite: baseColors.white,
+  background: baseColors.white,
+  primary: baseColors.magenta,
+  secondary: baseColors.magentaLight,
+  muted: baseColors.lightGrey,
+
+  primaryHover: baseColors.magentaDark,
+  secondaryHover: baseColors.magentaMedium,
+  transparent: baseColors.transparent,
 
   success: baseColors.green,
-  warning: baseColors.yellow,
+  warning: baseColors.orange,
   danger: baseColors.red,
   dangerHover: baseColors.lightRed,
   info: baseColors.blue,
-  invalid: "pink",
-
-  text: "#293147",
-  background: "white",
-  muted: "#eaebed"
+  invalid: "pink"
 };
 
 const buttonBase: ThemeUIStyleObject = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-
+  fontFamily: 'Quicksand',
   ":enabled": { cursor: "pointer" }
 };
 
 const button: ThemeUIStyleObject = {
   ...buttonBase,
-
   px: "32px",
   py: "12px",
-
-  color: "white",
-  border: 1,
-
+  color: "textWhite",
+  fontStyle: "normal",
   fontWeight: "bold",
 
   ":disabled": {
@@ -55,7 +64,7 @@ const buttonOutline = (color: string, hoverColor: string): ThemeUIStyleObject =>
   color,
   borderColor: color,
   background: "none",
-
+  fontFamily: 'Quicksand',
   ":enabled:hover": {
     color: "background",
     bg: hoverColor,
@@ -73,19 +82,26 @@ const iconButton: ThemeUIStyleObject = {
   background: "none",
 
   ":disabled": {
-    color: "text",
+    color: "primary",
     opacity: 0.25
   }
 };
 
 const cardHeadingFontSize = 18.7167;
 
+const cardHoverEffects: ThemeUIStyleObject = {
+  cursor: "pointer",
+  transform: "translateY(-3px)",
+  backdropFilter: "blur(30px)",
+  boxShadow: "rgb(218 53 122 / 37%) 0px 5px 10px",
+  transition: "box-shadow 5ms ease 0s"
+};
+
 const cardGapX = [0, 3, 4];
 const cardGapY = [3, 3, 4];
 
 const card: ThemeUIStyleObject = {
   position: "relative",
-  mt: cardGapY,
   border: 1,
   boxShadow: [1, null, 2]
 };
@@ -109,13 +125,12 @@ const formBase: ThemeUIStyleObject = {
   width: "auto",
   flexShrink: 0,
   padding: 2,
-  fontSize: 3
+  fontSize: 3,
+  fontFamily: 'Quicksand'
 };
 
 const formCell: ThemeUIStyleObject = {
   ...formBase,
-
-  bg: "background",
   border: 1,
   borderColor: "muted",
   borderRadius: 0,
@@ -140,18 +155,18 @@ const modalOverlay: ThemeUIStyleObject = {
   height: "100vh"
 };
 
-const headerGradient: ThemeUIStyleObject = {
-  background: `linear-gradient(90deg, ${colors.background}, ${colors.muted})`
-};
+// const headerGradient: ThemeUIStyleObject = {
+//   background: `linear-gradient(90deg, ${colors.background}, ${colors.muted})`
+// };
 
 const theme: Theme = {
   breakpoints: ["48em", "52em", "64em"],
 
-  space: [0, 4, 8, 16, 32, 64, 128, 256, 512],
+  space: [0, 4, 8, 16, 24, 30, 32, 48, 64, 128, 256, 512],
 
   fonts: {
     body: [
-      "system-ui",
+      "Quicksand",
       "-apple-system",
       "BlinkMacSystemFont",
       '"Segoe UI"',
@@ -159,19 +174,20 @@ const theme: Theme = {
       '"Helvetica Neue"',
       "sans-serif"
     ].join(", "),
-    heading: "inherit",
+    heading: "Quicksand",
     monospace: "Menlo, monospace"
   },
 
-  fontSizes: [12, 14, 16, 20, 24, 32, 48, 64, 96],
+  fontSizes: [12, 14, 16, 18, 20, 22, 24, 26, 28, 32, 36, 48, 64, 96],
 
   fontWeights: {
     body: 400,
-    heading: 600,
+    heading: 700,
 
     light: 200,
     medium: 500,
-    bold: 600
+    mediumBold: 600,
+    bold: 700
   },
 
   lineHeights: {
@@ -186,23 +202,73 @@ const theme: Theme = {
   shadows: ["0", "0px 4px 8px rgba(41, 49, 71, 0.1)", "0px 8px 16px rgba(41, 49, 71, 0.1)"],
 
   text: {
-    address: {
-      fontFamily: "monospace",
-      fontSize: 1
+    heading: {
+      fontFamily: "heading",
+      fontWeight: "heading",
+      lineHeight: "heading"
+    },
+    normal: {
+      fontWeight: "medium"
+    },
+    normalBold: {
+      fontWeight: "bold"
+    },
+    small: {
+      fontSize: 1,
+      fontWeight: "bold"
+    },
+    medium: {
+      fontSize: 3,
+      fontWeight: "bold"
+    },
+    large: {
+      fontSize: 8,
+      fontWeight: "bold"
+    },
+    xlarge: {
+      fontSize: 10,
+      fontWeight: "bold"
+    }
+  },
+
+  images: {
+    primary: {
+      cursor: "pointer"
     }
   },
 
   buttons: {
     primary: {
       ...button,
-
+      borderRadius: '72px',
       bg: "primary",
       borderColor: "primary",
 
       ":enabled:hover": {
-        bg: "secondary",
-        borderColor: "secondary"
+        bg: "primaryHover",
+        borderColor: "primaryHover"
       }
+    },
+    primaryInActive: {
+      variant: 'buttons.primary',
+      opacity: 0.5,
+    },
+    secondary: {
+      ...button,
+      borderRadius: '72px',
+      color: 'rgba(0, 0, 0, 0.5)',
+      bg: "secondary",
+      borderColor: "secondary",
+
+      ":enabled:hover": {
+        bg: "secondaryHover",
+        borderColor: "secondaryHover"
+      }
+    },
+    secondaryInActive: {
+      variant: 'buttons.secondary',
+      bg: 'rgba(218, 53, 122, 0.2)',
+      opacity: 0.5,
     },
 
     outline: {
@@ -210,24 +276,17 @@ const theme: Theme = {
       ...buttonOutline("primary", "secondary")
     },
 
-    cancel: {
-      ...button,
-      ...buttonOutline("text", "text"),
-
-      opacity: 0.8
-    },
-
-    danger: {
-      ...button,
-
-      bg: "danger",
-      borderColor: "danger",
-
-      ":enabled:hover": {
-        bg: "dangerHover",
-        borderColor: "dangerHover"
-      }
-    },
+    // cancel: {
+    //   ...button,
+    //   color: "text",
+    //   bg: "secondary",
+    //   borderColor: "secondary",
+    //   ":enabled:hover": {
+    //     bg: "secondaryHover",
+    //     borderColor: "secondaryHover"
+    //   },
+    //   opacity: 0.9
+    // },
 
     icon: {
       ...iconButton,
@@ -243,34 +302,37 @@ const theme: Theme = {
 
     titleIcon: {
       ...iconButton,
-      color: "text",
-      ":enabled:hover": { color: "success" }
-    }
+      color: "primary",
+      ":enabled:hover": { color: "primaryHover" }
+    },
+
   },
 
   cards: {
     primary: {
       ...card,
-
       padding: 0,
-
       borderColor: "muted",
-      bg: "background",
-
+      background: "linear-gradient(128.29deg, #FFFFFF 0%, rgba(255, 255, 255, 0) 127.78%)",
       "> h2": {
         display: "flex",
-        justifyContent: "space-between",
         alignItems: "center",
-
-        height: "56px",
-
-        pl: 3,
-        py: 2,
-        pr: 2,
-
-        bg: "muted",
-
-        fontSize: cardHeadingFontSize
+        height: "60px",
+        borderRadius: "50px 50px 0 0",
+        px: 5,
+        py: 2
+      }
+    },
+    base: {
+      variant: "cards.primary",
+      boxShadow: "0 3px 10px rgba(0, 0, 0, 0.5)",
+      borderRadius: "50px",
+      width: "100%",
+      maxWidth: "100%",
+      "> h2": {
+        variant: "cards.primary.> h2",
+        borderBottom: 1,
+        borderColor: "muted"
       }
     },
 
@@ -292,13 +354,65 @@ const theme: Theme = {
       overflowY: "scroll"
     },
 
+    portfolioCard: {
+      variant: "cards.base",
+      ":hover": {
+        ...cardHoverEffects
+      }
+    },
+
+    collateralCard: {
+      variant: "cards.primary",
+      boxShadow: "0 3px 10px rgba(0, 0, 0, 0.5)",
+      borderRadius: "50px",
+      width: "97%",
+      maxWidth: "100%",
+      "> h2": {
+        variant: "cards.base.> h2",
+        height: "60px"
+      },
+      ":hover": {
+        ...cardHoverEffects
+      }
+    },
+    modalCard: {
+      variant: "cards.primary",
+      boxShadow: "0 3px 10px rgba(0, 0, 0, 0.5)",
+      borderRadius: "50px",
+      width: "100%",
+      background: 'linear-gradient(128.29deg, rgb(248 213 228 / 37%) 0%, rgba(255, 255, 255, 0) 127.78%)',
+      // position: "relative",
+      "> h2": {
+        variant: "cards.base.> h2",
+        height: "60px"
+      },
+      zIndex: 9999999999,
+    },
+    StabilityPoolStakingCard: {
+      variant: "cards.base",
+      border: "none",
+      display: "flex",
+      flexDirection: "column",
+
+      borderRadius: "50px",
+      ":hover": {
+        ...cardHoverEffects
+      }
+    },
+
+    systemStatsCard: {
+      variant: 'cards.modalCard',
+      height: '90vh',
+      width: '90vw',
+      p: 4,
+    },
     tooltip: {
       padding: 2,
 
       border: 1,
       borderColor: "muted",
       borderRadius: "4px",
-      bg: "background",
+      bg: "secondary",
       boxShadow: 2,
 
       fontSize: 1,
@@ -315,9 +429,16 @@ const theme: Theme = {
 
     unit: {
       ...formCell,
-
       textAlign: "center",
-      bg: "muted"
+      bg: "muted",
+    },
+
+    unitSecondary: {
+      ...formCell,
+      bg: "primary",
+      outline: 'none',
+      border: 'none',
+      color: 'white'
     },
 
     input: {
@@ -326,24 +447,46 @@ const theme: Theme = {
       flex: 1
     },
 
-    editor: {}
+    select: {
+      ml: 2,
+      p: 1,
+      border: "none",
+      borderRadius: '72px',
+      minWidth: 90,
+      maxWidth: "max-content",
+      bg: "primary",
+      borderColor: "primary",
+      fontSize: 2,
+      color: 'textWhite',
+      fontFamily: 'Quicksand',
+      ":focus": {
+        borderColor: "primary",
+        outline: "none"
+      }
+    },
+    editor: {
+      fontFamily: 'Quicksand',
+    }
   },
 
   layout: {
+    app: {
+      position: "relative",
+      flexWrap: "wrap",
+      height: "100vh",
+      overflow: "hidden",
+      backgroundSize: "cover",
+      backgroundRepeat: "no-repeat",
+      flexDirection: "column"
+    },
     header: {
       display: "flex",
       justifyContent: "space-between",
-      alignItems: "stretch",
-
-      position: ["fixed", "relative"],
-      width: "100vw",
-      top: 0,
-      zIndex: 1,
-
-      px: [2, "12px", "12px", 5],
-      py: [2, "12px", "12px"],
-
-      ...headerGradient,
+      alignItems: "center",
+      px: 5,
+      height: "110px",
+      borderBottom: 1,
+      borderColor: "muted",
       boxShadow: [1, "none"]
     },
 
@@ -360,12 +503,13 @@ const theme: Theme = {
     },
 
     main: {
+      position: 'relative',
+      height: "calc(100vh - 110px)",
       width: "100%",
-      maxWidth: "912px",
-      mx: "auto",
-      mt: ["40px", 0],
-      mb: ["40px", "40px"],
-      px: cardGapX
+      overflow: "auto",
+      "::-webkit-scrollbar": {
+        display: "none"
+      }
     },
 
     columns: {
@@ -384,12 +528,17 @@ const theme: Theme = {
     },
 
     actions: {
-      justifyContent: "flex-end",
+      // justifyContent: "flex-end",
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
       mt: 2,
 
       button: {
-        ml: 2
+        minWidth: "64px",
+        width: '95%',
       }
+
     },
 
     disabledOverlay: {
@@ -413,12 +562,30 @@ const theme: Theme = {
       width: ["100%", "40em"]
     },
 
-    infoOverlay: {
-      ...modalOverlay,
-
+    sideNavOverlay: {
+      position: "absolute",
+      zIndex: 999999,
+      left: 0,
+      top: 0,
+      width: "100vw",
+      height: "100vh",
+      bg: 'white',
       display: ["block", "none"],
+    },
 
-      bg: "rgba(255, 255, 255, 0.8)"
+    systemStatsOverlay: {
+      position: "absolute",
+      zIndex: 999999,
+      left: 0,
+      top: 0,
+      width: "100vw",
+      height: "100vh",
+      bg: 'white',
+
+      display: ["flex", "none"],
+      justifyContent: 'center',
+      alignItems: 'center'
+
     },
 
     infoMessage: {
@@ -429,15 +596,51 @@ const theme: Theme = {
       minWidth: "128px"
     },
 
+    sideBarOverlay: {
+      display: ["none", "flex"],
+      border: 1,
+      borderColor: "muted",
+      height: "100%",
+      width: "20vw",
+      flexDirection: "column"
+    },
+    sideBar: {
+      display: "flex",
+      flexDirection: "column"
+    },
+    sideBarLogo: {
+      display: "flex",
+      alignItems: "center",
+      pl: 4,
+      height: "110px"
+    },
+    sideBarNav: {
+      display: "flex",
+      flexDirection: "column",
+      pl: 4
+    },
     sidenav: {
       display: ["flex", "none"],
       flexDirection: "column",
-      p: 0,
+      pl: 4,
       m: 0,
       borderColor: "muted",
-      mr: "25vw",
-      height: "100%",
-      ...headerGradient
+      overflow: 'scroll'
+      // ...headerGradient
+    },
+
+    dashboard: {
+      // position: 'relative',
+      flexDirection: "column",
+      height: "100%"
+    },
+
+    dashboadHeader: {
+      display: ["none", "flex"],
+      height: 'max-content',
+      px: 5,
+      pb: 4
+      // height: "170px"
     },
 
     badge: {
@@ -449,6 +652,13 @@ const theme: Theme = {
       color: "slate",
       fontSize: 1,
       fontWeight: "body"
+    },
+    newTabLinks: {
+      ".link": {
+        ":hover": {
+          color: '#da357a !important'
+        }
+      }
     }
   },
 
@@ -465,9 +675,14 @@ const theme: Theme = {
       }
     },
 
+    h1: {
+      variant: "text.heading"
+    },
+    h2: {
+      variant: "text.heading"
+    },
+
     a: {
-      color: "primary",
-      ":hover": { color: "accent" },
       textDecoration: "none",
       fontWeight: "bold"
     }
@@ -475,12 +690,10 @@ const theme: Theme = {
 
   links: {
     nav: {
-      px: 2,
-      py: 1,
-      fontWeight: "medium",
+      py: 2,
+      fontWeight: 700,
       fontSize: 2,
       textTransform: "uppercase",
-      letterSpacing: "2px",
       width: ["100%", "auto"],
       mt: [3, "auto"]
     }
